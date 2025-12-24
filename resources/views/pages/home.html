@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System</title>
+
+  <link rel="icon" href="data:," />
+
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+  <link
+   rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+ </head>
+ <body class="bg-gray-100 overflow-hidden">
+  <div class="flex h-screen overflow-hidden">
+   <aside
+    id="sidebar"
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-300 transition-transform duration-300 ease-in-out flex flex-col -translate-x-full lg:translate-x-0 lg:static"
+   >
+    <div class="p-5 border-b border-gray-800 flex items-center justify-between">
+     <div class="flex items-center gap-3">
+      <div
+       class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white text-sm"
+      >
+       TB
+      </div>
+      <span class="text-xl font-bold text-white tracking-tighter uppercase">Sahabat</span>
+     </div>
+     <button onclick="toggleSidebar()" class="lg:hidden text-gray-400">
+      <i class="fas fa-times"></i>
+     </button>
+    </div>
+
+    <nav id="menu-container" class="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar"></nav>
+
+    <div class="p-4 border-t border-gray-800 text-[10px] text-center text-gray-500 uppercase">
+     System v1.0 Production
+    </div>
+   </aside>
+
+   <div class="flex-1 flex flex-col min-w-0">
+    <header
+     class="bg-white border-b h-16 flex items-center justify-between px-4 lg:px-8 shadow-sm shrink-0"
+    >
+     <div class="flex items-center gap-4">
+      <button onclick="toggleSidebar()" class="lg:hidden p-2 text-gray-600">
+       <i class="fas fa-bars"></i>
+      </button>
+      <h2 id="page-title" class="text-sm font-bold text-gray-700 uppercase tracking-widest">
+       Dashboard
+      </h2>
+     </div>
+     <div class="flex items-center gap-3 border-l pl-4">
+      <div class="text-right hidden sm:block">
+       <p class="text-xs font-bold text-gray-800 uppercase">Admin</p>
+       <p class="text-[10px] text-green-600 font-semibold uppercase">Online</p>
+      </div>
+      <div class="w-9 h-9 bg-gray-100 border rounded-full flex items-center justify-center">
+       <i class="fas fa-user-shield text-gray-400 text-sm"></i>
+      </div>
+     </div>
+    </header>
+
+    <main id="main-view" class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-[#f8fafc]"></main>
+   </div>
+
+   <div
+    id="crud-modal"
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 hidden opacity-0 transition-opacity duration-300"
+   >
+    <div
+     class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden m-4 transform scale-95 transition-transform duration-300"
+     id="modal-container"
+    >
+     <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+      <h3 id="modal-title" class="font-bold text-gray-700 text-sm uppercase">Form</h3>
+      <button onclick="closeModal()" class="text-gray-400 hover:text-red-500">
+       <i class="fas fa-times"></i>
+      </button>
+     </div>
+     <form
+      id="dynamic-form"
+      class="p-6 space-y-4 max-h-[65vh] overflow-y-auto custom-scrollbar"
+     ></form>
+     <div class="p-4 border-t bg-gray-50 flex gap-3">
+      <button
+       type="button"
+       onclick="closeModal()"
+       class="flex-1 py-2.5 text-xs font-bold border rounded-lg hover:bg-gray-100 uppercase"
+      >
+       Batal
+      </button>
+      <button
+       type="submit"
+       form="dynamic-form"
+       class="flex-1 py-2.5 text-xs font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 uppercase shadow-lg shadow-blue-200"
+      >
+       Simpan Data
+      </button>
+     </div>
+    </div>
+   </div>
+
+   <div
+    id="overlay"
+    onclick="toggleSidebar()"
+    class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"
+   ></div>
+  </div>
+
+  <script src="/resources/js/app.js"></script>
+ </body>
+</html>
