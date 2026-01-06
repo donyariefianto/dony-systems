@@ -20,7 +20,7 @@ router
 router
  .group(() => {
   router.get('/menu', '#controllers/backends_controller.menu')
-  router.get('/dashboard-stats', '#controllers/backends_controller.dashboardStats')
+  router.get('/dashboard-snapshot', '#controllers/backends_controller.dashboardStats')
   router.get('/settings', '#controllers/backends_controller.settingsGeneral')
   router.get('collections/:col', '#controllers/backends_controller.getCollectionData')
   router.get('collections/:col/:id', '#controllers/backends_controller.getCollectionDataDetail')

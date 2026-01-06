@@ -1,61 +1,430 @@
 @import 'tailwindcss';
 
-/* Font & Global */
+/* ============================================
+   VARIABLES & BASE SETUP
+   ============================================ */
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --sidebar-width: 17rem;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-elegant: 0 20px 60px rgba(0, 0, 0, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --border-subtle: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ============================================
+   GLOBAL RESET & TYPOGRAPHY
+   ============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
- font-family: 'Inter', sans-serif;
- -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
-/* Custom Scrollbar */
+/* ============================================
+   CUSTOM SCROLLBAR (Consistent Across Browsers)
+   ============================================ */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
- width: 4px;
+  width: 5px;
+  height: 5px;
 }
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
- @apply bg-gray-700 rounded-full;
+  background: linear-gradient(to bottom, #94a3b8, #64748b);
+  border-radius: 10px;
+  transition: var(--transition-smooth);
 }
 
-/* Sidebar & Layout */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #64748b, #475569);
+}
+
+/* ============================================
+   LAYOUT COMPONENTS
+   ============================================ */
+
+/* Sidebar Styling */
+#sidebar {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
+  border-right: var(--border-subtle);
+}
+
+.menu-item {
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--primary-gradient);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover::before {
+  transform: translateX(0);
+}
+
 .menu-active {
- @apply bg-blue-600 text-white shadow-lg shadow-blue-900/20;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-left: 3px solid #3b82f6;
+  color: white !important;
 }
 
-/* Modal Animation Helper */
-.modal-visible {
- @apply flex !opacity-100;
-}
-.modal-visible #modal-container {
- @apply scale-100;
+.menu-active i {
+  color: white !important;
 }
 
-/* Form Styles */
+/* Header Enhancement */
+header {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* ============================================
+   CARDS & CONTAINERS
+   ============================================ */
+.bg-white {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+}
+
+.rounded-2xl {
+  border-radius: 1.25rem;
+}
+
+.rounded-3xl {
+  border-radius: 1.75rem;
+}
+
+/* Widget Cards */
+.bg-white.p-6.rounded-3xl {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: var(--transition-smooth);
+}
+
+.bg-white.p-6.rounded-3xl:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Table Styling */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead tr {
+  background: linear-gradient(to right, #f8fafc, #f1f5f9);
+}
+
+tbody tr {
+  transition: var(--transition-smooth);
+}
+
+tbody tr:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.03) 0%, rgba(59, 130, 246, 0.01) 100%);
+  transform: scale(1.002);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
 input,
 select,
 textarea {
- @apply w-full p-2.5 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.9rem;
+  transition: var(--transition-smooth);
 }
 
-label {
- @apply block text-[10px] font-bold text-gray-500 uppercase mb-1 tracking-wider;
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 
+    0 0 0 4px rgba(59, 130, 246, 0.1),
+    inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
-.swal2-popup {
- border-radius: 1.5rem !important;
- padding: 2rem !important;
+/* Custom Checkbox/Toggle */
+input[type="checkbox"] + div {
+  transition: var(--transition-smooth);
 }
-.swal2-styled.swal2-confirm {
- background-color: #2563eb !important;
- border-radius: 0.75rem !important;
- padding: 0.75rem 2rem !important;
- font-weight: 700 !important;
- text-transform: uppercase !important;
- font-size: 0.7rem !important;
- letter-spacing: 0.05em !important;
+
+input[type="checkbox"]:checked + div {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 }
-.swal2-styled.swal2-cancel {
- border-radius: 0.75rem !important;
- padding: 0.75rem 2rem !important;
- font-weight: 700 !important;
- text-transform: uppercase !important;
- font-size: 0.7rem !important;
- letter-spacing: 0.05em !important;
+
+input[type="checkbox"]:checked + div::after {
+  transform: translateX(1.5rem);
+}
+
+/* ============================================
+   BUTTON ENHANCEMENTS
+   ============================================ */
+button {
+  transition: var(--transition-smooth);
+  font-weight: 600;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Primary Button */
+.bg-blue-600 {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.bg-blue-600:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Secondary Button */
+.border.border-gray-200 {
+  border: 1.5px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.border.border-gray-200:hover {
+  background: white;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+}
+
+/* ============================================
+   MODAL ENHANCEMENT
+   ============================================ */
+#crud-modal {
+  backdrop-filter: blur(8px);
+}
+
+#modal-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: var(--border-subtle);
+  box-shadow: 
+    var(--shadow-elegant),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================
+   DASHBOARD SEARCH DROPDOWN
+   ============================================ */
+#dashboard-list-overlay {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: var(--border-subtle);
+  box-shadow: var(--shadow-elegant);
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   SETTINGS PAGE SPECIFIC
+   ============================================ */
+.settings-tab-content {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Generator Widget Editor */
+.widget-data-source {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%);
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================
+   ANIMATIONS & TRANSITIONS
+   ============================================ */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 100%;
+  }
+  
+  .rounded-2xl {
+    border-radius: 1rem;
+  }
+  
+  .rounded-3xl {
+    border-radius: 1.25rem;
+  }
+  
+  #modal-container {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.text-gradient {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: var(--border-subtle);
+}
+
+.hover-lift {
+  transition: var(--transition-smooth);
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   CHART.JS CANVAS STYLING
+   ============================================ */
+canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+#toast-container > div {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  backdrop-filter: blur(10px);
+  border: var(--border-subtle);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }

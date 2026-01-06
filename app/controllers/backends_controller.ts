@@ -675,28 +675,68 @@ export default class BackendsController {
  }
  async dashboardStats({ response }: HttpContext) {
   const stats = {
-  "success": true,
-  "data": {
-    "widgets": [
-      {
-        "type": "stat",
-        "title": "Total Penjualan Hari Ini",
-        "value": "Rp 4.500.000",
-        "width": "small"
+   success: true,
+   data: {
+    last_updated: '27 Okt 2023, 14:00',
+    cache_status: 'hit',
+    widgets: [
+     {
+      type: 'stat',
+      label: 'Total Omzet Hari Ini',
+      value: 'Rp 12.450.000',
+      trend: 'up',
+      percentage: '+12%',
+      progress: 75,
+      color: 'blue',
+     },
+     {
+      type: 'stat',
+      label: 'Pesanan Diproses',
+      value: '48',
+      trend: 'down',
+      percentage: '-5%',
+      progress: 40,
+      color: 'orange',
+     },
+     {
+      type: 'stat',
+      label: 'Stok Menipis',
+      value: '12 Produk',
+      trend: 'up',
+      percentage: 'Perlu Re-stock',
+      progress: 90,
+      color: 'red',
+     },
+     {
+      type: 'stat',
+      label: 'Pelanggan Baru',
+      value: '15',
+      trend: 'up',
+      percentage: '+3',
+      progress: 60,
+      color: 'emerald',
+     },
+     {
+      type: 'chart',
+      label: 'Grafik Penjualan Mingguan',
+      chartType: 'line',
+      width: 'half',
+      chartData: {
+       labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+       datasets: [
+        {
+         label: 'Penjualan',
+         data: [120, 190, 150, 250, 220, 310, 280],
+         borderColor: '#2563eb',
+         backgroundColor: 'rgba(37, 99, 235, 0.1)',
+         fill: true,
+        },
+       ],
       },
-      {
-        "type": "chart",
-        "chartType": "line",
-        "title": "Tren Transaksi",
-        "width": "half",
-        "chartData": {
-          "labels": ["08:00", "12:00", "16:00", "20:00"],
-          "datasets": [{ "data": [10, 45, 30, 60], "borderColor": "#2563eb" }]
-        }
-      }
-    ]
+     },
+    ],
+   },
   }
-}
   return response.send(stats)
  }
  async settingsGeneral({ response }: HttpContext) {
@@ -731,7 +771,9 @@ export default class BackendsController {
  async getCollectionDataDetail({ params, request, response }: HttpContext) {
   const colName = params.col
   const id = params.id
-
+  if (!id || id === 'undefined') {
+   return response.status(400).send({ message: 'ID parameter is required' })
+  }
   const payload = { created_at: new Date(), updated_at: new Date(), deleted_at: null }
   const collections = database.data?.collection(colName)
   const result = await collections?.findOne({ _id: new ObjectId(id) })
