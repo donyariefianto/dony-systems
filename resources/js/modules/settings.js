@@ -121,7 +121,6 @@ let dashboardListState = {
 // 2. RENDERER UTAMA
 // ============================================
 export async function renderSettingsView(config, container) {
- // Container Utama: Menggunakan Relative agar tidak menabrak Sidebar Utama Aplikasi
  container.className =
   'w-full h-[calc(100vh-64px)] bg-gray-50 flex flex-col overflow-hidden relative'
  container.innerHTML = `<div class="p-20 text-center text-gray-400 italic text-xs uppercase animate-pulse">Loading Workspace...</div>`
@@ -146,7 +145,7 @@ export async function renderSettingsView(config, container) {
             </button>
             <button onclick="switchSettingsTab('generator')" id="tab-btn-generator" 
                     class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-all rounded-md bg-white shadow-sm text-blue-600 border border-gray-200">
-                Builder
+                Dashboard
             </button>
         </div>
     </div>
@@ -653,7 +652,7 @@ export function editWidgetConfig(index) {
                     </select>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Refresh (Detik)</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Refresh Data(Menit)</label>
                     <input type="number" id="conf-refresh" value="${widget.refresh_interval || 0}" min="0" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                 </div>
             </div>

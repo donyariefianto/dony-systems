@@ -3,7 +3,7 @@ import { AppState } from '../core/state.js'
 import { showToast, closeModal, logout } from '../utils/helpers.js'
 
 // ============================================
-// 1. TABLE RENDERER (HORIZONTAL SCROLLABLE TABLE)
+// 1. TABLE RENDERER (SIDE PANEL & SCROLLABLE TABLE)
 // ============================================
 export function renderTableView(config, container) {
  container.innerHTML = `
@@ -17,14 +17,14 @@ export function renderTableView(config, container) {
                     </div>
                     <div>
                         <h1 class="text-lg md:text-xl font-black text-gray-800 tracking-tight leading-none">${config.name}</h1>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">System Management</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Management Data</p>
                     </div>
                 </div>
             </div>
             
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <div class="relative group w-full md:w-64">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-600 transition-colors pointer-events-none"></i>
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400 pointer-events-none"></i>
                     <input type="text" placeholder="Cari data..." oninput="doSearch(this.value)" 
                             class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-transparent focus:bg-white border focus:border-blue-500 rounded-xl text-xs font-bold text-gray-700 outline-none transition-all">
                 </div>
@@ -38,7 +38,7 @@ export function renderTableView(config, container) {
             
             <div class="hidden md:block flex-1 overflow-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100/80 backdrop-blur-md sticky top-0 z-10 shadow-sm">
+                    <thead class="bg-gray-100/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
                         <tr>
                             ${config.config.fields
                              .map(
@@ -49,7 +49,7 @@ export function renderTableView(config, container) {
                             `
                              )
                              .join('')}
-                            <th class="p-4 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap border-b border-gray-200 sticky right-0 bg-gray-100/90 backdrop-blur-md shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+                            <th class="p-4 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap border-b border-gray-200 sticky right-0 bg-gray-100/95 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)]">
                                 Aksi
                             </th>
                         </tr>
@@ -67,7 +67,30 @@ export function renderTableView(config, container) {
         </div>
 
         <div id="pagination-container" class="shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]"></div>
-    </div>`
+    </div>
+
+    <div id="crud-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300" id="modal-backdrop" onclick="closeModal()"></div>
+        
+        <div id="modal-panel" class="absolute inset-x-0 bottom-0 top-10 md:inset-y-0 md:left-auto md:right-0 md:w-[500px] bg-white shadow-2xl rounded-t-2xl md:rounded-none transform transition-transform duration-300 ease-out translate-y-full md:translate-y-0 md:translate-x-full flex flex-col border-l border-gray-100">
+            
+            <div class="h-16 border-b border-gray-100 flex justify-between items-center px-6 bg-white shrink-0 rounded-t-2xl md:rounded-none">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <i class="fas fa-pen-nib"></i>
+                    </div>
+                    <h3 id="modal-title" class="font-black text-gray-800 text-sm uppercase tracking-widest">Form Data</h3>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="dynamic-form" onsubmit="window.handleFormSubmit(event)" class="flex-1 flex flex-col overflow-hidden">
+                </form>
+        </div>
+    </div>
+ `
 }
 
 // ============================================
@@ -297,68 +320,122 @@ export async function editData(id) {
  }
 }
 
+// ============================================
+// LOGIC MODAL & FORM (SIDE PANEL)
+// ============================================
+
 export function openCrudModal(existingData = null) {
  const modal = document.getElementById('crud-modal')
- const container = document.getElementById('modal-container')
+ const panel = document.getElementById('modal-panel')
+ const backdrop = document.getElementById('modal-backdrop')
  const form = document.getElementById('dynamic-form')
 
- // 1. Reset Form & ID
+ // 1. Reset State
  delete form.dataset.editingId
  form.reset()
- // Hapus isi form lama agar tombol tidak ganda jika sebelumnya di-inject
- form.innerHTML = ''
 
  if (existingData) form.dataset.editingId = existingData._id
 
  const fields = AppState.currentModule.config.fields || []
 
- // 2. Set Modal Title
- document.getElementById('modal-title').innerHTML = existingData
-  ? `<span class="text-blue-600 font-black">EDIT</span> DATA`
-  : `<span class="text-blue-600 font-black">TAMBAH</span> DATA`
+ // 2. Set Judul
+ document.getElementById('modal-title').innerText = existingData ? 'EDIT DATA' : 'TAMBAH DATA BARU'
 
- // 3. Build Form HTML (Inputs + Sticky Footer Buttons)
- // Kita masukkan tombol ke dalam string HTML ini agar menyatu dengan form lifecycle
+ // 3. Render Ulang Seluruh Isi Form (Input + Tombol)
+ // Ini MENCEGAH tombol ganda karena kita menimpa innerHTML sepenuhnya
  form.innerHTML = `
-    <div class="flex-1 overflow-y-auto p-1 custom-scrollbar max-h-[60vh]">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-4">
+    <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar bg-gray-50/30">
+        <div class="grid grid-cols-1 gap-5">
             ${fields
              .map((field) => {
               const val = existingData ? existingData[field.name] : field.default || ''
+              // Styling Input Professional
               const inputClass =
-               'w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400'
+               'w-full px-4 py-3 bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400'
 
-              let inputEl = `<input type="text" name="${field.name}" value="${val}" class="${inputClass}" ${field.required ? 'required' : ''}>`
-              if (field.type === 'number')
-               inputEl = `<input type="number" name="${field.name}" value="${val}" class="${inputClass}" ${field.required ? 'required' : ''}>`
-              if (field.type === 'textarea')
-               inputEl = `<textarea name="${field.name}" class="${inputClass} resize-none" rows="3" ${field.required ? 'required' : ''}>${val}</textarea>`
+              let inputElement = `<input type="text" name="${field.name}" value="${val}" class="${inputClass}" ${field.required ? 'required' : ''}>`
+
+              if (field.type === 'number') {
+               inputElement = `<input type="number" name="${field.name}" value="${val}" class="${inputClass}" ${field.required ? 'required' : ''}>`
+              } else if (field.type === 'textarea') {
+               inputElement = `<textarea name="${field.name}" class="${inputClass} resize-none" rows="4" ${field.required ? 'required' : ''}>${val}</textarea>`
+              }
 
               return `
-                    <div class="space-y-1.5 ${field.type === 'textarea' || (fields.length % 2 !== 0 && field === fields[fields.length - 1]) ? 'md:col-span-2' : ''}">
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>
-                        ${inputEl}
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                            ${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                        </label>
+                        ${inputElement}
                     </div>`
              })
              .join('')}
         </div>
     </div>
     
-    <div class="pt-4 mt-2 border-t border-gray-100 flex gap-3 sticky bottom-0 bg-white z-10">
-        <button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors text-xs uppercase tracking-widest">
+    <div class="p-5 border-t border-gray-100 bg-white shrink-0 flex gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)] z-10">
+        <button type="button" onclick="closeModal()" class="flex-1 py-3.5 bg-white border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-gray-50 transition-colors">
             Batal
         </button>
-        <button type="submit" class="flex-[2] px-4 py-3 rounded-xl bg-gray-900 text-white font-bold hover:bg-black shadow-lg shadow-gray-200 transition-all active:scale-[0.98] text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+        <button type="submit" class="flex-[2] py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold uppercase text-xs tracking-widest shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
             <i class="fas fa-save"></i> Simpan
         </button>
     </div>
  `
 
- // 4. Show Modal Animation
+ // 4. Animasi Masuk
  modal.classList.remove('hidden')
  setTimeout(() => {
-  modal.classList.replace('opacity-0', 'opacity-100')
-  container.classList.remove('translate-y-full', 'scale-95')
-  container.classList.add('translate-y-0', 'scale-100')
+  backdrop.classList.remove('opacity-0')
+  // Hapus class translate agar panel masuk ke layar
+  panel.classList.remove('translate-y-full', 'md:translate-x-full')
  }, 10)
+}
+
+// Override Close Modal untuk Animasi Keluar
+window.closeModal = function () {
+ const modal = document.getElementById('crud-modal')
+ const panel = document.getElementById('modal-panel')
+ const backdrop = document.getElementById('modal-backdrop')
+
+ // Animasi Keluar
+ backdrop.classList.add('opacity-0')
+ panel.classList.add('translate-y-full', 'md:translate-x-full')
+
+ setTimeout(() => {
+  modal.classList.add('hidden')
+ }, 300)
+}
+
+// Handler Submit Form
+window.handleFormSubmit = async function (e) {
+ e.preventDefault()
+ const submitBtn = e.target.querySelector('button[type="submit"]')
+ const originalText = submitBtn.innerHTML
+
+ submitBtn.disabled = true
+ submitBtn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i>`
+
+ const id = e.target.dataset.editingId
+ const colName = AppState.currentModule.config.collectionName
+ const url = `api/collections/${colName}${id ? '/' + id : ''}`
+
+ try {
+  const payload = Object.fromEntries(new FormData(e.target).entries())
+  const response = await apiFetch(url, {
+   method: id ? 'PUT' : 'POST',
+   body: JSON.stringify(payload),
+  })
+
+  if (response && response.ok) {
+   closeModal()
+   fetchTableData()
+   showToast('Data berhasil disimpan', 'success')
+  }
+ } catch (err) {
+  showToast('Gagal menyimpan data', 'error')
+ } finally {
+  submitBtn.disabled = false
+  submitBtn.innerHTML = originalText
+ }
 }
