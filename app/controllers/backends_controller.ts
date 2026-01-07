@@ -766,7 +766,7 @@ export default class BackendsController {
   const sort = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
   let data = await collections?.find(query).skip(skip).limit(Number(limit)).sort(sort).toArray()
   const total = await collections?.countDocuments(query)
-  return response.send({ data, total, page, totalPages: Math.ceil(total / limit) })
+  return response.send({ data, total, page: Number(page), totalPages: Math.ceil(total / limit) })
  }
  async getCollectionDataDetail({ params, request, response }: HttpContext) {
   const colName = params.col

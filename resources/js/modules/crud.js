@@ -2,49 +2,87 @@ import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { showToast, closeModal, logout } from '../utils/helpers.js'
 
-// --- TABLE RENDERER ---
+// ============================================
+// 1. TABLE RENDERER (HORIZONTAL SCROLLABLE TABLE)
+// ============================================
 export function renderTableView(config, container) {
  container.innerHTML = `
-    <div class="space-y-6 animate-in fade-in duration-500">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col h-[calc(100vh-64px)] bg-gray-50/50 relative overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        
+        <div class="shrink-0 px-4 md:px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-b border-gray-200 z-20 shadow-sm">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">${config.name}</h1>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">System / ${config.name}</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <div class="relative">
-                    <input type="text" placeholder="Cari..." oninput="doSearch(this.value)" 
-                            class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-xs w-full md:w-64 outline-none focus:ring-4 focus:ring-blue-500/10 transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shadow-lg shadow-gray-200">
+                        <i class="fas fa-database text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg md:text-xl font-black text-gray-800 tracking-tight leading-none">${config.name}</h1>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">System Management</p>
+                    </div>
                 </div>
-                <button onclick="openCrudModal()" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-200 transition">
-                    <i class="fas fa-plus mr-2"></i> Tambah Data
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <div class="relative group w-full md:w-64">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400 group-focus-within:text-blue-600 transition-colors pointer-events-none"></i>
+                    <input type="text" placeholder="Cari data..." oninput="doSearch(this.value)" 
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-transparent focus:bg-white border focus:border-blue-500 rounded-xl text-xs font-bold text-gray-700 outline-none transition-all">
+                </div>
+                <button onclick="openCrudModal()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-200 flex items-center justify-center gap-2 transition-all active:scale-95">
+                    <i class="fas fa-plus"></i> <span>Tambah</span>
                 </button>
             </div>
         </div>
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
+
+        <div class="flex-1 overflow-hidden relative bg-gray-50 flex flex-col">
+            
+            <div class="hidden md:block flex-1 overflow-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                    <thead class="bg-gray-100/80 backdrop-blur-md sticky top-0 z-10 shadow-sm">
                         <tr>
-                            ${config.config.fields.map((f) => `<th class="p-4 text-[10px] text-gray-400 uppercase tracking-widest font-black">${f.label}</th>`).join('')}
-                            <th class="p-4 text-[10px] text-gray-400 uppercase tracking-widest font-black text-right">Aksi</th>
+                            ${config.config.fields
+                             .map(
+                              (f) => `
+                                <th class="p-4 text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap border-b border-gray-200">
+                                    ${f.label}
+                                </th>
+                            `
+                             )
+                             .join('')}
+                            <th class="p-4 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap border-b border-gray-200 sticky right-0 bg-gray-100/90 backdrop-blur-md shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+                                Aksi
+                            </th>
                         </tr>
                     </thead>
-                    <tbody id="table-data-body"></tbody>
+                    <tbody id="table-data-body-desktop" class="bg-white divide-y divide-gray-100"></tbody>
                 </table>
             </div>
-            <div id="pagination-container" class="p-4 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between"></div>
+
+            <div id="table-data-body-mobile" class="md:hidden flex-1 overflow-y-auto p-4 space-y-4 pb-24"></div>
+
+            <div id="loading-state" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex-col items-center justify-center">
+                <div class="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Memuat Data...</span>
+            </div>
         </div>
+
+        <div id="pagination-container" class="shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]"></div>
     </div>`
 }
 
-// --- DATA OPERATIONS ---
+// ============================================
+// 2. DATA OPERATIONS
+// ============================================
 export async function fetchTableData() {
- const tbody = document.getElementById('table-data-body')
- if (!tbody || !AppState.currentModule) return
+ const desktopBody = document.getElementById('table-data-body-desktop')
+ const mobileBody = document.getElementById('table-data-body-mobile')
+ const loadingOverlay = document.getElementById('loading-state')
 
- tbody.innerHTML =
-  '<tr><td colspan="100%" class="p-10 text-center text-gray-400 italic text-xs uppercase tracking-widest">Memuat data...</td></tr>'
+ if (!desktopBody || !AppState.currentModule) return
+
+ // Show Loading
+ if (loadingOverlay) loadingOverlay.classList.remove('hidden')
+ if (loadingOverlay) loadingOverlay.classList.add('flex')
 
  try {
   const colName = AppState.currentModule.config.collectionName
@@ -56,93 +94,195 @@ export async function fetchTableData() {
   const result = await response.json()
   const data = result.data || []
 
+  // Clear previous content
+  desktopBody.innerHTML = ''
+  mobileBody.innerHTML = ''
+
+  // Empty State
   if (data.length === 0) {
-   tbody.innerHTML =
-    '<tr><td colspan="100%" class="p-10 text-center text-gray-400 italic text-xs uppercase">Data Kosong</td></tr>'
-   renderPaginationControls(0)
-   return
-  }
+   const emptyHtml = `
+    <div class="flex flex-col items-center justify-center py-20 text-center opacity-60 w-full col-span-full">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+            <i class="fas fa-box-open text-2xl text-gray-400"></i>
+        </div>
+        <p class="text-xs font-bold text-gray-500 uppercase">Tidak ada data</p>
+    </div>`
 
-  tbody.innerHTML = data
-   .map(
-    (item) => `
-            <tr class="hover:bg-gray-50/50 transition border-b border-gray-50">
-                ${AppState.currentModule.config.fields.map((f) => `<td class="p-4 text-sm text-gray-600">${item[f.name] || '-'}</td>`).join('')}
-                <td class="p-4 text-right">
-                    <button onclick="editData('${item._id}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteData('${item._id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition ml-1"><i class="fas fa-trash"></i></button>
+   // Inject to both (one will be hidden by CSS)
+   mobileBody.innerHTML = emptyHtml
+   desktopBody.innerHTML = `<tr><td colspan="100%">${emptyHtml}</td></tr>`
+
+   renderPaginationControls(0, 0, 0)
+  } else {
+   // 1. RENDER DESKTOP ROWS (Table Rows)
+   // Menggunakan <tr> dan <td> agar kolom rapi & scrollable
+   desktopBody.innerHTML = data
+    .map(
+     (item) => `
+        <tr class="hover:bg-blue-50/40 transition-colors group">
+            ${AppState.currentModule.config.fields
+             .map(
+              (f) => `
+                <td class="p-4 text-xs font-semibold text-gray-700 whitespace-nowrap border-b border-gray-50">
+                    ${item[f.name] || '<span class="text-gray-300">-</span>'}
                 </td>
-            </tr>
-        `
-   )
-   .join('')
+            `
+             )
+             .join('')}
+            <td class="p-3 text-right whitespace-nowrap border-b border-gray-50 sticky right-0 bg-white group-hover:bg-blue-50/40 transition-colors shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+                <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="editData('${item._id}')" class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-blue-600 hover:border-blue-300 hover:shadow-sm flex items-center justify-center transition-all" title="Edit"><i class="fas fa-pen text-[10px]"></i></button>
+                    <button onclick="deleteData('${item._id}')" class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-red-500 hover:border-red-300 hover:shadow-sm flex items-center justify-center transition-all" title="Hapus"><i class="fas fa-trash text-[10px]"></i></button>
+                </div>
+            </td>
+        </tr>
+   `
+    )
+    .join('')
 
-  renderPaginationControls(result.totalPages)
+   // 2. RENDER MOBILE CARDS (Stack)
+   mobileBody.innerHTML = data
+    .map(
+     (item, idx) => `
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs flex items-center justify-center border border-blue-100">
+                        ${(AppState.currentPage - 1) * AppState.pageSize + (idx + 1)}
+                    </span>
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm line-clamp-1">${item[AppState.currentModule.config.fields[0].name]}</h4>
+                        <p class="text-[10px] text-gray-400 font-mono mt-0.5">ID: ${item._id.substr(-4)}</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="editData('${item._id}')" class="p-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"><i class="fas fa-pen text-xs"></i></button>
+                    <button onclick="deleteData('${item._id}')" class="p-2 text-red-500 bg-red-50 rounded-lg hover:bg-red-100"><i class="fas fa-trash text-xs"></i></button>
+                </div>
+            </div>
+            <div class="space-y-2 border-t border-gray-50 pt-3">
+                ${AppState.currentModule.config.fields
+                 .slice(1)
+                 .map(
+                  (f) => `
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-400 font-medium uppercase tracking-wider text-[9px]">${f.label}</span>
+                        <span class="text-gray-700 font-bold text-right max-w-[60%] truncate">${item[f.name] || '-'}</span>
+                    </div>
+                `
+                 )
+                 .join('')}
+            </div>
+        </div>
+   `
+    )
+    .join('')
+
+   renderPaginationControls(result.totalPages, result.total, result.page)
+  }
  } catch (err) {
-  tbody.innerHTML =
-   '<tr><td colspan="100%" class="p-10 text-center text-red-400 font-bold">Gagal Koneksi Database</td></tr>'
+  console.error(err)
+  if (mobileBody)
+   mobileBody.innerHTML = `<div class="p-10 text-center text-red-500 font-bold text-xs">Gagal memuat data</div>`
+ } finally {
+  if (loadingOverlay) loadingOverlay.classList.remove('flex')
+  if (loadingOverlay) loadingOverlay.classList.add('hidden')
  }
 }
 
-export async function deleteData(id) {
- const result = await Swal.fire({
-  title: 'HAPUS DATA?',
-  text: 'Data yang dihapus tidak dapat dikembalikan!',
-  icon: 'warning',
-  showCancelButton: true,
-  confirmButtonColor: '#2563eb',
-  cancelButtonColor: '#f3f4f6',
-  confirmButtonText: 'YA, HAPUS!',
-  cancelButtonText: 'BATAL',
- })
+// ============================================
+// 3. PAGINATION RENDERER
+// ============================================
+function renderPaginationControls(totalPages, totalItems, currentPage) {
+ const container = document.getElementById('pagination-container')
+ if (!container) return
 
- if (result.isConfirmed) {
+ if (totalItems === 0) {
+  container.innerHTML = ''
+  return
+ }
+
+ const startItem = (currentPage - 1) * AppState.pageSize + 1
+ const endItem = Math.min(currentPage * AppState.pageSize, totalItems)
+
+ container.innerHTML = `
+    <div class="hidden md:flex flex-col">
+        <span class="text-xs font-bold text-gray-700">Halaman ${currentPage} / ${totalPages}</span>
+        <span class="text-[10px] text-gray-400 font-medium">Data ${startItem}-${endItem} dari ${totalItems}</span>
+    </div>
+
+    <div class="md:hidden text-[10px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">
+        ${startItem}-${endItem} / ${totalItems}
+    </div>
+
+    <div class="flex items-center gap-2">
+        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} 
+            class="h-8 px-3 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:hover:bg-transparent transition-all text-xs font-bold flex items-center gap-2 shadow-sm">
+            <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span>
+        </button>
+        
+        <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} 
+            class="h-8 px-3 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:hover:bg-transparent transition-all text-xs font-bold flex items-center gap-2 shadow-sm">
+            <span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>`
+}
+
+// ============================================
+// 4. ACTION HANDLERS (DELETE & SUBMIT)
+// ============================================
+export async function deleteData(id) {
+ if (confirm('Hapus data ini secara permanen?')) {
   try {
    const colName = AppState.currentModule.config.collectionName
    const response = await apiFetch(`api/collections/${colName}/${id}`, { method: 'DELETE' })
    if (response && response.ok) {
+    showToast('Data dihapus', 'success')
     fetchTableData()
-    showToast('Data berhasil dihapus')
    }
   } catch (err) {
-   Swal.fire('ERROR!', 'Gagal menghubungi server.', 'error')
+   showToast('Gagal menghapus', 'error')
   }
  }
 }
 
 export async function handleFormSubmit(e) {
  const submitBtn = e.target.querySelector('button[type="submit"]')
- if (submitBtn) {
-  submitBtn.disabled = true
-  submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...`
- }
+ const originalText = submitBtn.innerHTML
+
+ // Prevent Double Submit UI
+ submitBtn.disabled = true
+ submitBtn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i>`
 
  const id = e.target.dataset.editingId
  const colName = AppState.currentModule.config.collectionName
  const url = `api/collections/${colName}${id ? '/' + id : ''}`
 
  try {
+  const formData = new FormData(e.target)
+  const payload = Object.fromEntries(formData.entries())
+
   const response = await apiFetch(url, {
    method: id ? 'PUT' : 'POST',
-   body: JSON.stringify(Object.fromEntries(new FormData(e.target).entries())),
+   body: JSON.stringify(payload),
   })
 
   if (response && response.ok) {
    closeModal()
    fetchTableData()
-   showToast('Data berhasil disimpan')
+   showToast('Data berhasil disimpan', 'success')
   }
  } catch (err) {
-  console.error('Submit Error:', err)
+  showToast('Gagal menyimpan data', 'error')
  } finally {
-  if (submitBtn) {
-   submitBtn.disabled = false
-   submitBtn.innerHTML = `Simpan`
-  }
+  submitBtn.disabled = false
+  submitBtn.innerHTML = originalText
  }
 }
 
-// Helper: Open Modal Logic
+// ============================================
+// 5. MODAL SYSTEM (FIXED BUTTON DUPLICATION)
+// ============================================
 export async function editData(id) {
  try {
   const response = await apiFetch(
@@ -153,7 +293,7 @@ export async function editData(id) {
    openCrudModal(data)
   }
  } catch (err) {
-  showToast('Gagal mengambil data', 'error')
+  showToast('Gagal memuat detail', 'error')
  }
 }
 
@@ -162,46 +302,63 @@ export function openCrudModal(existingData = null) {
  const container = document.getElementById('modal-container')
  const form = document.getElementById('dynamic-form')
 
+ // 1. Reset Form & ID
  delete form.dataset.editingId
  form.reset()
+ // Hapus isi form lama agar tombol tidak ganda jika sebelumnya di-inject
+ form.innerHTML = ''
 
  if (existingData) form.dataset.editingId = existingData._id
 
  const fields = AppState.currentModule.config.fields || []
- document.getElementById('modal-title').innerText = existingData
-  ? `Edit ${AppState.currentModule.name}`
-  : `Tambah ${AppState.currentModule.name}`
 
- form.innerHTML =
-  fields
-   .map((field) => {
-    const val = existingData ? existingData[field.name] : field.default || ''
-    return `
-            <div class="space-y-1.5">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">${field.label}</label>
-                <input type="${field.type}" name="${field.name}" value="${val}" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:ring-4 focus:ring-blue-500/10 outline-none" ${field.required ? 'required' : ''}>
-            </div>`
-   })
-   .join('') +
-  '<div class="pt-4"><button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700">Simpan</button></div>'
+ // 2. Set Modal Title
+ document.getElementById('modal-title').innerHTML = existingData
+  ? `<span class="text-blue-600 font-black">EDIT</span> DATA`
+  : `<span class="text-blue-600 font-black">TAMBAH</span> DATA`
 
+ // 3. Build Form HTML (Inputs + Sticky Footer Buttons)
+ // Kita masukkan tombol ke dalam string HTML ini agar menyatu dengan form lifecycle
+ form.innerHTML = `
+    <div class="flex-1 overflow-y-auto p-1 custom-scrollbar max-h-[60vh]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-4">
+            ${fields
+             .map((field) => {
+              const val = existingData ? existingData[field.name] : field.default || ''
+              const inputClass =
+               'w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400'
+
+              let inputEl = `<input type="text" name="${field.name}" value="${val}" class="${inputClass}" ${field.required ? 'required' : ''}>`
+              if (field.type === 'number')
+               inputEl = `<input type="number" name="${field.name}" value="${val}" class="${inputClass}" ${field.required ? 'required' : ''}>`
+              if (field.type === 'textarea')
+               inputEl = `<textarea name="${field.name}" class="${inputClass} resize-none" rows="3" ${field.required ? 'required' : ''}>${val}</textarea>`
+
+              return `
+                    <div class="space-y-1.5 ${field.type === 'textarea' || (fields.length % 2 !== 0 && field === fields[fields.length - 1]) ? 'md:col-span-2' : ''}">
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>
+                        ${inputEl}
+                    </div>`
+             })
+             .join('')}
+        </div>
+    </div>
+    
+    <div class="pt-4 mt-2 border-t border-gray-100 flex gap-3 sticky bottom-0 bg-white z-10">
+        <button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-600 font-bold hover:bg-gray-50 transition-colors text-xs uppercase tracking-widest">
+            Batal
+        </button>
+        <button type="submit" class="flex-[2] px-4 py-3 rounded-xl bg-gray-900 text-white font-bold hover:bg-black shadow-lg shadow-gray-200 transition-all active:scale-[0.98] text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+            <i class="fas fa-save"></i> Simpan
+        </button>
+    </div>
+ `
+
+ // 4. Show Modal Animation
  modal.classList.remove('hidden')
  setTimeout(() => {
   modal.classList.replace('opacity-0', 'opacity-100')
-  container.classList.replace('scale-95', 'scale-100')
+  container.classList.remove('translate-y-full', 'scale-95')
+  container.classList.add('translate-y-0', 'scale-100')
  }, 10)
-}
-
-function renderPaginationControls(totalPages) {
- const container = document.getElementById('pagination-container')
- if (!container || totalPages <= 1) {
-  container.innerHTML = ''
-  return
- }
- container.innerHTML = `
-        <div class="text-xs text-gray-500">Hal ${AppState.currentPage} / ${totalPages}</div>
-        <div class="flex gap-2">
-            <button onclick="changePage(${AppState.currentPage - 1})" ${AppState.currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Prev</button>
-            <button onclick="changePage(${AppState.currentPage + 1})" ${AppState.currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50">Next</button>
-        </div>`
 }

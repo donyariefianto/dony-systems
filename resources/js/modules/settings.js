@@ -567,15 +567,33 @@ function getColSpanClass(width) {
  }
 }
 
+// Tentukan batas maksimal widget di sini
+const MAX_WIDGET_LIMIT = 8
+
 export function addWidgetToBuilder(key) {
+ // 1. CEK LIMITASI (FITUR BARU)
+ if (AppState.tempBuilderWidgets.length >= MAX_WIDGET_LIMIT) {
+  showToast(`Maksimal ${MAX_WIDGET_LIMIT} widget diperbolehkan!`, 'warning')
+  return // Batalkan proses jika sudah penuh
+ }
+
  const template = WidgetRegistry.widgets[key]
  if (!template) return
+
  const newWidget = JSON.parse(JSON.stringify(template.defaultConfig))
- newWidget.id = `w_${Date.now()}`
+
+ // Gunakan helper ID unik yang sudah dibuat sebelumnya
+ // Pastikan Anda sudah punya fungsi generateTempId() di file ini
+ newWidget.id = 'w_' + Math.random().toString(36).substr(2, 9)
+
+ // Set defaults visual
  if (!newWidget.width) newWidget.width = 'half'
  if (!newWidget.icon) newWidget.icon = template.icon
+
  AppState.tempBuilderWidgets.push(newWidget)
  renderBuilderWidgets()
+
+ // Scroll otomatis ke bawah
  setTimeout(() => {
   const container = document.getElementById('builder-widgets-container')
   if (container) container.lastElementChild?.scrollIntoView({ behavior: 'smooth' })
