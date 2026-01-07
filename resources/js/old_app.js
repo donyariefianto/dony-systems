@@ -301,7 +301,7 @@ function renderSidebar(menus) {
           <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">${menu.name}</p>
           <div class="space-y-1">
               ${menu.daftar_sub_sidemenu
-                .map(
+               .map(
                 (sub) => `
                   <button onclick="navigate('${sub.path}')" 
                           data-path="${sub.path}" 
@@ -310,8 +310,8 @@ function renderSidebar(menus) {
                       <span class="truncate">${sub.name}</span>
                   </button>
               `
-                )
-                .join('')}
+               )
+               .join('')}
           </div>
       </div>`
    }
@@ -332,7 +332,7 @@ function renderSubMenu(menu) {
       <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">${menu.name}</p>
       <div class="space-y-1">
           ${menu.daftar_sub_sidemenu
-            .map(
+           .map(
             (sub) => `
               <button onclick="navigate('${sub.path}')" 
                       data-path="${sub.path}" 
@@ -341,8 +341,8 @@ function renderSubMenu(menu) {
                   <span>${sub.name}</span>
               </button>
           `
-            )
-            .join('')}
+           )
+           .join('')}
       </div>
   </div>`
 }
@@ -404,11 +404,11 @@ function renderTableView(config, container) {
                   <thead class="bg-gray-50/50 border-b border-gray-100">
                       <tr>
                           ${config.config.fields
-                            .map(
+                           .map(
                             (f) =>
-                              `<th class="p-4 text-[10px] text-gray-400 uppercase tracking-widest font-black">${f.label}</th>`
-                            )
-                            .join('')}
+                             `<th class="p-4 text-[10px] text-gray-400 uppercase tracking-widest font-black">${f.label}</th>`
+                           )
+                           .join('')}
                           <th class="p-4 text-[10px] text-gray-400 uppercase tracking-widest font-black text-right">Aksi</th>
                       </tr>
                   </thead>
@@ -508,7 +508,7 @@ function createDashboardHTML(config, widgets, lastUpdated, allDashboards) {
                           oninput="filterDashboardList(this.value)">
                   <div id="dashboard-list-overlay" class="hidden absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-60 overflow-y-auto custom-scrollbar">
                       ${allDashboards
-                        .map(
+                       .map(
                         (d) => `
                           <div class="dashboard-opt px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50" 
                                 onclick="navigate('${d.path}')" 
@@ -517,8 +517,8 @@ function createDashboardHTML(config, widgets, lastUpdated, allDashboards) {
                               <p class="text-[9px] text-gray-400 font-medium">Path: /${d.path}</p>
                           </div>
                       `
-                        )
-                        .join('')}
+                       )
+                       .join('')}
                   </div>
               </div>
               <button onclick="navigate('${config.path}')" 
@@ -548,7 +548,7 @@ function createWidgetHTML(widget, dashboardId, index) {
         </p>
         <h2 class="text-3xl font-black text-gray-900 tracking-tight">${widget.value}</h2>
         ${
-          widget.percentage
+         widget.percentage
           ? `
             <div class="mt-3 text-[10px] font-bold ${widget.trend === 'up' ? 'text-emerald-500' : 'text-red-500'} flex items-center gap-1">
                 <i class="fas ${widget.trend === 'up' ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'}"></i>
