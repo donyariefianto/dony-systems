@@ -719,20 +719,13 @@ export async function saveDashboardBuilder() {
   updated_at: timestamp,
   created_at: timestamp,
   widgets: AppState.tempBuilderWidgets.map((w, index) => ({
-   // Generate ID unik jika belum ada
-   id: w.id.startsWith('w_') ? w.title.toLowerCase().replace(/[^a-z0-9]/g, '_') : w.id,
-
-   // Properti Utama
+   id: w.id,
    type: w.type,
    subtype: w.subtype,
    title: w.title,
    description: w.description || '',
-
-   // Layout & Posisi (PENTING)
    width: w.width,
-   position: index + 1, // Urutan berdasarkan posisi di array (1, 2, 3...)
-
-   // Konfigurasi Data
+   position: index + 1,
    collection: w.collection,
    refresh_interval: w.refresh_interval || 0,
    data_config: w.data_config,
@@ -861,4 +854,8 @@ export function switchSettingsTab(tab) {
  const activeBtn = document.getElementById(`tab-btn-${tab}`)
  activeBtn.className =
   'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-md bg-white shadow-sm text-blue-600 border border-gray-200'
+}
+
+function generateTempId() {
+ return 'w_' + Math.random().toString(36).substr(2, 9)
 }
