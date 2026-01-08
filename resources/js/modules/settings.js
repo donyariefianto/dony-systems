@@ -1,6 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
-import { showToast } from '../utils/helpers.js'
+import { showToast, showConfirmDialog } from '../utils/helpers.js'
 
 // ============================================
 // 1. WIDGET REGISTRY
@@ -314,7 +314,27 @@ window.changeDashboardPage = (newPage) => {
 }
 
 export async function deleteDashboardConfig(id, name) {
- if (!confirm(`Hapus dashboard "${name}" secara permanen?`)) return
+ // 1. Konfirmasi Profesional (Danger Mode)
+ const isConfirmed = await showConfirmDialog({
+  title: 'Hapus Dashboard?',
+  text: `Anda akan menghapus dashboard "${name}". Data konfigurasi widget di dalamnya akan hilang permanen.`,
+  icon: 'warning',
+  confirmText: 'Ya, Hapus Permanen',
+  cancelText: 'Batal',
+  dangerMode: true, // Tombol jadi merah
+ })
+
+ if (!isConfirmed) return
+
+ // 2. Tampilkan Loading State
+ Swal.fire({
+  title: 'Menghapus...',
+  html: 'Sedang membersihkan data.',
+  allowOutsideClick: false,
+  didOpen: () => {
+   Swal.showLoading()
+  },
+ })
 
  try {
   const response = await apiFetch(`api/collections/dashboard_settings/${id}`, {
@@ -322,22 +342,40 @@ export async function deleteDashboardConfig(id, name) {
   })
 
   if (response && response.ok) {
-   showToast('Dashboard dihapus', 'success')
-
-   // Reset editor jika yang dihapus adalah yang sedang dibuka
+   // 3. Reset Editor (Jika dashboard yang sedang dibuka = yang dihapus)
    if (AppState.currentEditingDashboardId === id) {
     AppState.currentEditingDashboardId = null
     AppState.tempBuilderWidgets = []
+
+    // Kembalikan UI ke Empty State
     document.getElementById('editing-dashboard-name').innerText = 'Select Dashboard'
-    document.getElementById('generator-empty-state').style.opacity = '1'
+    const emptyState = document.getElementById('generator-empty-state')
+    if (emptyState) emptyState.style.opacity = '1'
+
     renderBuilderWidgets()
    }
 
-   // Refresh list
-   fetchDashboardsFromDB()
+   // 4. Refresh List & Beri Feedback
+   await fetchDashboardsFromDB()
+
+   Swal.fire({
+    icon: 'success',
+    title: 'Terhapus!',
+    text: 'Dashboard berhasil dihapus.',
+    timer: 1500,
+    showConfirmButton: false,
+    backdrop: `rgba(0,0,0,0.4)`,
+   })
+  } else {
+   throw new Error('Gagal menghapus')
   }
  } catch (e) {
-  showToast('Gagal menghapus data', 'error')
+  Swal.fire({
+   icon: 'error',
+   title: 'Gagal',
+   text: 'Terjadi kesalahan saat menghapus dashboard.',
+   confirmButtonColor: '#2563eb',
+  })
  }
 }
 
@@ -566,33 +604,53 @@ function getColSpanClass(width) {
  }
 }
 
-// Tentukan batas maksimal widget di sini
-const MAX_WIDGET_LIMIT = 8
+// Konstanta limit
+const MAX_WIDGET_LIMIT = 12
 
-export function addWidgetToBuilder(key) {
- // 1. CEK LIMITASI (FITUR BARU)
- if (AppState.tempBuilderWidgets.length >= MAX_WIDGET_LIMIT) {
-  showToast(`Maksimal ${MAX_WIDGET_LIMIT} widget diperbolehkan!`, 'warning')
-  return // Batalkan proses jika sudah penuh
+export async function addWidgetToBuilder(key) {
+ // 1. CEK DASHBOARD (PAKAI HELPER BARU)
+ if (!AppState.currentEditingDashboardId) {
+  // Panggil Dialog Konfirmasi Custom
+  const confirmed = await showConfirmDialog({
+   title: 'Dashboard Belum Dipilih',
+   text: 'Anda harus memilih atau membuat dashboard terlebih dahulu sebelum menambahkan widget.',
+   confirmText: 'Buat Dashboard Baru', // Custom text
+   icon: 'info',
+  })
+
+  // Jika user klik tombol "Buat Dashboard Baru"
+  if (confirmed) {
+   openAddDashboardModal()
+  }
+
+  return // Stop proses
  }
 
+ // 2. CEK LIMITASI
+ if (AppState.tempBuilderWidgets.length >= MAX_WIDGET_LIMIT) {
+  // Bisa pakai Swal.fire langsung untuk alert sederhana,
+  // atau buat helper 'showAlert' jika mau.
+  Swal.fire({
+   icon: 'error',
+   title: 'Batas Tercapai',
+   text: `Maksimal ${MAX_WIDGET_LIMIT} widget diperbolehkan!`,
+   confirmButtonColor: '#2563eb',
+  })
+  return
+ }
+
+ // 3. PROSES PEMBUATAN WIDGET (SAMA SEPERTI SEBELUMNYA)
  const template = WidgetRegistry.widgets[key]
  if (!template) return
 
  const newWidget = JSON.parse(JSON.stringify(template.defaultConfig))
-
- // Gunakan helper ID unik yang sudah dibuat sebelumnya
- // Pastikan Anda sudah punya fungsi generateTempId() di file ini
  newWidget.id = 'w_' + Math.random().toString(36).substr(2, 9)
-
- // Set defaults visual
  if (!newWidget.width) newWidget.width = 'half'
  if (!newWidget.icon) newWidget.icon = template.icon
 
  AppState.tempBuilderWidgets.push(newWidget)
  renderBuilderWidgets()
 
- // Scroll otomatis ke bawah
  setTimeout(() => {
   const container = document.getElementById('builder-widgets-container')
   if (container) container.lastElementChild?.scrollIntoView({ behavior: 'smooth' })
@@ -727,14 +785,8 @@ export async function saveDashboardBuilder() {
 
  const id = AppState.currentEditingDashboardId
  const name = document.getElementById('editing-dashboard-name').innerText
- const timestamp = new Date().toISOString()
 
  const payload = {
-  id: id,
-  name: name,
-  description: 'Generated via Builder',
-  updated_at: timestamp,
-  created_at: timestamp,
   widgets: AppState.tempBuilderWidgets.map((w, index) => ({
    id: w.id,
    type: w.type,
@@ -798,23 +850,109 @@ export async function openWidgetEditor(id, name) {
 }
 
 export async function openAddDashboardModal() {
- const name = prompt('New Dashboard Name:')
- if (!name) return
- const payload = { name: name, widgets: [] }
+ // Tampilkan Modal dengan Input Custom
+ const { value: formValues } = await Swal.fire({
+  title:
+   '<div class="text-lg font-black text-gray-800 uppercase tracking-widest">Dashboard Baru</div>',
+  html: `
+            <div class="flex flex-col gap-4 text-left mt-2">
+                <div class="space-y-1.5">
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
+                        Nama Dashboard <span class="text-red-500">*</span>
+                    </label>
+                    <input id="swal-dash-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-bold text-gray-800 outline-none transition-all placeholder-gray-400" placeholder="Contoh: Production Monitoring">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
+                        Deskripsi Singkat
+                    </label>
+                    <textarea id="swal-dash-desc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400 resize-none" rows="2" placeholder="Jelaskan fungsi dashboard ini..."></textarea>
+                </div>
+            </div>
+        `,
+  showCancelButton: true,
+  confirmButtonColor: '#2563eb', // Blue-600
+  cancelButtonColor: '#9ca3af', // Gray-400
+  confirmButtonText: 'Buat Dashboard',
+  cancelButtonText: 'Batal',
+  reverseButtons: true,
+  focusConfirm: false,
+  customClass: {
+   popup: 'rounded-2xl p-6',
+   confirmButton: 'rounded-xl px-6 py-3 font-bold shadow-lg shadow-blue-200',
+   cancelButton: 'rounded-xl px-6 py-3 font-bold',
+   actions: 'gap-3',
+  },
+  // Validasi Input sebelum submit
+  preConfirm: () => {
+   const name = document.getElementById('swal-dash-name').value
+   const desc = document.getElementById('swal-dash-desc').value
+
+   if (!name) {
+    Swal.showValidationMessage('Nama dashboard wajib diisi!')
+    return false
+   }
+   return { name, desc }
+  },
+ })
+
+ // Jika user membatalkan (klik batal atau klik luar modal)
+ if (!formValues) return
+
+ // Proses Data
+ const { name, desc } = formValues
+ const timestamp = new Date().toISOString()
+
+ // Generate ID Path (Slug)
+ // Contoh: "Production Monitoring" -> "production_monitoring"
+ const pathId = name
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '_')
+  .replace(/^_+|_+$/g, '')
+
+ const payload = {
+  name: name,
+  description: desc,
+  widgets: [], // Mulai dengan kosong
+ }
+
+ // Tampilkan Loading
+ Swal.fire({
+  title: 'Membuat Dashboard...',
+  html: 'Mohon tunggu sebentar.',
+  allowOutsideClick: false,
+  didOpen: () => {
+   Swal.showLoading()
+  },
+ })
+
  try {
   const response = await apiFetch(`api/collections/dashboard_settings`, {
    method: 'POST',
    body: JSON.stringify(payload),
   })
+
   if (response && response.ok) {
    const result = await response.json()
-   showToast('Created')
+
+   Swal.close()
+   showToast('Dashboard berhasil dibuat!', 'success')
+
    await fetchDashboardsFromDB()
-   openWidgetEditor(result._id, result.name)
+
+   openWidgetEditor(result.insertedId, name)
    switchMobileTab('editor')
+  } else {
+   throw new Error('Gagal membuat data')
   }
  } catch (e) {
-  showToast('Create failed', 'error')
+  Swal.fire({
+   icon: 'error',
+   title: 'Gagal',
+   text: 'Terjadi kesalahan saat menyimpan dashboard.',
+   confirmButtonColor: '#2563eb',
+  })
  }
 }
 

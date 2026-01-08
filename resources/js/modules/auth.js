@@ -20,12 +20,11 @@ export async function initApp() {
  if (token) {
   try {
    const response = await apiFetch('api/menu')
-   if (!response) return // Auth failed inside apiFetch
+   if (!response) return
 
    const data = await response.json()
    AppState.menuData = data.daftar_sidemenu
 
-   // Update UI User
    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}')
    const nameEl = document.querySelector('.text-xs.font-bold.text-gray-800')
    if (nameEl && userInfo.name) nameEl.innerText = userInfo.name

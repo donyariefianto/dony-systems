@@ -783,7 +783,7 @@ export default class BackendsController {
   const colName = params.col
   let body = request.all()
   try {
-   const payload = { ...body, created_at: new Date(), updated_at: new Date(), deleted_at: null }
+   const payload = { ...body, created_at: new Date(), updated_at: new Date() }
    const collections = database.data?.collection(colName)
    const result = await collections?.insertOne(payload)
    return response.status(201).send(result)

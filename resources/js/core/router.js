@@ -14,18 +14,15 @@ export function navigate(path) {
  AppState.currentPage = 1
  window.location.hash = '/' + cleanPath
 
- // Update UI Title
  const titleEl = document.getElementById('page-title')
  if (titleEl) titleEl.innerText = config.name
 
- // Update Active Menu State
  document.querySelectorAll('.menu-item').forEach((el) => {
   el.classList.toggle('menu-active', el.getAttribute('data-path') === cleanPath)
  })
 
  const main = document.getElementById('main-view')
 
- // ROUTING LOGIC
  if (config.type === 'tableview') {
   renderTableView(config, main)
   fetchTableData()
@@ -37,7 +34,6 @@ export function navigate(path) {
   main.innerHTML = `<div class="p-20 text-center text-gray-400">Modul ${config.name} belum tersedia.</div>`
  }
 
- // Reset Visuals
  if (window.innerWidth < 1024) toggleSidebar()
  Object.values(AppState.chartInstances).forEach((inst) => inst && inst.destroy())
  AppState.chartInstances = {}

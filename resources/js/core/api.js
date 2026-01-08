@@ -4,7 +4,6 @@ import { logout } from '../utils/helpers.js'
 export async function apiFetch(endpoint, options = {}) {
  const token = localStorage.getItem('auth_token')
 
- // Default Headers
  const headers = {
   'Content-Type': 'application/json',
   ...(token && { Authorization: `Bearer ${token}` }),
@@ -19,7 +18,7 @@ export async function apiFetch(endpoint, options = {}) {
 
   if (response.status === 401) {
    logout()
-   return null // Stop execution
+   return null
   }
 
   return response

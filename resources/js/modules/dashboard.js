@@ -4,7 +4,7 @@ import { navigate } from '../core/router.js'
 
 export async function renderDashboardView(config, container) {
  const dashboardId = config.config?.dashboard_id || 'MAIN'
- // Skeleton Loading
+
  container.innerHTML = `<div class="p-10 animate-pulse bg-gray-50 rounded-2xl h-96 w-full"></div>`
 
  try {
@@ -27,7 +27,6 @@ export async function renderDashboardView(config, container) {
 }
 
 function createDashboardHTML(config, widgets, lastUpdated) {
- // Logic HTML Generator yang sama seperti kode lama (dipersingkat untuk brevity)
  return `
         <div class="space-y-6 pb-10">
             <div class="flex justify-between items-center border-b pb-4">

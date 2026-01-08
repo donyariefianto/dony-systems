@@ -1,10 +1,7 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
-import { showToast, closeModal, logout } from '../utils/helpers.js'
+import { showToast, closeModal, logout, showConfirmDialog } from '../utils/helpers.js'
 
-// ============================================
-// 1. TABLE RENDERER (SIDE PANEL & SCROLLABLE TABLE)
-// ============================================
 export function renderTableView(config, container) {
  container.innerHTML = `
     <div class="flex flex-col h-[calc(100vh-64px)] bg-gray-50/50 relative overflow-hidden animate-in fade-in zoom-in-95 duration-300">
@@ -93,9 +90,6 @@ export function renderTableView(config, container) {
  `
 }
 
-// ============================================
-// 2. DATA OPERATIONS
-// ============================================
 export async function fetchTableData() {
  const desktopBody = document.getElementById('table-data-body-desktop')
  const mobileBody = document.getElementById('table-data-body-mobile')
@@ -103,7 +97,6 @@ export async function fetchTableData() {
 
  if (!desktopBody || !AppState.currentModule) return
 
- // Show Loading
  if (loadingOverlay) loadingOverlay.classList.remove('hidden')
  if (loadingOverlay) loadingOverlay.classList.add('flex')
 
@@ -117,11 +110,9 @@ export async function fetchTableData() {
   const result = await response.json()
   const data = result.data || []
 
-  // Clear previous content
   desktopBody.innerHTML = ''
   mobileBody.innerHTML = ''
 
-  // Empty State
   if (data.length === 0) {
    const emptyHtml = `
     <div class="flex flex-col items-center justify-center py-20 text-center opacity-60 w-full col-span-full">
@@ -131,14 +122,11 @@ export async function fetchTableData() {
         <p class="text-xs font-bold text-gray-500 uppercase">Tidak ada data</p>
     </div>`
 
-   // Inject to both (one will be hidden by CSS)
    mobileBody.innerHTML = emptyHtml
    desktopBody.innerHTML = `<tr><td colspan="100%">${emptyHtml}</td></tr>`
 
    renderPaginationControls(0, 0, 0)
   } else {
-   // 1. RENDER DESKTOP ROWS (Table Rows)
-   // Menggunakan <tr> dan <td> agar kolom rapi & scrollable
    desktopBody.innerHTML = data
     .map(
      (item) => `
@@ -163,7 +151,6 @@ export async function fetchTableData() {
     )
     .join('')
 
-   // 2. RENDER MOBILE CARDS (Stack)
    mobileBody.innerHTML = data
     .map(
      (item, idx) => `
@@ -213,9 +200,6 @@ export async function fetchTableData() {
  }
 }
 
-// ============================================
-// 3. PAGINATION RENDERER
-// ============================================
 function renderPaginationControls(totalPages, totalItems, currentPage) {
  const container = document.getElementById('pagination-container')
  if (!container) return
@@ -251,21 +235,48 @@ function renderPaginationControls(totalPages, totalItems, currentPage) {
     </div>`
 }
 
-// ============================================
-// 4. ACTION HANDLERS (DELETE & SUBMIT)
-// ============================================
 export async function deleteData(id) {
- if (confirm('Hapus data ini secara permanen?')) {
-  try {
-   const colName = AppState.currentModule.config.collectionName
-   const response = await apiFetch(`api/collections/${colName}/${id}`, { method: 'DELETE' })
-   if (response && response.ok) {
-    showToast('Data dihapus', 'success')
-    fetchTableData()
-   }
-  } catch (err) {
-   showToast('Gagal menghapus', 'error')
+ const isConfirmed = await showConfirmDialog({
+  title: 'Hapus Data?',
+  text: 'Data yang dihapus tidak dapat dikembalikan lagi. Lanjutkan?',
+  icon: 'warning',
+  confirmText: 'Ya, Hapus Permanen',
+  cancelText: 'Batal',
+  dangerMode: true,
+ })
+
+ if (!isConfirmed) return
+
+ Swal.fire({
+  title: 'Menghapus...',
+  html: 'Sedang memproses permintaan Anda.',
+  timerProgressBar: true,
+  allowOutsideClick: false,
+  didOpen: () => {
+   Swal.showLoading()
+  },
+ })
+
+ try {
+  const colName = AppState.currentModule.config.collectionName
+  const response = await apiFetch(`api/collections/${colName}/${id}`, {
+   method: 'DELETE',
+  })
+
+  if (response && response.ok) {
+   Swal.close()
+   showToast('Data berhasil dihapus', 'success')
+   fetchTableData()
+  } else {
+   throw new Error('Gagal menghapus data')
   }
+ } catch (err) {
+  Swal.fire({
+   icon: 'error',
+   title: 'Gagal',
+   text: 'Terjadi kesalahan saat menghubungi server.',
+   confirmButtonColor: '#2563eb',
+  })
  }
 }
 
@@ -273,7 +284,6 @@ export async function handleFormSubmit(e) {
  const submitBtn = e.target.querySelector('button[type="submit"]')
  const originalText = submitBtn.innerHTML
 
- // Prevent Double Submit UI
  submitBtn.disabled = true
  submitBtn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i>`
 
@@ -303,9 +313,6 @@ export async function handleFormSubmit(e) {
  }
 }
 
-// ============================================
-// 5. MODAL SYSTEM (FIXED BUTTON DUPLICATION)
-// ============================================
 export async function editData(id) {
  try {
   const response = await apiFetch(
@@ -320,17 +327,12 @@ export async function editData(id) {
  }
 }
 
-// ============================================
-// LOGIC MODAL & FORM (SIDE PANEL)
-// ============================================
-
 export function openCrudModal(existingData = null) {
  const modal = document.getElementById('crud-modal')
  const panel = document.getElementById('modal-panel')
  const backdrop = document.getElementById('modal-backdrop')
  const form = document.getElementById('dynamic-form')
 
- // 1. Reset State
  delete form.dataset.editingId
  form.reset()
 
@@ -338,18 +340,15 @@ export function openCrudModal(existingData = null) {
 
  const fields = AppState.currentModule.config.fields || []
 
- // 2. Set Judul
  document.getElementById('modal-title').innerText = existingData ? 'EDIT DATA' : 'TAMBAH DATA BARU'
 
- // 3. Render Ulang Seluruh Isi Form (Input + Tombol)
- // Ini MENCEGAH tombol ganda karena kita menimpa innerHTML sepenuhnya
  form.innerHTML = `
     <div class="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar bg-gray-50/30">
         <div class="grid grid-cols-1 gap-5">
             ${fields
              .map((field) => {
               const val = existingData ? existingData[field.name] : field.default || ''
-              // Styling Input Professional
+
               const inputClass =
                'w-full px-4 py-3 bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400'
 
@@ -383,22 +382,19 @@ export function openCrudModal(existingData = null) {
     </div>
  `
 
- // 4. Animasi Masuk
  modal.classList.remove('hidden')
  setTimeout(() => {
   backdrop.classList.remove('opacity-0')
-  // Hapus class translate agar panel masuk ke layar
+
   panel.classList.remove('translate-y-full', 'md:translate-x-full')
  }, 10)
 }
 
-// Override Close Modal untuk Animasi Keluar
 window.closeModal = function () {
  const modal = document.getElementById('crud-modal')
  const panel = document.getElementById('modal-panel')
  const backdrop = document.getElementById('modal-backdrop')
 
- // Animasi Keluar
  backdrop.classList.add('opacity-0')
  panel.classList.add('translate-y-full', 'md:translate-x-full')
 
@@ -407,7 +403,6 @@ window.closeModal = function () {
  }, 300)
 }
 
-// Handler Submit Form
 window.handleFormSubmit = async function (e) {
  e.preventDefault()
  const submitBtn = e.target.querySelector('button[type="submit"]')
