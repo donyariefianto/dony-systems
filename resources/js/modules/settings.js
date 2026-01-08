@@ -1,111 +1,8 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { showToast, showConfirmDialog } from '../utils/helpers.js'
-
-// ============================================
-// 1. WIDGET REGISTRY
-// ============================================
-const WidgetRegistry = {
- categories: {
-  metrics: {
-   name: 'Key Metrics',
-   icon: 'fa-bullseye',
-   color: 'text-emerald-600',
-   bg: 'bg-emerald-50',
-  },
-  charts: {
-   name: 'Analytics Charts',
-   icon: 'fa-chart-pie',
-   color: 'text-blue-600',
-   bg: 'bg-blue-50',
-  },
-  tables: { name: 'Data Tables', icon: 'fa-table', color: 'text-purple-600', bg: 'bg-purple-50' },
-  monitoring: {
-   name: 'System Monitor',
-   icon: 'fa-server',
-   color: 'text-orange-600',
-   bg: 'bg-orange-50',
-  },
- },
- widgets: {
-  kpi_card: {
-   name: 'KPI Card',
-   icon: 'fa-calculator',
-   category: 'metrics',
-   desc: 'Single numeric metric',
-   defaultConfig: {
-    type: 'stat',
-    subtype: 'card',
-    width: 'quarter',
-    title: 'Revenue',
-    collection: 'transactions',
-    icon: 'fa-dollar-sign',
-    data_config: [{ $group: { _id: null, total: { $sum: '$amount' } } }],
-   },
-  },
-  line_chart: {
-   name: 'Line Chart',
-   icon: 'fa-chart-line',
-   category: 'charts',
-   desc: 'Time-series trend',
-   defaultConfig: {
-    type: 'chart',
-    subtype: 'line',
-    width: 'half',
-    title: 'Trend',
-    collection: 'logs',
-    icon: 'fa-chart-line',
-    data_config: [],
-   },
-  },
-  bar_chart: {
-   name: 'Bar Chart',
-   icon: 'fa-chart-bar',
-   category: 'charts',
-   desc: 'Categorical comparison',
-   defaultConfig: {
-    type: 'chart',
-    subtype: 'bar',
-    width: 'half',
-    title: 'Status',
-    collection: 'items',
-    icon: 'fa-chart-bar',
-    data_config: [],
-   },
-  },
-  data_table: {
-   name: 'Data Table',
-   icon: 'fa-list-alt',
-   category: 'tables',
-   desc: 'Detailed data list',
-   defaultConfig: {
-    type: 'table',
-    subtype: 'grid',
-    width: 'full',
-    title: 'List',
-    collection: 'users',
-    icon: 'fa-table',
-    data_config: [],
-   },
-  },
-  server_status: {
-   name: 'Server Status',
-   icon: 'fa-heartbeat',
-   category: 'monitoring',
-   desc: 'Realtime uptime',
-   defaultConfig: {
-    type: 'status',
-    subtype: 'health',
-    width: 'quarter',
-    title: 'Health',
-    collection: 'system',
-    icon: 'fa-server',
-    data_config: { check: 'ping' },
-   },
-  },
- },
-}
-
+import { WidgetRegistry } from '../config/WidgetRegistry.js'
+import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
 // ============================================
 // STATE MANAGEMENT LOKAL
 // ============================================
@@ -561,32 +458,32 @@ export function renderBuilderWidgets() {
     iconColor = 'text-purple-500'
    }
    return `
-            <div class="${colSpan} bg-white rounded-lg ${accent} shadow-sm transition-all duration-300 group relative flex flex-col overflow-hidden hover:shadow-md animate-in fade-in zoom-in-95">
-                <div class="p-3 flex-1">
-                    <div class="flex items-start justify-between mb-2">
-                        <div class="flex items-center gap-2 overflow-hidden">
-                            <i class="fas ${w.icon || 'fa-cube'} ${iconColor} text-[10px]"></i>
-                            <div class="min-w-0">
-                                <h3 class="text-[10px] font-bold text-gray-700 uppercase tracking-tight truncate w-full" title="${w.title}">${w.title || 'Untitled'}</h3>
-                                <p class="text-[8px] text-gray-400 font-mono flex gap-1 mt-0.5">
-                                    <span class="bg-gray-50 px-1 rounded">${w.type}</span>
-                                    <span class="bg-gray-50 px-1 rounded">${w.subtype}</span>
-                                </p>
-                            </div>
-                        </div>
+    <div class="${colSpan} bg-white rounded-lg ${accent} shadow-sm transition-all duration-300 group relative flex flex-col overflow-hidden hover:shadow-md animate-in fade-in zoom-in-95">
+        <div class="p-3 flex-1">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <i class="fas ${w.icon || 'fa-cube'} ${iconColor} text-[10px]"></i>
+                    <div class="min-w-0">
+                        <h3 class="text-[10px] font-bold text-gray-700 uppercase tracking-tight truncate w-full" title="${w.title}">${w.title || 'Untitled'}</h3>
+                        <p class="text-[8px] text-gray-400 font-mono flex gap-1 mt-0.5">
+                            <span class="bg-gray-50 px-1 rounded">${w.type}</span>
+                            <span class="bg-gray-50 px-1 rounded">${w.subtype}</span>
+                        </p>
                     </div>
-                    <div class="text-[9px] text-gray-400 font-mono truncate border-t border-dashed border-gray-100 pt-1.5 mt-1.5"><i class="fas fa-database mr-1"></i> ${w.collection || 'No Collection'}</div>
                 </div>
-                <div class="h-7 bg-gray-50 border-t border-gray-100 flex items-center divide-x divide-gray-200 opacity-80 hover:opacity-100 transition-opacity">
-                    <button onclick="resizeWidget(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-blue-600 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1"><i class="fas fa-expand-alt"></i> Size</button>
-                    <button onclick="editWidgetConfig(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-orange-500 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1"><i class="fas fa-cog"></i> Edit</button>
-                    <div class="flex w-14">
-                        <button onclick="moveWidget(${idx}, -1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === 0 ? 'opacity-30' : ''}" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
-                        <button onclick="moveWidget(${idx}, 1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === totalWidgets - 1 ? 'opacity-30' : ''}" ${idx === totalWidgets - 1 ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                    <button onclick="removeBuilderWidget(${idx})" class="w-7 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors h-full"><i class="fas fa-times text-[9px]"></i></button>
-                </div>
-            </div>`
+            </div>
+            <div class="text-[9px] text-gray-400 font-mono truncate border-t border-dashed border-gray-100 pt-1.5 mt-1.5"><i class="fas fa-database mr-1"></i> ${w.collection || 'No Collection'}</div>
+        </div>
+        <div class="h-7 bg-gray-50 border-t border-gray-100 flex items-center divide-x divide-gray-200 opacity-80 hover:opacity-100 transition-opacity">
+            <button onclick="resizeWidget(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-blue-600 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1"><i class="fas fa-expand-alt"></i> Size</button>
+            <button onclick="editWidgetConfig(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-orange-500 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1"><i class="fas fa-cog"></i> Edit</button>
+            <div class="flex w-14">
+                <button onclick="moveWidget(${idx}, -1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === 0 ? 'opacity-30' : ''}" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                <button onclick="moveWidget(${idx}, 1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === totalWidgets - 1 ? 'opacity-30' : ''}" ${idx === totalWidgets - 1 ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <button onclick="removeBuilderWidget(${idx})" class="w-7 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors h-full"><i class="fas fa-times text-[9px]"></i></button>
+        </div>
+    </div>`
   })
   .join('')
 }
@@ -687,6 +584,27 @@ export function editWidgetConfig(index) {
  const modal = document.getElementById('widget-config-modal')
  const panel = document.getElementById('config-panel')
 
+ // 1. Deteksi Config Saat Ini
+ const currentConfig = widget.data_config || {}
+ const source = currentConfig.source || 'static'
+
+ // 2. Siapkan Default Values
+ const valCollection =
+  source === 'database'
+   ? currentConfig.collection || widget.collection || ''
+   : widget.collection || ''
+
+ const valPipeline =
+  source === 'database'
+   ? JSON.stringify(currentConfig.pipeline || [{ $match: {} }], null, 2)
+   : '[\n  { "$match": {} }\n]'
+
+ const valStatic =
+  source === 'static'
+   ? JSON.stringify(currentConfig.static_data || [{ label: 'Data', value: 0 }], null, 2)
+   : '[\n  { "label": "Contoh", "value": 100 }\n]'
+
+ // 3. Render Form
  formContainer.innerHTML = `
         <div class="space-y-5">
             <div class="space-y-3">
@@ -696,47 +614,73 @@ export function editWidgetConfig(index) {
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</label>
-                    <input type="text" id="conf-desc" value="${widget.description || ''}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all" placeholder="Keterangan widget...">
+                    <input type="text" id="conf-desc" value="${widget.description || ''}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all">
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width (Grid)</label>
-                    <select id="conf-width" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-blue-500 cursor-pointer">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label>
+                    <select id="conf-width" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-blue-500">
                         <option value="quarter" ${widget.width === 'quarter' ? 'selected' : ''}>Quarter (1/4)</option>
                         <option value="half" ${widget.width === 'half' ? 'selected' : ''}>Half (1/2)</option>
                         <option value="full" ${widget.width === 'full' ? 'selected' : ''}>Full (1/1)</option>
                     </select>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Refresh Data(Menit)</label>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Refresh (Detik)</label>
                     <input type="number" id="conf-refresh" value="${widget.refresh_interval || 0}" min="0" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                 </div>
             </div>
 
-            <div class="space-y-1.5">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Collection</label>
-                <div class="relative">
-                    <i class="fas fa-database absolute left-3 top-3 text-gray-400 text-xs"></i>
-                    <input type="text" id="conf-collection" value="${widget.collection || ''}" class="w-full pl-8 p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-600 outline-none focus:border-blue-500 transition-all">
-                </div>
-            </div>
+            <hr class="border-gray-100">
 
-            <div class="space-y-1.5 pt-2">
-                <div class="flex justify-between items-center">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Config (JSON)</label>
-                    <span class="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold">Mongo Aggregate</span>
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Source</label>
+                
+                <div class="flex p-1 bg-gray-100 rounded-xl">
+                    <button type="button" onclick="switchConfigTab('static')" id="btn-source-static" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'static' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
+                        <i class="fas fa-code mr-1"></i> Static
+                    </button>
+                    <button type="button" onclick="switchConfigTab('database')" id="btn-source-db" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'database' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
+                        <i class="fas fa-database mr-1"></i> Database
+                    </button>
                 </div>
-                <textarea id="conf-data-config" rows="8" class="w-full bg-[#1e293b] text-emerald-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${JSON.stringify(widget.data_config || [], null, 2)}</textarea>
+                <input type="hidden" id="conf-source" value="${source}">
+
+                <div id="panel-config-static" class="${source === 'static' ? '' : 'hidden'} space-y-2 animate-in fade-in">
+                    <div class="flex justify-between items-center">
+                         <label class="text-[10px] font-bold text-gray-400 uppercase">JSON Data</label>
+                         <span class="text-[9px] text-blue-500 cursor-pointer hover:underline">Lihat format ${widget.type}</span>
+                    </div>
+                    <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${valStatic}</textarea>
+                </div>
+
+                <div id="panel-config-db" class="${source === 'database' ? '' : 'hidden'} space-y-4 animate-in fade-in">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Collection Name</label>
+                        <div class="relative">
+                            <i class="fas fa-table absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                            <input type="text" id="conf-collection" value="${valCollection}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center">
+                             <label class="text-[10px] font-bold text-gray-400 uppercase">Aggregation Pipeline</label>
+                             <span class="text-[9px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded font-bold">MongoDB</span>
+                        </div>
+                        <textarea id="conf-pipeline" rows="6" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='[{"$match": ...}]'>${valPipeline}</textarea>
+                    </div>
+                </div>
             </div>
         </div>
     `
 
  modal.classList.remove('hidden')
  setTimeout(() => {
-  panel.classList.remove('translate-y-full') // Mobile Reset
-  panel.classList.remove('lg:translate-x-full') // Desktop Reset
+  panel.classList.remove('translate-y-full')
+  panel.classList.remove('lg:translate-x-full')
  }, 10)
 }
 
@@ -751,30 +695,51 @@ export function closeWidgetConfigModal() {
 export function applyWidgetChanges() {
  if (currentEditingIndex === null) return
 
- // Ambil value dari form baru
+ // 1. Ambil Basic Info
  const title = document.getElementById('conf-title').value
  const desc = document.getElementById('conf-desc').value
  const width = document.getElementById('conf-width').value
  const refresh = parseInt(document.getElementById('conf-refresh').value) || 0
- const collection = document.getElementById('conf-collection').value
+ const source = document.getElementById('conf-source').value
 
- let dataConfig = []
+ let newDataConfig = {}
+ let collectionName = ''
+
+ // 2. Build Config Berdasarkan Source
  try {
-  dataConfig = JSON.parse(document.getElementById('conf-data-config').value)
+  if (source === 'static') {
+   const jsonStr = document.getElementById('conf-static-json').value
+   const parsedData = JSON.parse(jsonStr)
+   // Gunakan Builder
+   newDataConfig = WidgetConfigBuilder.staticData(parsedData)
+  } else {
+   // Database
+   collectionName = document.getElementById('conf-collection').value
+   const pipeStr = document.getElementById('conf-pipeline').value
+
+   if (!collectionName) throw new Error('Collection name wajib diisi')
+
+   const parsedPipe = JSON.parse(pipeStr)
+   if (!Array.isArray(parsedPipe)) throw new Error('Pipeline harus berupa Array []')
+
+   // Gunakan Builder
+   newDataConfig = WidgetConfigBuilder.database(collectionName, parsedPipe)
+  }
  } catch (e) {
-  showToast('Invalid JSON Format', 'error')
+  showToast(`Format Error: ${e.message}`, 'error')
   return
  }
 
- // Update State
+ // 3. Update Widget di State
  const target = AppState.tempBuilderWidgets[currentEditingIndex]
  target.title = title
  target.description = desc
  target.width = width
  target.refresh_interval = refresh
- target.collection = collection
- target.data_config = dataConfig
+ target.collection = collectionName // Update root collection untuk UI
+ target.data_config = newDataConfig // Update config lengkap untuk logic
 
+ // 4. Render Ulang & Tutup
  renderBuilderWidgets()
  closeWidgetConfigModal()
  showToast('Widget Updated', 'success')
@@ -1011,6 +976,32 @@ export function switchSettingsTab(tab) {
   'px-4 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all rounded-md bg-white shadow-sm text-blue-600 border border-gray-200'
 }
 
-function generateTempId() {
- return 'w_' + Math.random().toString(36).substr(2, 9)
+// Helper UI untuk ganti tab di dalam Side Panel
+window.switchConfigTab = (mode) => {
+ const btnStatic = document.getElementById('btn-source-static')
+ const btnDb = document.getElementById('btn-source-db')
+ const panelStatic = document.getElementById('panel-config-static')
+ const panelDb = document.getElementById('panel-config-db')
+ const inputSource = document.getElementById('conf-source')
+
+ if (!btnStatic || !btnDb) return
+
+ // Set Hidden Input Value
+ inputSource.value = mode
+
+ if (mode === 'static') {
+  btnStatic.className =
+   'flex-1 py-2 rounded-lg text-[10px] font-bold transition-all bg-white shadow text-blue-600 border border-gray-100'
+  btnDb.className =
+   'flex-1 py-2 rounded-lg text-[10px] font-bold transition-all text-gray-500 hover:text-gray-700'
+  panelStatic.classList.remove('hidden')
+  panelDb.classList.add('hidden')
+ } else {
+  btnDb.className =
+   'flex-1 py-2 rounded-lg text-[10px] font-bold transition-all bg-white shadow text-blue-600 border border-gray-100'
+  btnStatic.className =
+   'flex-1 py-2 rounded-lg text-[10px] font-bold transition-all text-gray-500 hover:text-gray-700'
+  panelDb.classList.remove('hidden')
+  panelStatic.classList.add('hidden')
+ }
 }

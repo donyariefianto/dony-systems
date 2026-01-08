@@ -673,71 +673,8 @@ export default class BackendsController {
    ],
   }
  }
- async dashboardStats({ response }: HttpContext) {
-  const stats = {
-   success: true,
-   data: {
-    last_updated: '27 Okt 2023, 14:00',
-    cache_status: 'hit',
-    widgets: [
-     {
-      type: 'stat',
-      label: 'Total Omzet Hari Ini',
-      value: 'Rp 12.450.000',
-      trend: 'up',
-      percentage: '+12%',
-      progress: 75,
-      color: 'blue',
-     },
-     {
-      type: 'stat',
-      label: 'Pesanan Diproses',
-      value: '48',
-      trend: 'down',
-      percentage: '-5%',
-      progress: 40,
-      color: 'orange',
-     },
-     {
-      type: 'stat',
-      label: 'Stok Menipis',
-      value: '12 Produk',
-      trend: 'up',
-      percentage: 'Perlu Re-stock',
-      progress: 90,
-      color: 'red',
-     },
-     {
-      type: 'stat',
-      label: 'Pelanggan Baru',
-      value: '15',
-      trend: 'up',
-      percentage: '+3',
-      progress: 60,
-      color: 'emerald',
-     },
-     {
-      type: 'chart',
-      label: 'Grafik Penjualan Mingguan',
-      chartType: 'line',
-      width: 'half',
-      chartData: {
-       labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-       datasets: [
-        {
-         label: 'Penjualan',
-         data: [120, 190, 150, 250, 220, 310, 280],
-         borderColor: '#2563eb',
-         backgroundColor: 'rgba(37, 99, 235, 0.1)',
-         fill: true,
-        },
-       ],
-      },
-     },
-    ],
-   },
-  }
-  return response.send(stats)
+ async dashboardSnapshots({ response, request }: HttpContext) {
+  return response.send({})
  }
  async settingsGeneral({ response }: HttpContext) {
   const settings = {
@@ -756,11 +693,21 @@ export default class BackendsController {
  }
  async getCollectionData({ params, request, response }: HttpContext) {
   const colName = params.col
-  const { page = 1, limit = 10, sortField, sortOrder, search } = request.all()
+  const { page = 1, limit = 10, sortField, sortOrder, search, filter } = request.all()
   const collections = database.data?.collection(colName)
   let query: any = {}
   if (search) {
-   query = { $text: { $search: search } }
+   let object_search = JSON.parse(search)
+   query.$or = []
+   for (const element of Object.keys(object_search)) {
+    query.$or.push({ [element]: { $regex: object_search[element], $options: 'i' } })
+   }
+  }
+  if (filter) {
+   let object_filter = JSON.parse(filter)
+   for (const element of Object.keys(object_filter)) {
+    query[element] = object_filter[element]
+   }
   }
   const skip = (page - 1) * limit
   const sort = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
