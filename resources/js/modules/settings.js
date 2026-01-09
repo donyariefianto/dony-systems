@@ -604,7 +604,25 @@ export function editWidgetConfig(index) {
    ? JSON.stringify(currentConfig.static_data || [{ label: 'Data', value: 0 }], null, 2)
    : '[\n  { "label": "Contoh", "value": 100 }\n]'
 
- // 3. Render Form
+ // 3. Siapkan nilai untuk echartsOptions
+ let echartsOptionsValue = '{}'
+
+ if (widget.echartsOptions) {
+  try {
+   if (typeof widget.echartsOptions === 'string') {
+    // Jika berupa string JSON, format dengan indentasi
+    const parsed = JSON.parse(widget.echartsOptions)
+    echartsOptionsValue = JSON.stringify(parsed, null, 2)
+   } else {
+    // Jika berupa object, stringify dengan format
+    echartsOptionsValue = JSON.stringify(widget.echartsOptions, null, 2)
+   }
+  } catch (e) {
+   echartsOptionsValue = JSON.stringify({}, null, 2)
+  }
+ }
+
+ // 4. Render Form
  formContainer.innerHTML = `
         <div class="space-y-5">
             <div class="space-y-3">
@@ -672,6 +690,20 @@ export function editWidgetConfig(index) {
                         </div>
                         <textarea id="conf-pipeline" rows="6" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='[{"$match": ...}]'>${valPipeline}</textarea>
                     </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ECharts Configuration</label>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center">
+                         <label class="text-[10px] font-bold text-gray-400 uppercase">ECharts Options (JSON)</label>
+                         <span class="text-[9px] text-blue-500 cursor-pointer hover:underline">ECharts Documentation</span>
+                    </div>
+                    <textarea id="conf-echarts-options" rows="10" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='{"title": {"text": "Chart Title"}, "series": [...]}'>${echartsOptionsValue}</textarea>
+                    <p class="text-[10px] text-gray-500">Konfigurasi ECharts untuk menyesuaikan tampilan chart. Gunakan format JSON.</p>
                 </div>
             </div>
         </div>
@@ -762,6 +794,7 @@ export async function saveDashboardBuilder() {
    position: index + 1,
    collection: w.collection,
    refresh_interval: w.refresh_interval || 0,
+   echarts_options: w.echarts_options,
    data_config: w.data_config,
   })),
  }
