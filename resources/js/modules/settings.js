@@ -607,15 +607,15 @@ export function editWidgetConfig(index) {
  // 3. Siapkan nilai untuk echartsOptions
  let echartsOptionsValue = '{}'
 
- if (widget.echartsOptions) {
+ if (widget.echarts_options) {
   try {
    if (typeof widget.echartsOptions === 'string') {
     // Jika berupa string JSON, format dengan indentasi
-    const parsed = JSON.parse(widget.echartsOptions)
+    const parsed = JSON.parse(widget.echarts_options)
     echartsOptionsValue = JSON.stringify(parsed, null, 2)
    } else {
     // Jika berupa object, stringify dengan format
-    echartsOptionsValue = JSON.stringify(widget.echartsOptions, null, 2)
+    echartsOptionsValue = JSON.stringify(widget.echarts_options, null, 2)
    }
   } catch (e) {
    echartsOptionsValue = JSON.stringify({}, null, 2)

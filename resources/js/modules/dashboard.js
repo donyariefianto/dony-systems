@@ -1,7 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { showToast } from '../utils/helpers.js'
-
 // ============================================
 // HELPER: LAZY LOAD ECHARTS + GL
 // ============================================
@@ -402,7 +401,6 @@ async function initChartDispatcher(containerId, widget, data, isFullscreen = fal
 
  if (height === 0) {
   if (attempt < 15) {
-   // Retry mechanism (1.5 detik)
    setTimeout(() => initChartDispatcher(containerId, widget, data, isFullscreen, attempt + 1), 100)
    return
   }
@@ -435,7 +433,7 @@ async function initChartDispatcher(containerId, widget, data, isFullscreen = fal
   let option = {
    backgroundColor: 'transparent',
    tooltip: { trigger: 'item' },
-   ...widget.echartsOptions,
+   ...widget.echarts_options,
   }
 
   if (!option.series || option.series.length === 0) {
@@ -451,17 +449,23 @@ async function initChartDispatcher(containerId, widget, data, isFullscreen = fal
    handleFlowChart(option, data, subtype)
   } else {
    // Default: Bar, Line, Mixed, Pie, Gauge
-   handleStandardChart(option, data, subtype)
+   handleStandardChart(option, data, subtype, myChart)
   }
 
   // E. RENDER
-  myChart.setOption(option)
+  //   if (subtype === 'scatter_aggregate') {
+  //    setInterval(function () {
+  //     myChart.setOption(option, true)
+  //    }, 2000)
+  //   } else {
+  //    myChart.setOption(option)
+  //   }
 
   // Safety Resize
-  setTimeout(() => {
-   if (chartDom.style.height === '300px') chartDom.style.height = ''
-   myChart.resize()
-  }, 100)
+  //   setTimeout(() => {
+  //    if (chartDom.style.height === '300px') chartDom.style.height = ''
+  //    myChart.resize()
+  //   }, 100)
 
   if (!chartDom._ro) {
    const ro = new ResizeObserver(() => myChart.resize())
@@ -516,53 +520,261 @@ function handleFlowChart(option, data, subtype) {
  }
 }
 
-function handleStandardChart(option, data, subtype) {
- // Pie / Gauge / Funnel
- if (['pie', 'gauge', 'funnel'].includes(subtype)) {
-  delete option.xAxis
-  delete option.yAxis
-  delete option.grid
-  option.series[0].data = data.map((d) => ({
-   name: d.label || d.name || 'Item',
-   value: d.value || 0,
-  }))
-  return
+function handleStandardChart(option, data, subtype, myChart) {
+ // Cartesian (Bar, Line, Scatter 2D)
+ if (subtype.includes('line')) {
+  if (subtype === 'line_smooth') {
+   const labels = data.map((d) => d.label || d._id || '-')
+   const vals = data.map((d) => d.value || 0)
+   option.xAxis = { data: labels }
+   option.series[0].type = 'line'
+   option.series[0].data = vals
+   return myChart.setOption(option)
+  } else if (subtype === 'line_stacked') {
+   option.xAxis[0].data = data.xAxis
+   option.legend.data = data.legend
+   option.series = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'line_area_large') {
+   option.xAxis.data = data.xAxis
+   option.series[0].data = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'line_multi_x') {
+   for (const element of option.xAxis) {
+    element.data = data.axisPointer
+   }
+   option.series = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'line_race') {
+   option.dataset.source = data
+   return myChart.setOption(option)
+  }
  }
 
- // Cartesian (Bar, Line, Scatter 2D)
- const labels = data.map((d) => d.label || d._id || '-')
- const vals = data.map((d) => d.value || 0)
+ if (subtype.includes('bar')) {
+  if (subtype === 'bar_large') {
+   option.xAxis.data = data.category_data
+   option.series[0].data = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'bar_race') {
+   option.xAxis = data.xAxis
+   option.yAxis.data = data.yAxis
+   option.series[0].data = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'bar_multi_y' || subtype === 'mixed_line_bar') {
+   option.legend.data = data.legend
+   option.xAxis = data.xAxis
+   option.yAxis = data.yAxis
+   option.series = data.data
+   return myChart.setOption(option)
+  }
+ }
+
+ if (subtype.includes('pie')) {
+  if (subtype === 'pie_doughnut_rounded') {
+   option.series[0].data = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'pie_scroll') {
+   option.legend = data.legend
+   option.series = data.data
+   return myChart.setOption(option)
+  }
+ }
 
  if (subtype.includes('scatter')) {
-  if (!option.xAxis) option.xAxis = { type: 'value', scale: true }
-  if (!option.yAxis) option.yAxis = { type: 'value', scale: true }
-  option.series[0].data = data
-  return
- }
- // Mixed & Standard
- if (subtype === 'mixed') {
-  const trends = data.map((d) => d.trend || 0)
-  if (option.series.length < 2)
-   option.series = [
-    { type: 'bar', name: 'Main' },
-    { type: 'line', yAxisIndex: 1, name: 'Trend' },
+  if (subtype === 'scatter_cluster') {
+   var originalData = data
+   var DIM_CLUSTER_INDEX = 2
+   var DATA_DIM_IDX = [0, 1]
+   var CENTER_DIM_IDX = [3, 4]
+   var step = ecStat.clustering.hierarchicalKMeans(originalData, {
+    clusterCount: 6,
+    outputType: 'single',
+    outputClusterIndexDimension: DIM_CLUSTER_INDEX,
+    outputCentroidDimensions: CENTER_DIM_IDX,
+    stepByStep: true,
+   })
+   var colorAll = [
+    '#bbb',
+    '#37A2DA',
+    '#e06343',
+    '#37a354',
+    '#b55dba',
+    '#b5bd48',
+    '#8378EA',
+    '#96BFFF',
    ]
+   var ANIMATION_DURATION_UPDATE = 1500
+   function renderItemPoint(params, api) {
+    var coord = api.coord([api.value(0), api.value(1)])
+    var clusterIdx = api.value(2)
+    if (clusterIdx == null || isNaN(clusterIdx)) {
+     clusterIdx = 0
+    }
+    var isNewCluster = clusterIdx === api.value(3)
+    var extra = {
+     transition: [],
+    }
+    var contentColor = colorAll[clusterIdx]
+    return {
+     type: 'circle',
+     x: coord[0],
+     y: coord[1],
+     shape: {
+      cx: 0,
+      cy: 0,
+      r: 10,
+     },
+     extra: extra,
+     style: {
+      fill: contentColor,
+      stroke: '#333',
+      lineWidth: 1,
+      shadowColor: contentColor,
+      shadowBlur: isNewCluster ? 12 : 0,
+      transition: ['shadowBlur', 'fill'],
+     },
+    }
+   }
+   function renderBoundary(params, api) {
+    var xVal = api.value(0)
+    var yVal = api.value(1)
+    var maxDist = api.value(2)
+    var center = api.coord([xVal, yVal])
+    var size = api.size([maxDist, maxDist])
+    return {
+     type: 'ellipse',
+     shape: {
+      cx: isNaN(center[0]) ? 0 : center[0],
+      cy: isNaN(center[1]) ? 0 : center[1],
+      rx: isNaN(size[0]) ? 0 : size[0] + 15,
+      ry: isNaN(size[1]) ? 0 : size[1] + 15,
+     },
+     extra: {
+      renderProgress: ++targetRenderProgress,
+      enterFrom: {
+       renderProgress: 0,
+      },
+      transition: 'renderProgress',
+     },
+     style: {
+      fill: null,
+      stroke: 'rgba(0,0,0,0.2)',
+      lineDash: [4, 4],
+      lineWidth: 4,
+     },
+    }
+   }
+   function makeStepOption(option, data, centroids) {
+    var newCluIdx = centroids ? centroids.length - 1 : -1
+    var maxDist = 0
+    for (var i = 0; i < data.length; i++) {
+     var line = data[i]
+     if (line[DIM_CLUSTER_INDEX] === newCluIdx) {
+      var dist0 = Math.pow(line[DATA_DIM_IDX[0]] - line[CENTER_DIM_IDX[0]], 2)
+      var dist1 = Math.pow(line[DATA_DIM_IDX[1]] - line[CENTER_DIM_IDX[1]], 2)
+      maxDist = Math.max(maxDist, dist0 + dist1)
+     }
+    }
+    var boundaryData = centroids
+     ? [[centroids[newCluIdx][0], centroids[newCluIdx][1], Math.sqrt(maxDist)]]
+     : []
+    option.options.push({
+     series: [
+      {
+       type: 'custom',
+       encode: {
+        tooltip: [0, 1],
+       },
+       renderItem: renderItemPoint,
+       data: data,
+      },
+      {
+       type: 'custom',
+       renderItem: renderBoundary,
+       animationDuration: 3000,
+       silent: true,
+       data: boundaryData,
+      },
+     ],
+    })
+   }
+   var targetRenderProgress = 0
+   makeStepOption(option, originalData)
+   option.timeline.data.push('0')
+   for (var i = 1, stepResult; !(stepResult = step.next()).isEnd; i++) {
+    makeStepOption(
+     option,
+     echarts.util.clone(stepResult.data),
+     echarts.util.clone(stepResult.centroids)
+    )
+    option.timeline.data.push(i + '')
+   }
+   return myChart.setOption(option)
+  } else if (subtype === 'scatter_basic') {
+   option.series[0].data = data.data
+   return myChart.setOption(option)
+  } else if (subtype === 'scatter_aggregate') {
+   function calculateAverage(data, dim) {
+    let total = 0
+    for (var i = 0; i < data.length; i++) {
+     total += data[i][dim]
+    }
+    return (total /= data.length)
+   }
+   const scatterOption = (option = {
+    xAxis: {
+     scale: true,
+    },
+    yAxis: {
+     scale: true,
+    },
+    series: data.data.map((x) => {
+     return {
+      type: 'scatter',
+      universalTransition: {
+       enabled: true,
+       delay: 1500,
+      },
+      data: x.data,
+      id: x.name,
+      dataGroupId: x.name,
+     }
+    }),
+   })
 
-  option.series[0].data = vals
-  option.series[1].data = trends
-
-  if (!option.yAxis || !Array.isArray(option.yAxis))
-   option.yAxis = [{ type: 'value' }, { type: 'value', splitLine: { show: false } }]
- } else {
-  option.series[0].data = vals
+   const barOption = {
+    xAxis: {
+     type: 'category',
+     data: data.data.map((d) => d.name || '-'),
+    },
+    yAxis: {},
+    series: [
+     {
+      type: 'bar',
+      id: 'total',
+      dataa: data.data.map((x) => {
+       return {
+        value: calculateAverage(x.data, 0),
+        groupId: x.name,
+       }
+      }),
+      universalTransition: {
+       enabled: true,
+       seriesKey: data.data.map((d) => d.name || '-'),
+       delay: 1500,
+      },
+     },
+    ],
+   }
+   let currentOption = scatterOption
+//    setInterval(function () {
+//     currentOption = currentOption === scatterOption ? barOption : scatterOption
+//     console.log(currentOption)
+//    }, 5000)
+   return myChart.setOption(currentOption)
+  }
  }
-
- // Default Axis
- if (!option.xAxis) option.xAxis = { type: 'category', data: labels }
- else if (!option.xAxis.data) option.xAxis.data = labels
-
- if (!option.yAxis) option.yAxis = { type: 'value' }
- option.tooltip.trigger = 'axis'
 }
 
 window.openDashboardSelector = async function () {
