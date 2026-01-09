@@ -406,9 +406,29 @@ export const WidgetRegistry = {
      radar: { indicator: [{ name: 'K1' }, { name: 'K2' }, { name: 'K3' }, { name: 'K4' }] },
      series: [{ type: 'radar', areaStyle: {} }],
     },
-    data_config: WidgetConfigBuilder.staticData([
-     { value: [4200, 3000, 20000, 35000], name: 'Stats' },
-    ]),
+    data_config: WidgetConfigBuilder.staticData({
+     legend: {
+      data: ['Allocated Budget', 'Actual Spending'],
+     },
+     indicator: [
+      { name: 'Sales', max: 6500 },
+      { name: 'Administration', max: 16000 },
+      { name: 'Information Technology', max: 30000 },
+      { name: 'Customer Support', max: 38000 },
+      { name: 'Development', max: 52000 },
+      { name: 'Marketing', max: 25000 },
+     ],
+     data: [
+      {
+       value: [4200, 3000, 20000, 35000, 50000, 18000],
+       name: 'Allocated Budget',
+      },
+      {
+       value: [5000, 14000, 28000, 26000, 42000, 21000],
+       name: 'Actual Spending',
+      },
+     ],
+    }),
    },
   },
   gauge_basic: {
@@ -621,65 +641,6 @@ export const WidgetRegistry = {
     data_config: WidgetConfigBuilder.staticData([
      [1, 2, 3],
      [4, 5, 6],
-    ]),
-   },
-  },
-  surface_simple: {
-   name: 'Simple Surface',
-   icon: 'fa-mountain',
-   category: '3d',
-   desc: 'Math surface plot',
-   defaultConfig: {
-    type: 'chart',
-    subtype: 'surface',
-    width: 'half',
-    title: 'Topography',
-    icon: 'fa-mountain',
-    is3D: true,
-    echartsOptions: {
-     grid3D: {},
-     xAxis3D: {},
-     yAxis3D: {},
-     zAxis3D: {},
-     series: [
-      {
-       type: 'surface',
-       equation: {
-        x: { step: 0.05, min: -3, max: 3 },
-        y: { step: 0.05, min: -3, max: 3 },
-        z: function (x, y) {
-         return (Math.sin(x * x + y * y) * x) / 3.14
-        },
-       },
-      },
-     ],
-    },
-    data_config: WidgetConfigBuilder.staticData([
-     [-1, -1, -0.30116867893975674],
-     [-1, -0.5, 0.036111577082476254],
-     [-1, 0, 0.1585290151921035],
-     [-1, 0.5, 0.036111577082476254],
-     [-1, 1, -0.30116867893975674],
-     [-0.5, -1, 0.06087676726393676],
-     [-0.5, -0.5, 0.39815702328616975],
-     [-0.5, 0, 0.520574461395797],
-     [-0.5, 0.5, 0.39815702328616975],
-     [-0.5, 1, 0.06087676726393676],
-     [0, -1, 0.5403023058681398],
-     [0, -0.5, 0.8775825618903728],
-     [0, 0, 1],
-     [0, 0.5, 0.8775825618903728],
-     [0, 1, 0.5403023058681398],
-     [0.5, -1, 1.0197278444723428],
-     [0.5, -0.5, 1.3570081004945758],
-     [0.5, 0, 1.479425538604203],
-     [0.5, 0.5, 1.3570081004945758],
-     [0.5, 1, 1.0197278444723428],
-     [1, -1, 1.3817732906760363],
-     [1, -0.5, 1.7190535466982693],
-     [1, 0, 1.8414709848078965],
-     [1, 0.5, 1.7190535466982693],
-     [1, 1, 1.3817732906760363],
     ]),
    },
   },

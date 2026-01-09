@@ -340,9 +340,10 @@ window.refreshAllWidgets = function () {
 }
 
 // ============================================
-// 4. RENDER CONTENT
+// 4. RENDER CONTENT (CLEAN & STRICT)
 // ============================================
 function renderWidgetContent(container, widget, data, isFullscreen = false) {
+ // Validasi Ketat: Jika tidak ada data, langsung tolak.
  if (!data || data.length === 0) {
   container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400"><span class="text-[10px] font-bold uppercase tracking-widest opacity-60">No Data Available</span></div>`
   return
@@ -350,8 +351,15 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
 
  if (widget.type === 'chart') {
   const chartId = isFullscreen ? `echart-fs-${widget.id}` : `echart-${widget.id}`
-  container.innerHTML = `<div class="w-full h-full min-h-[180px] relative"><div id="${chartId}" class="w-full h-full absolute inset-0"></div></div>`
-  setTimeout(() => initChartWidget(chartId, widget, data, isFullscreen), 0)
+
+  // Container Chart
+  container.innerHTML = `
+            <div class="w-full h-full min-h-[180px] relative overflow-hidden group">
+                <div id="${chartId}" class="w-full h-full absolute inset-0"></div>
+            </div>`
+
+  // Delay 100ms agar animasi CSS (zoom/fade) selesai sebagian sebelum render chart
+  setTimeout(() => initChartDispatcher(chartId, widget, data, isFullscreen), 100)
  } else if (widget.type === 'stat') {
   const item = data[0] || {}
   const mainValue = item.value || item.total || item.count || '0'
@@ -372,15 +380,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
             <div class="overflow-hidden -mx-5 animate-in fade-in duration-500 h-full overflow-y-auto custom-scrollbar px-5">
                 <table class="w-full text-left">
                     <tbody class="divide-y divide-gray-100">
-                        ${data
-                         .map(
-                          (row) => `
-                            <tr class="hover:bg-blue-50/30 transition-colors group">
-                                <td class="px-5 py-4 text-sm font-bold text-gray-600 truncate group-hover:text-blue-600 transition-colors">${row.name || row.title || row._id || '-'}</td>
-                                <td class="px-5 py-4 text-sm font-mono text-gray-400 text-right">${row.status || row.date || row.value || '-'}</td>
-                            </tr>`
-                         )
-                         .join('')}
+                        ${data.map((row) => `<tr class="hover:bg-blue-50/30 transition-colors group"><td class="px-5 py-4 text-sm font-bold text-gray-600 truncate group-hover:text-blue-600 transition-colors">${row.name || row.title || row._id || '-'}</td><td class="px-5 py-4 text-sm font-mono text-gray-400 text-right">${row.status || row.date || row.value || '-'}</td></tr>`).join('')}
                     </tbody>
                 </table>
             </div>`
@@ -390,238 +390,180 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
 }
 
 // ============================================
-// 5. CHART INITIALIZATION (SUPPORT SANKEY & 3D)
+// 5. CHART DISPATCHER (NO SURFACE SUPPORT)
 // ============================================
-async function initChartWidget(containerId, widget, data, isFullscreen = false) {
+async function initChartDispatcher(containerId, widget, data, isFullscreen = false, attempt = 0) {
  const chartDom = document.getElementById(containerId)
  if (!chartDom) return
 
+ // A. DOM POLLING (Tunggu Container Siap)
+ let width = chartDom.clientWidth
+ let height = chartDom.clientHeight
+
+ if (height === 0) {
+  if (attempt < 15) {
+   // Retry mechanism (1.5 detik)
+   setTimeout(() => initChartDispatcher(containerId, widget, data, isFullscreen, attempt + 1), 100)
+   return
+  }
+  // Fallback terakhir
+  height = 300
+  chartDom.style.height = '300px'
+ }
+
  try {
-  // 1. Detect Library Requirement
-  const is3D =
-   widget.is3D ||
-   widget.subtype?.includes('3D') ||
-   widget.type === 'surface' ||
-   widget.category === '3d'
+  // B. SETUP LIBRARY
+  const subtype = widget.subtype || 'bar'
+  // Cek 3D standar (Bar3D/Scatter3D) tapi abaikan surface
+  const is3D = widget.is3D || subtype.includes('3D') || widget.category === '3d'
+
   const echarts = await loadECharts(is3D)
 
-  // 2. Dispose Old Instance
-  if (!isFullscreen) {
-   if (AppState.dashboard.charts[containerId]) AppState.dashboard.charts[containerId].dispose()
-  } else {
-   if (dashboardState.activeFsChart) dashboardState.activeFsChart.dispose()
-  }
+  // Dispose Chart Lama
+  const oldChart = isFullscreen
+   ? dashboardState.activeFsChart
+   : AppState.dashboard.charts[containerId]
+  if (oldChart) oldChart.dispose()
 
-  // 3. Init Instance
-  const myChart = echarts.init(chartDom)
+  // Init Baru
+  const myChart = echarts.init(chartDom, null, { width: width || 'auto', height: height || 'auto' })
+
   if (!isFullscreen) AppState.dashboard.charts[containerId] = myChart
   else dashboardState.activeFsChart = myChart
 
-  // 4. BASE OPTION
+  // C. BASE OPTION
   let option = {
    backgroundColor: 'transparent',
    tooltip: { trigger: 'item' },
-   ...widget.echartsOptions, // Merge config dari registry/db
+   ...widget.echartsOptions,
   }
 
-  const subtype = widget.subtype || 'bar'
-
-  // Pastikan Series Array Ada
-  if (!option.series) option.series = []
-  if (option.series.length === 0) {
-   if (subtype === 'mixed') {
-    option.series.push({ type: 'bar', name: 'Main' })
-    option.series.push({ type: 'line', name: 'Trend', yAxisIndex: 1 }) // Dual Axis
-   } else {
-    option.series.push({ type: subtype })
-   }
+  if (!option.series || option.series.length === 0) {
+   option.series = [{ type: subtype }]
   }
 
-  // -----------------------------------------------------------
-  // 5. DATA INJECTION LOGIC (Fixed Radar & Scatter)
-  // -----------------------------------------------------------
-
-  // --- KASUS A: RADAR (Fix Basic Radar) ---
-  if (subtype === 'radar') {
-   // Radar tidak butuh axis cartesian
-   delete option.xAxis
-   delete option.yAxis
-   delete option.grid
-
-   // Pastikan komponen radar (indicator) ada.
-   // Jika user lupa set di config, kita beri default dummy agar tidak crash.
-   if (!option.radar) {
-    option.radar = {
-     indicator: [{ name: 'A' }, { name: 'B' }, { name: 'C' }, { name: 'D' }, { name: 'E' }],
-    }
-   }
-
-   // Inject Data:
-   // Format data radar biasanya [{ value: [10, 20...], name: 'Label' }]
-   // Jika data statis sudah benar, langsung inject.
-   if (option.series && option.series[0]) {
-    option.series[0].data = data
-   }
+  // D. DISPATCH TO HANDLERS (Tanpa Surface)
+  if (is3D) {
+   handleGeneric3DChart(option, data, subtype)
+  } else if (subtype === 'radar') {
+   handleRadarChart(option, data)
+  } else if (['sankey', 'tree', 'graph'].includes(subtype)) {
+   handleFlowChart(option, data, subtype)
+  } else {
+   // Default: Bar, Line, Mixed, Pie, Gauge
+   handleStandardChart(option, data, subtype)
   }
 
-  // --- KASUS B: SCATTER (Fix Basic Scatter) ---
-  else if (subtype.includes('scatter') && !is3D) {
-   // Scatter butuh Axis X & Y bertipe 'value' (bukan category)
-   // agar titik koordinat (x,y) bisa dirender
-   if (!option.xAxis) option.xAxis = {}
-   if (!option.yAxis) option.yAxis = {}
-
-   // Paksa tipe axis ke 'value' dan aktifkan scale agar titik tidak mepet pinggir
-   option.xAxis.type = 'value'
-   option.xAxis.scale = true
-
-   option.yAxis.type = 'value'
-   option.yAxis.scale = true
-
-   // Grid default jika belum ada
-   if (!option.grid) option.grid = { top: 30, right: 30, bottom: 20, left: 40, containLabel: true }
-
-   // Inject Data Scatter (Format: [[x,y], [x,y]])
-   if (option.series && option.series[0]) {
-    option.series[0].data = data
-    // Opsional: set symbolSize default jika belum ada
-    if (!option.series[0].symbolSize) option.series[0].symbolSize = 10
-   }
-  }
-
-  // --- KASUS C: SANKEY ---
-  else if (subtype === 'sankey') {
-   delete option.xAxis
-   delete option.yAxis
-   delete option.grid
-
-   let sankeyData = data
-   // Unwrap array jika dibungkus fetcher
-   if (Array.isArray(data) && data.length === 1 && data[0].nodes) {
-    sankeyData = data[0]
-   } else if (Array.isArray(data) && !data.nodes) {
-    sankeyData = { nodes: [], links: [] } // Fallback
-   }
-
-   option.series[0].data = sankeyData.nodes || []
-   option.series[0].links = sankeyData.links || []
-   option.series[0].layout = 'none'
-   if (!option.series[0].emphasis) option.series[0].emphasis = { focus: 'adjacency' }
-  }
-
-  // --- KASUS D: 3D CHARTS ---
-  else if (is3D) {
-   if (!option.grid3D)
-    option.grid3D = { boxWidth: 200, boxDepth: 80, viewControl: { autoRotate: true } }
-   if (!option.xAxis3D) option.xAxis3D = { type: 'category' }
-   if (!option.yAxis3D) option.yAxis3D = { type: 'value' }
-   if (!option.zAxis3D) option.zAxis3D = { type: 'value' }
-
-   option.series[0].data = data
-   if (subtype === 'bar3D') {
-    option.series[0].shading = 'lambert'
-    if (!option.series[0].itemStyle) option.series[0].itemStyle = { opacity: 0.8 }
-   }
-  }
-
-  // --- KASUS E: CARTESIAN (Bar, Line) ---
-  else if (['bar', 'line', 'mixed'].includes(subtype)) {
-   const labels = data.map((d) => d.label || d._id || '-')
-
-   // Siapkan Data Utama dan Data Sekunder (untuk Mixed)
-   const valuesPrimary = data.map((d) => d.value || d.count || 0)
-   const valuesSecondary = data.map((d) => d.trend || d.percent || d.percentage || d.value2 || 0)
-
-   // Setup Axis X
-   if (!option.xAxis) option.xAxis = {}
-   if (Array.isArray(option.xAxis)) {
-    if (!option.xAxis[0].data) option.xAxis[0].data = labels
-   } else {
-    option.xAxis.data = labels
-    if (!option.xAxis.type) option.xAxis.type = 'category'
-   }
-
-   // Setup Axis Y (Support Dual Axis untuk Mixed)
-   if (!option.yAxis) {
-    if (subtype === 'mixed') {
-     option.yAxis = [
-      { type: 'value', name: 'Main' },
-      { type: 'value', name: 'Trend', splitLine: { show: false } },
-     ]
-    } else {
-     option.yAxis = { type: 'value' }
-    }
-   }
-
-   // INJECT DATA KE SERIES (LOGIC FIX)
-   option.series.forEach((s, index) => {
-    // Jangan timpa jika data sudah ada di config
-    if (s.data && s.data.length > 0) return
-
-    if (subtype === 'mixed') {
-     // Series 0 -> Data Utama (Bar), Series 1 -> Data Trend (Line)
-     if (index === 0) s.data = valuesPrimary
-     else if (index === 1) s.data = valuesSecondary
-     else s.data = valuesPrimary // Fallback
-
-     // Paksa tipe visual jika belum diset
-     if (index === 0 && !s.type) s.type = 'bar'
-     if (index === 1 && !s.type) {
-      s.type = 'line'
-      s.yAxisIndex = 1
-     }
-    } else {
-     // Bar/Line biasa
-     s.data = valuesPrimary
-    }
-   })
-   option.tooltip.trigger = 'axis'
-  }
-
-  // --- KASUS F: PIE / GAUGE ---
-  else if (['pie', 'gauge', 'funnel'].includes(subtype)) {
-   delete option.xAxis
-   delete option.yAxis
-   delete option.grid
-   const formattedData = data.map((d) => ({
-    name: d.label || d.name || d._id || 'Item',
-    value: d.value || d.count || 0,
-   }))
-   option.series[0].data = formattedData
-  }
-
-  // --- KASUS G: TREE / GRAPH ---
-  else if (['tree', 'graph'].includes(subtype)) {
-   let treeData = data
-   if (Array.isArray(data) && data.length === 1) treeData = data[0]
-   option.series[0].data = [treeData]
-  }
-
-  // --- FALLBACK ---
-  else {
-   option.series[0].data = data
-  }
-
-  // 6. RENDER
+  // E. RENDER
   myChart.setOption(option)
 
+  // Safety Resize
+  setTimeout(() => {
+   if (chartDom.style.height === '300px') chartDom.style.height = ''
+   myChart.resize()
+  }, 100)
+
   if (!chartDom._ro) {
-   const resizeObserver = new ResizeObserver(() => myChart.resize())
-   resizeObserver.observe(chartDom)
-   chartDom._ro = resizeObserver
+   const ro = new ResizeObserver(() => myChart.resize())
+   ro.observe(chartDom)
+   chartDom._ro = ro
   }
  } catch (err) {
-  console.error('Chart Config Error:', err)
-  chartDom.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-xs text-red-400 p-2 text-center"><i class="fas fa-bug mb-1"></i>Config Error</div>`
+  console.error(`Error rendering ${subtype}:`, err)
+  chartDom.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-red-400">Error</div>`
  }
 }
-// ============================================
-// 6. DASHBOARD SELECTOR & UTILS
-// ============================================
-// ... (Bagian Selector, Fullscreen Modal, Utils: Sama seperti sebelumnya) ...
-// Agar kode tidak terlalu panjang, bagian Selector dan Utils di bawah ini
-// SAMA PERSIS dengan versi terakhir yang sudah bekerja.
-// Pastikan bagian window.openDashboardSelector, startClock, dll tetap ada.
+
+function handleGeneric3DChart(option, data, subtype) {
+ if (!option.grid3D) option.grid3D = { viewControl: { autoRotate: true } }
+ if (!option.xAxis3D) option.xAxis3D = { type: 'category' }
+ if (!option.yAxis3D) option.yAxis3D = { type: 'category' }
+ if (!option.zAxis3D) option.zAxis3D = { type: 'value' }
+
+ option.series[0].data = data
+
+ if (subtype === 'bar3D') {
+  option.series[0].shading = 'lambert'
+  if (!option.series[0].itemStyle) option.series[0].itemStyle = { opacity: 0.8 }
+ }
+}
+
+function handleRadarChart(option, data) {
+ option.series[0].data = data.data
+ option.legend = data.legend || { data: [] }
+ option.radar = {
+  indicator: data.indicator,
+ } || { indicator: [] }
+}
+
+function handleFlowChart(option, data, subtype) {
+ delete option.xAxis
+ delete option.yAxis
+ delete option.grid
+
+ let complexData = data
+ // Unwrap jika data dibungkus array
+ if (Array.isArray(data) && data.length === 1 && (data[0].nodes || data[0].children)) {
+  complexData = data[0]
+ }
+
+ if (subtype === 'sankey') {
+  option.series[0].data = complexData.nodes || []
+  option.series[0].links = complexData.links || []
+  option.series[0].layout = 'none'
+ } else {
+  option.series[0].data = [complexData]
+ }
+}
+
+function handleStandardChart(option, data, subtype) {
+ // Pie / Gauge / Funnel
+ if (['pie', 'gauge', 'funnel'].includes(subtype)) {
+  delete option.xAxis
+  delete option.yAxis
+  delete option.grid
+  option.series[0].data = data.map((d) => ({
+   name: d.label || d.name || 'Item',
+   value: d.value || 0,
+  }))
+  return
+ }
+
+ // Cartesian (Bar, Line, Scatter 2D)
+ const labels = data.map((d) => d.label || d._id || '-')
+ const vals = data.map((d) => d.value || 0)
+
+ if (subtype.includes('scatter')) {
+  if (!option.xAxis) option.xAxis = { type: 'value', scale: true }
+  if (!option.yAxis) option.yAxis = { type: 'value', scale: true }
+  option.series[0].data = data
+  return
+ }
+ // Mixed & Standard
+ if (subtype === 'mixed') {
+  const trends = data.map((d) => d.trend || 0)
+  if (option.series.length < 2)
+   option.series = [
+    { type: 'bar', name: 'Main' },
+    { type: 'line', yAxisIndex: 1, name: 'Trend' },
+   ]
+
+  option.series[0].data = vals
+  option.series[1].data = trends
+
+  if (!option.yAxis || !Array.isArray(option.yAxis))
+   option.yAxis = [{ type: 'value' }, { type: 'value', splitLine: { show: false } }]
+ } else {
+  option.series[0].data = vals
+ }
+
+ // Default Axis
+ if (!option.xAxis) option.xAxis = { type: 'category', data: labels }
+ else if (!option.xAxis.data) option.xAxis.data = labels
+
+ if (!option.yAxis) option.yAxis = { type: 'value' }
+ option.tooltip.trigger = 'axis'
+}
 
 window.openDashboardSelector = async function () {
  const modal = document.getElementById('dashboard-selector-modal')

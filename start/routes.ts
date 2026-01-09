@@ -10,7 +10,7 @@
 import router from '@adonisjs/core/services/router'
 
 router.on('/').render('pages/home')
-router.on('/generator').render('pages/generator')
+router.on('/tes').render('pages/tes')
 router.on('/login').render('pages/login')
 router
  .group(() => {
