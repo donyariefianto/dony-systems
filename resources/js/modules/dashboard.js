@@ -304,13 +304,21 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
 
  if (widget.type === 'chart') {
   const chartId = isFullscreen ? `echart-fs-${widget.id}` : `echart-${widget.id}`
-
   container.innerHTML = `
     <div class="w-full h-full min-h-[180px] relative overflow-hidden group">
     <div id="${chartId}" class="w-full h-full absolute inset-0 z-0"></div>
     
+    <div class="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+        <div class="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+        <div class="flex items-center gap-1.5">
+            <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+        </div>
+        </div>
+    </div>
     </div>`
-
   setTimeout(() => initChartDispatcher(chartId, widget, data, isFullscreen), 100)
  } else if (widget.type === 'stat') {
   const item = data[0] || {}
@@ -848,5 +856,30 @@ function startClock() {
  }
  updateTime()
  AppState.dashboard.intervals.push(setInterval(updateTime, 60000))
+}
+function formatRelativeTime(dateInput) {
+ if (!dateInput) return '-'
+
+ const now = new Date()
+ const date = new Date(dateInput)
+ const secondsAgo = Math.floor((now - date) / 1000)
+
+ if (secondsAgo < 0) return 'Baru saja'
+ if (secondsAgo < 60) return 'Baru saja'
+
+ const minutesAgo = Math.floor(secondsAgo / 60)
+ if (minutesAgo < 60) return `${minutesAgo} menit yang lalu`
+
+ const hoursAgo = Math.floor(minutesAgo / 60)
+ if (hoursAgo < 24) return `${hoursAgo} jam yang lalu`
+
+ const daysAgo = Math.floor(hoursAgo / 24)
+ if (daysAgo < 7) return `${daysAgo} hari yang lalu`
+
+ return date.toLocaleDateString('id-ID', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+ })
 }
 window.loadDashboardConfig = () => loadDashboardConfig(AppState.dashboard.activeId)

@@ -499,7 +499,7 @@ function getColSpanClass(width) {
 }
 
 // Konstanta limit
-const MAX_WIDGET_LIMIT = 12
+const MAX_WIDGET_LIMIT = 7
 
 export async function addWidgetToBuilder(key) {
  // 1. CEK DASHBOARD (PAKAI HELPER BARU)
