@@ -105,9 +105,6 @@ function renderGeneratorLayout() {
                 <div class="flex items-center gap-3 min-w-0">
                     <h2 id="editing-dashboard-name" class="text-xs font-black text-gray-800 uppercase tracking-wide truncate max-w-[200px]">Select Dashboard</h2>
                     <div class="h-4 w-px bg-gray-300"></div>
-                    <span class="text-[9px] text-gray-400 font-medium flex items-center gap-1">
-                        <i class="fas fa-circle text-[6px] text-green-500"></i> Auto-save
-                    </span>
                 </div>
                 <div class="flex gap-2">
                     <button onclick="previewConfig()" class="h-7 px-3 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase hover:bg-gray-50 hover:text-gray-900 transition-colors">
@@ -796,6 +793,7 @@ export async function saveDashboardBuilder() {
    refresh_interval: w.refresh_interval || 0,
    echarts_options: w.echarts_options,
    data_config: w.data_config,
+   updated_at: w.updated_at || new Date().toISOString(),
   })),
  }
 

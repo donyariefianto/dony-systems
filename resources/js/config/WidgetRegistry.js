@@ -1,9 +1,6 @@
 import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
 
 export const WidgetRegistry = {
- // =========================================================
- // 1. KATEGORI (Untuk Sidebar/Filter di Menu Builder)
- // =========================================================
  categories: {
   'line': {
    name: 'Line Charts',
@@ -49,11 +46,7 @@ export const WidgetRegistry = {
   },
  },
 
- // =========================================================
- // 2. DEFINISI WIDGET
- // =========================================================
  widgets: {
-  // --- LINE GROUP ---
   line_smooth: {
    name: 'Smoothed Line',
    icon: 'fa-bezier-curve',
@@ -75,7 +68,7 @@ export const WidgetRegistry = {
      },
      series: [
       {
-       data: [], // data value
+       data: [],
        type: 'line',
        smooth: true,
       },
@@ -309,7 +302,7 @@ export const WidgetRegistry = {
          },
         },
        },
-       // prettier-ignore
+
        data: [],
       },
       {
@@ -334,7 +327,7 @@ export const WidgetRegistry = {
          },
         },
        },
-       // prettier-ignore
+
        data: [],
       },
      ],
@@ -465,7 +458,6 @@ export const WidgetRegistry = {
    },
   },
 
-  // --- BAR GROUP ---
   bar_large: {
    name: 'Large Scale Bar',
    icon: 'fa-chart-bar',
@@ -864,16 +856,16 @@ export const WidgetRegistry = {
      data: [
       {
        name: 'Total Penjualan',
-       type: 'bar', // Tipe Bar
+       type: 'bar',
        yAxisIndex: 0,
        data: [120, 132, 101, 134, 90, 230, 210],
        itemStyle: { color: '#5470c6' },
       },
       {
        name: 'Margin Profit',
-       type: 'line', // Tipe Line
-       yAxisIndex: 1, // Pakai sumbu kanan
-       smooth: true, // Garis melengkung
+       type: 'line',
+       yAxisIndex: 1,
+       smooth: true,
        data: [12, 15, 8, 18, 5, 25, 20],
        itemStyle: { color: '#91cc75' },
        lineStyle: { width: 4 },
@@ -883,7 +875,6 @@ export const WidgetRegistry = {
    },
   },
 
-  // --- PIE GROUP ---
   pie_doughnut_rounded: {
    name: 'Rounded Doughnut',
    icon: 'fa-circle-notch',
@@ -1242,7 +1233,6 @@ export const WidgetRegistry = {
    },
   },
 
-  // --- SCATTER GROUP ---
   scatter_basic: {
    name: 'Basic Scatter',
    icon: 'fa-braille',
@@ -1933,7 +1923,6 @@ export const WidgetRegistry = {
    },
   },
 
-  // --- RADAR & GAUGE ---
   radar_basic: {
    name: 'Basic Radar',
    icon: 'fa-spider',
@@ -1945,10 +1934,7 @@ export const WidgetRegistry = {
     width: 'half',
     title: 'Performance',
     icon: 'fa-spider',
-    echarts_options: {
-     radar: { indicator: [{ name: 'K1' }, { name: 'K2' }, { name: 'K3' }, { name: 'K4' }] },
-     series: [{ type: 'radar', areaStyle: {} }],
-    },
+    echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
      legend: {
       data: ['Allocated Budget', 'Actual Spending'],
@@ -1974,46 +1960,187 @@ export const WidgetRegistry = {
     }),
    },
   },
-  gauge_basic: {
-   name: 'Speedometer',
+  gauge_multi: {
+   name: 'Gauge',
    icon: 'fa-tachometer-alt',
    category: 'radar',
-   desc: 'Single metric gauge',
+   desc: 'Detailed gauge info',
    defaultConfig: {
     type: 'chart',
-    subtype: 'gauge',
+    subtype: 'gauge_multi',
     width: 'quarter',
     title: 'Speed',
     icon: 'fa-tachometer-alt',
-    echarts_options: { series: [{ type: 'gauge' }] },
-    data_config: WidgetConfigBuilder.staticData([{ value: 50, name: 'Score' }]),
+    echarts_options: {
+     series: [
+      {
+       type: 'gauge',
+       anchor: {
+        show: true,
+        showAbove: true,
+        size: 18,
+        itemStyle: {
+         color: '#FAC858',
+        },
+       },
+       pointer: {
+        icon:
+         'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+        width: 8,
+        length: '80%',
+        offsetCenter: [0, '8%'],
+       },
+       progress: {
+        show: true,
+        overlap: true,
+        roundCap: true,
+       },
+       axisLine: {
+        roundCap: true,
+       },
+       data: [],
+       title: {
+        fontSize: 14,
+       },
+       detail: {
+        width: 40,
+        height: 14,
+        fontSize: 14,
+        color: '#fff',
+        backgroundColor: 'inherit',
+        borderRadius: 3,
+        formatter: '{value}%',
+       },
+      },
+     ],
+    },
+    data_config: WidgetConfigBuilder.staticData([
+     {
+      value: 20,
+      name: 'Good',
+      title: {
+       offsetCenter: ['-40%', '80%'],
+      },
+      detail: {
+       offsetCenter: ['-40%', '95%'],
+      },
+     },
+     {
+      value: 40,
+      name: 'Better',
+      title: {
+       offsetCenter: ['0%', '80%'],
+      },
+      detail: {
+       offsetCenter: ['0%', '95%'],
+      },
+     },
+     {
+      value: 60,
+      name: 'Perfect',
+      title: {
+       offsetCenter: ['40%', '80%'],
+      },
+      detail: {
+       offsetCenter: ['40%', '95%'],
+      },
+     },
+    ]),
    },
   },
-  gauge_multi: {
-   name: 'Multi-Title Gauge',
+  gauge_grade: {
+   name: 'Gauge Grade',
    icon: 'fa-clock',
    category: 'radar',
    desc: 'Detailed gauge info',
    defaultConfig: {
     type: 'chart',
-    subtype: 'gauge',
+    subtype: 'gauge_grade',
     width: 'quarter',
-    title: 'Detail Gauge',
+    title: 'Gauge Grade',
     icon: 'fa-clock',
     echarts_options: {
+     series: [],
+     tooltip: {
+      formatter: '{a} <br/>{b} : {c}%',
+     },
+    },
+    data_config: WidgetConfigBuilder.staticData({
      series: [
       {
+       name: 'Server Metrics',
        type: 'gauge',
-       title: { show: true, offsetCenter: [0, '-20%'] },
-       detail: { offsetCenter: [0, '20%'] },
+       min: 0,
+       max: 100,
+
+       axisLine: {
+        lineStyle: {
+         width: 30,
+         color: [
+          [0.3, '#67e0e3'],
+          [0.7, '#37a2da'],
+          [1, '#fd666d'],
+         ],
+        },
+       },
+
+       pointer: {
+        itemStyle: {
+         color: 'auto',
+        },
+       },
+
+       axisTick: {
+        distance: -30,
+        length: 8,
+        lineStyle: { color: '#fff', width: 2 },
+       },
+       splitLine: {
+        distance: -30,
+        length: 30,
+        lineStyle: { color: '#fff', width: 4 },
+       },
+       axisLabel: {
+        color: 'inherit',
+        distance: 40,
+        fontSize: 15,
+       },
+
+       title: {
+        offsetCenter: [0, '-20%'],
+        fontSize: 14,
+       },
+
+       detail: {
+        valueAnimation: true,
+        formatter: '{value}%',
+        color: 'inherit',
+        offsetCenter: [0, '20%'],
+        fontSize: 20,
+       },
+
+       data: [
+        {
+         value: 70,
+         name: 'CPU',
+
+         title: { offsetCenter: ['-40%', '80%'] },
+         detail: { offsetCenter: ['-40%', '95%'] },
+        },
+        {
+         value: 50,
+         name: 'Memory',
+
+         title: { offsetCenter: ['40%', '80%'] },
+         detail: { offsetCenter: ['40%', '95%'] },
+        },
+       ],
       },
      ],
-    },
-    data_config: WidgetConfigBuilder.staticData([{ value: 85, name: 'KPI' }]),
+    }),
    },
   },
 
-  // --- TREE & FLOW ---
   tree_lr: {
    name: 'L-to-R Tree',
    icon: 'fa-sitemap',
@@ -2021,22 +2148,150 @@ export const WidgetRegistry = {
    desc: 'Horizontal hierarchy',
    defaultConfig: {
     type: 'chart',
-    subtype: 'tree',
+    subtype: 'tree_lr',
     width: 'full',
-    title: 'Organization',
+    title: 'Organization L-to-R Tree',
     icon: 'fa-sitemap',
     echarts_options: {
+     tooltip: {},
      series: [
       {
        type: 'tree',
+       data: [],
+       top: '10%',
+       left: '8%',
+       bottom: '22%',
+       right: '20%',
+       symbolSize: 10,
+       label: {
+        position: 'left',
+        verticalAlign: 'middle',
+        align: 'right',
+        fontSize: 14,
+       },
+       leaves: {
+        label: {
+         position: 'right',
+         verticalAlign: 'middle',
+         align: 'left',
+        },
+       },
+       emphasis: {
+        focus: 'descendant',
+       },
+       expandAndCollapse: true,
+       animationDuration: 550,
+       animationDurationUpdate: 750,
        orient: 'LR',
-       symbolSize: 7,
-       label: { position: 'left', verticalAlign: 'middle', align: 'right' },
       },
      ],
     },
     data_config: WidgetConfigBuilder.staticData([
-     { name: 'Root', children: [{ name: 'A' }, { name: 'B' }] },
+     {
+      name: 'Root',
+      children: [
+       {
+        name: 'Category A',
+        children: [
+         { name: 'Item A1', value: 10 },
+         { name: 'Item A2', value: 20 },
+         { name: 'Item A3', value: 15 },
+        ],
+       },
+       {
+        name: 'Category B',
+        children: [
+         { name: 'Item B1', value: 12 },
+         { name: 'Item B2', value: 18 },
+        ],
+       },
+       {
+        name: 'Category C',
+        children: [
+         { name: 'Item C1', value: 25 },
+         { name: 'Item C2', value: 8 },
+         { name: 'Item C3', value: 14 },
+        ],
+       },
+      ],
+     },
+    ]),
+   },
+  },
+  tree_rl: {
+   name: 'R-to-L Tree',
+   icon: 'fa-sitemap',
+   category: 'flow',
+   desc: 'Horizontal hierarchy',
+   defaultConfig: {
+    type: 'chart',
+    subtype: 'tree_rl',
+    width: 'full',
+    title: 'Organization R-to-L Tree',
+    icon: 'fa-sitemap',
+    echarts_options: {
+     tooltip: {},
+     series: [
+      {
+       type: 'tree',
+       data: [],
+       top: '10%',
+       left: '20%',
+       bottom: '22%',
+       right: '8%',
+       symbolSize: 10,
+       label: {
+        position: 'right',
+        verticalAlign: 'middle',
+        align: 'left',
+        fontSize: 14,
+       },
+       leaves: {
+        label: {
+         position: 'left',
+         verticalAlign: 'middle',
+         align: 'right',
+        },
+       },
+       emphasis: {
+        focus: 'descendant',
+       },
+       expandAndCollapse: true,
+       animationDuration: 550,
+       animationDurationUpdate: 750,
+       orient: 'RL',
+      },
+     ],
+    },
+    data_config: WidgetConfigBuilder.staticData([
+     {
+      name: 'Root',
+      children: [
+       {
+        name: 'Category A',
+        children: [
+         { name: 'Item A1', value: 10 },
+         { name: 'Item A2', value: 20 },
+         { name: 'Item A3', value: 15 },
+        ],
+       },
+       {
+        name: 'Category B',
+        children: [
+         { name: 'Item B1', value: 12 },
+         { name: 'Item B2', value: 18 },
+        ],
+       },
+       {
+        name: 'Category C',
+        children: [
+         { name: 'Item C1', value: 25 },
+         { name: 'Item C2', value: 8 },
+         { name: 'Item C3', value: 14 },
+        ],
+       },
+      ],
+     },
     ]),
    },
   },
@@ -2047,17 +2302,239 @@ export const WidgetRegistry = {
    desc: 'Forest view',
    defaultConfig: {
     type: 'chart',
-    subtype: 'tree',
+    subtype: 'tree_multi',
     width: 'full',
     title: 'Multi Hierarchy',
     icon: 'fa-network-wired',
-    echarts_options: {
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData({
+     tooltip: {
+      trigger: 'item',
+      triggerOn: 'mousemove',
+     },
+     legend: {
+      top: '2%',
+      left: '3%',
+      orient: 'vertical',
+      data: [
+       {
+        name: 'tree1',
+        icon: 'rectangle',
+       },
+       {
+        name: 'tree2',
+        icon: 'rectangle',
+       },
+      ],
+      borderColor: '#c23531',
+     },
      series: [
-      { type: 'tree', name: 'T1', left: '5%', right: '60%' },
-      { type: 'tree', name: 'T2', left: '50%', right: '10%' },
+      {
+       type: 'tree',
+       name: 'tree1',
+       data: [
+        {
+         name: 'flare',
+         children: [
+          {
+           name: 'data',
+           children: [
+            {
+             name: 'converters',
+             children: [
+              { name: 'Converters', value: 721 },
+              { name: 'DelimitedTextConverter', value: 4294 },
+             ],
+            },
+            {
+             name: 'DataUtil',
+             value: 3322,
+            },
+           ],
+          },
+          {
+           name: 'display',
+           children: [
+            { name: 'DirtySprite', value: 8833 },
+            { name: 'LineSprite', value: 1732 },
+            { name: 'RectSprite', value: 3623 },
+           ],
+          },
+          {
+           name: 'flex',
+           children: [{ name: 'FlareVis', value: 4116 }],
+          },
+          {
+           name: 'query',
+           children: [
+            { name: 'AggregateExpression', value: 1616 },
+            { name: 'And', value: 1027 },
+            { name: 'Arithmetic', value: 3891 },
+            { name: 'Average', value: 891 },
+            { name: 'BinaryExpression', value: 2893 },
+            { name: 'Comparison', value: 5103 },
+            { name: 'CompositeExpression', value: 3677 },
+            { name: 'Count', value: 781 },
+            { name: 'DateUtil', value: 4141 },
+            { name: 'Distinct', value: 933 },
+            { name: 'Expression', value: 5130 },
+            { name: 'ExpressionIterator', value: 3617 },
+            { name: 'Fn', value: 3240 },
+            { name: 'If', value: 2732 },
+            { name: 'IsA', value: 2039 },
+            { name: 'Literal', value: 1214 },
+            { name: 'Match', value: 3748 },
+            { name: 'Maximum', value: 843 },
+            {
+             name: 'methods',
+             children: [
+              { name: 'add', value: 593 },
+              { name: 'and', value: 330 },
+              { name: 'average', value: 287 },
+              { name: 'count', value: 277 },
+              { name: 'distinct', value: 292 },
+              { name: 'div', value: 595 },
+              { name: 'eq', value: 594 },
+              { name: 'fn', value: 460 },
+              { name: 'gt', value: 603 },
+              { name: 'gte', value: 625 },
+              { name: 'iff', value: 748 },
+              { name: 'isa', value: 461 },
+              { name: 'lt', value: 597 },
+              { name: 'lte', value: 619 },
+              { name: 'max', value: 283 },
+              { name: 'min', value: 283 },
+              { name: 'mod', value: 591 },
+              { name: 'mul', value: 603 },
+              { name: 'neq', value: 599 },
+              { name: 'not', value: 386 },
+              { name: 'or', value: 323 },
+              { name: 'orderby', value: 307 },
+              { name: 'range', value: 772 },
+              { name: 'select', value: 296 },
+              { name: 'stddev', value: 363 },
+              { name: 'sub', value: 600 },
+              { name: 'sum', value: 280 },
+              { name: 'update', value: 307 },
+              { name: 'variance', value: 335 },
+              { name: 'where', value: 299 },
+              { name: 'xor', value: 354 },
+              { name: '_', value: 264 },
+             ],
+            },
+            { name: 'Minimum', value: 843 },
+            { name: 'Not', value: 1554 },
+            { name: 'Or', value: 970 },
+            { name: 'Query', value: 13896 },
+            { name: 'Range', value: 1594 },
+            { name: 'StringUtil', value: 4130 },
+            { name: 'Sum', value: 791 },
+            { name: 'Variable', value: 1124 },
+            { name: 'Variance', value: 1876 },
+            { name: 'Xor', value: 1101 },
+           ],
+          },
+          {
+           name: 'scale',
+           children: [
+            { name: 'IScaleMap', value: 2105 },
+            { name: 'LinearScale', value: 1316 },
+            { name: 'LogScale', value: 3151 },
+            { name: 'OrdinalScale', value: 3770 },
+            { name: 'QuantileScale', value: 2435 },
+            { name: 'QuantitativeScale', value: 4839 },
+            { name: 'RootScale', value: 1756 },
+            { name: 'Scale', value: 4268 },
+            { name: 'ScaleType', value: 1821 },
+            { name: 'TimeScale', value: 5833 },
+           ],
+          },
+         ],
+        },
+       ],
+       top: '5%',
+       left: '7%',
+       bottom: '2%',
+       right: '60%',
+       symbolSize: 7,
+       label: {
+        position: 'left',
+        verticalAlign: 'middle',
+        align: 'right',
+       },
+       leaves: {
+        label: {
+         position: 'right',
+         verticalAlign: 'middle',
+         align: 'left',
+        },
+       },
+       emphasis: {
+        focus: 'descendant',
+       },
+       expandAndCollapse: true,
+       animationDuration: 550,
+       animationDurationUpdate: 750,
+      },
+      {
+       type: 'tree',
+       name: 'tree2',
+       data: [
+        {
+         name: 'flare',
+         children: [
+          {
+           name: 'flex',
+           children: [{ name: 'FlareVis', value: 4116 }],
+          },
+          {
+           name: 'scale',
+           children: [
+            { name: 'IScaleMap', value: 2105 },
+            { name: 'LinearScale', value: 1316 },
+            { name: 'LogScale', value: 3151 },
+            { name: 'OrdinalScale', value: 3770 },
+            { name: 'QuantileScale', value: 2435 },
+            { name: 'QuantitativeScale', value: 4839 },
+            { name: 'RootScale', value: 1756 },
+            { name: 'Scale', value: 4268 },
+            { name: 'ScaleType', value: 1821 },
+            { name: 'TimeScale', value: 5833 },
+           ],
+          },
+          {
+           name: 'display',
+           children: [{ name: 'DirtySprite', value: 8833 }],
+          },
+         ],
+        },
+       ],
+       top: '20%',
+       left: '60%',
+       bottom: '22%',
+       right: '18%',
+       symbolSize: 7,
+       label: {
+        position: 'left',
+        verticalAlign: 'middle',
+        align: 'right',
+       },
+       leaves: {
+        label: {
+         position: 'right',
+         verticalAlign: 'middle',
+         align: 'left',
+        },
+       },
+       expandAndCollapse: true,
+       emphasis: {
+        focus: 'descendant',
+       },
+       animationDuration: 550,
+       animationDurationUpdate: 750,
+      },
      ],
-    },
-    data_config: WidgetConfigBuilder.staticData([{ name: 'Root1' }, { name: 'Root2' }]),
+    }),
    },
   },
   sankey_basic: {
@@ -2067,17 +2544,49 @@ export const WidgetRegistry = {
    desc: 'Flow visualization',
    defaultConfig: {
     type: 'chart',
-    subtype: 'sankey',
+    subtype: 'sankey_basic',
     width: 'half',
     title: 'Data Flow',
     icon: 'fa-stream',
-    echarts_options: { series: [{ type: 'sankey', layout: 'none' }] },
+    echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
-     nodes: [{ name: 'A' }, { name: 'B' }, { name: 'C' }],
-     links: [
-      { source: 'A', target: 'B', value: 10 },
-      { source: 'A', target: 'C', value: 5 },
-     ],
+     tooltip: {
+      trigger: 'item',
+      triggerOn: 'mousemove',
+     },
+     series: {
+      type: 'sankey',
+      layout: 'none',
+      emphasis: {
+       focus: 'adjacency',
+      },
+      data: [
+       { name: 'Source A' },
+       { name: 'Source B' },
+       { name: 'Source C' },
+       { name: 'Process 1' },
+       { name: 'Process 2' },
+       { name: 'Output X' },
+       { name: 'Output Y' },
+       { name: 'Output Z' },
+      ],
+      links: [
+       { source: 'Source A', target: 'Process 1', value: 5 },
+       { source: 'Source B', target: 'Process 1', value: 3 },
+       { source: 'Source C', target: 'Process 2', value: 4 },
+       { source: 'Process 1', target: 'Output X', value: 3 },
+       { source: 'Process 1', target: 'Output Y', value: 5 },
+       { source: 'Process 2', target: 'Output Y', value: 2 },
+       { source: 'Process 2', target: 'Output Z', value: 2 },
+      ],
+      lineStyle: {
+       color: 'source',
+       curveness: 0.5,
+      },
+      label: {
+       fontSize: 12,
+      },
+     },
     }),
    },
   },
@@ -2088,29 +2597,84 @@ export const WidgetRegistry = {
    desc: 'Flow with levels',
    defaultConfig: {
     type: 'chart',
-    subtype: 'sankey',
+    subtype: 'sankey_levels',
     width: 'half',
     title: 'Level Flow',
     icon: 'fa-indent',
-    echarts_options: {
-     series: [
-      {
-       type: 'sankey',
-       levels: [
-        { depth: 0, itemStyle: { color: '#fbb4ae' } },
-        { depth: 1, itemStyle: { color: '#b3cde3' } },
-       ],
-      },
-     ],
-    },
+    echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
-     nodes: [{ name: 'In' }, { name: 'Out' }],
-     links: [{ source: 'In', target: 'Out', value: 1 }],
+     tooltip: {
+      trigger: 'item',
+      triggerOn: 'mousemove',
+     },
+     series: {
+      type: 'sankey',
+      layout: 'none',
+      nodeAlign: 'left',
+      emphasis: {
+       focus: 'adjacency',
+      },
+      data: [
+       { name: 'Supplier 1', depth: 0 },
+       { name: 'Supplier 2', depth: 0 },
+       { name: 'Factory A', depth: 1 },
+       { name: 'Factory B', depth: 1 },
+       { name: 'Warehouse 1', depth: 2 },
+       { name: 'Warehouse 2', depth: 2 },
+       { name: 'Retailer X', depth: 3 },
+       { name: 'Retailer Y', depth: 3 },
+       { name: 'Retailer Z', depth: 3 },
+      ],
+      links: [
+       { source: 'Supplier 1', target: 'Factory A', value: 8 },
+       { source: 'Supplier 2', target: 'Factory A', value: 6 },
+       { source: 'Supplier 2', target: 'Factory B', value: 4 },
+       { source: 'Factory A', target: 'Warehouse 1', value: 9 },
+       { source: 'Factory A', target: 'Warehouse 2', value: 5 },
+       { source: 'Factory B', target: 'Warehouse 2', value: 4 },
+       { source: 'Warehouse 1', target: 'Retailer X', value: 5 },
+       { source: 'Warehouse 1', target: 'Retailer Y', value: 4 },
+       { source: 'Warehouse 2', target: 'Retailer Y', value: 4 },
+       { source: 'Warehouse 2', target: 'Retailer Z', value: 5 },
+      ],
+      levels: [
+       {
+        depth: 0,
+        itemStyle: {
+         color: '#5470c6',
+        },
+        lineStyle: {
+         color: 'source',
+         opacity: 0.8,
+        },
+       },
+       {
+        depth: 1,
+        itemStyle: {
+         color: '#91cc75',
+        },
+       },
+       {
+        depth: 2,
+        itemStyle: {
+         color: '#fac858',
+        },
+       },
+       {
+        depth: 3,
+        itemStyle: {
+         color: '#ee6666',
+        },
+       },
+      ],
+      lineStyle: {
+       curveness: 0.3,
+      },
+     },
     }),
    },
   },
 
-  // --- 3D GROUP ---
   bar3d_dataset: {
    name: '3D Bar Dataset',
    icon: 'fa-cubes',
@@ -2118,48 +2682,689 @@ export const WidgetRegistry = {
    desc: 'Requires WebGL',
    defaultConfig: {
     type: 'chart',
-    subtype: 'bar3D',
+    subtype: 'bar3d_dataset',
     width: 'half',
     title: '3D Volume',
     icon: 'fa-cubes',
     is3D: true,
-    echarts_options: {
-     grid3D: { boxWidth: 200, boxDepth: 80 },
-     xAxis3D: {},
-     yAxis3D: {},
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData({
+     grid3D: {},
+     tooltip: {},
+     xAxis3D: {
+      type: 'category',
+     },
+     yAxis3D: {
+      type: 'category',
+     },
      zAxis3D: {},
-     series: [{ type: 'bar3D' }],
-    },
-    data_config: WidgetConfigBuilder.staticData([
-     [0, 0, 5],
-     [1, 0, 10],
-     [0, 1, 8],
-    ]),
+     visualMap: {
+      max: 1e8,
+      dimension: 'Population',
+     },
+     dataset: {
+      dimensions: [
+       'Income',
+       'Life Expectancy',
+       'Population',
+       'Country',
+       { name: 'Year', type: 'ordinal' },
+      ],
+      source: [
+       ['Income', 'Life Expectancy', 'Population', 'Country', 'Year'],
+       [815, 34.05, 351014, 'Australia', 1800],
+       [1314, 39, 645526, 'Canada', 1800],
+       [985, 32, 321675013, 'China', 1800],
+       [864, 32.2, 345043, 'Cuba', 1800],
+       [1244, 36.5731262, 977662, 'Finland', 1800],
+       [1803, 33.96717024, 29355111, 'France', 1800],
+       [1639, 38.37, 22886919, 'Germany', 1800],
+       [926, 42.84559912, 61428, 'Iceland', 1800],
+       [1052, 25.4424, 168574895, 'India', 1800],
+       [1050, 36.4, 30294378, 'Japan', 1800],
+       [579, 26, 4345000, 'North Korea', 1800],
+       [576, 25.8, 9395000, 'South Korea', 1800],
+       [658, 34.05, 100000, 'New Zealand', 1800],
+       [1278, 37.91620899, 868570, 'Norway', 1800],
+       [1213, 35.9, 9508747, 'Poland', 1800],
+       [1430, 29.5734572, 31088398, 'Russia', 1800],
+       [1221, 35, 9773456, 'Turkey', 1800],
+       [3431, 38.6497603, 12327466, 'United Kingdom', 1800],
+       [2128, 39.41, 6801854, 'United States', 1800],
+       [834, 34.05, 342440, 'Australia', 1810],
+       [1400, 39.01496774, 727603, 'Canada', 1810],
+       [985, 32, 350542958, 'China', 1810],
+       [970, 33.64, 470176, 'Cuba', 1810],
+       [1267, 36.9473378, 1070625, 'Finland', 1810],
+      ],
+     },
+     series: [
+      {
+       type: 'bar3D',
+
+       shading: 'lambert',
+       encode: {
+        x: 'Year',
+        y: 'Country',
+        z: 'Life Expectancy',
+        tooltip: [0, 1, 2, 3, 4],
+       },
+      },
+     ],
+    }),
    },
   },
-  bar3d_simplex: {
+  bar3d_transparent: {
    name: 'Bar3D Noise',
    icon: 'fa-icicles',
    category: '3d',
-   desc: 'Simplex noise visual',
+   desc: '3D Transparent visual',
    defaultConfig: {
     type: 'chart',
-    subtype: 'bar3D',
+    subtype: 'bar3d_simplex',
     width: 'half',
     title: 'Noise Map',
     icon: 'fa-icicles',
     is3D: true,
-    echarts_options: {
-     grid3D: {},
-     xAxis3D: {},
-     yAxis3D: {},
-     zAxis3D: {},
-     series: [{ type: 'bar3D', itemStyle: { opacity: 0.8 } }],
-    },
-    data_config: WidgetConfigBuilder.staticData([
-     [0, 0, 1],
-     [1, 1, 2],
-    ]),
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData({
+     tooltip: {},
+     visualMap: {
+      max: 20,
+      inRange: {
+       color: [
+        '#313695',
+        '#4575b4',
+        '#74add1',
+        '#abd9e9',
+        '#e0f3f8',
+        '#ffffbf',
+        '#fee090',
+        '#fdae61',
+        '#f46d43',
+        '#d73027',
+        '#a50026',
+       ],
+      },
+     },
+     xAxis3D: {
+      type: 'category',
+      data: [
+       '12a',
+       '1a',
+       '2a',
+       '3a',
+       '4a',
+       '5a',
+       '6a',
+       '7a',
+       '8a',
+       '9a',
+       '10a',
+       '11a',
+       '12p',
+       '1p',
+       '2p',
+       '3p',
+       '4p',
+       '5p',
+       '6p',
+       '7p',
+       '8p',
+       '9p',
+       '10p',
+       '11p',
+      ],
+     },
+     yAxis3D: {
+      type: 'category',
+      data: ['Saturday', 'Friday', 'Thursday', 'Wednesday', 'Tuesday', 'Monday', 'Sunday'],
+     },
+     zAxis3D: {
+      type: 'value',
+     },
+     grid3D: {
+      boxWidth: 200,
+      boxDepth: 80,
+      light: {
+       main: {
+        intensity: 1.2,
+       },
+       ambient: {
+        intensity: 0.3,
+       },
+      },
+     },
+     series: [
+      {
+       type: 'bar3D',
+       data: [
+        {
+         value: [0, 0, 5],
+        },
+        {
+         value: [1, 0, 1],
+        },
+        {
+         value: [2, 0, 0],
+        },
+        {
+         value: [3, 0, 0],
+        },
+        {
+         value: [4, 0, 0],
+        },
+        {
+         value: [5, 0, 0],
+        },
+        {
+         value: [6, 0, 0],
+        },
+        {
+         value: [7, 0, 0],
+        },
+        {
+         value: [8, 0, 0],
+        },
+        {
+         value: [9, 0, 0],
+        },
+        {
+         value: [10, 0, 0],
+        },
+        {
+         value: [11, 0, 2],
+        },
+        {
+         value: [12, 0, 4],
+        },
+        {
+         value: [13, 0, 1],
+        },
+        {
+         value: [14, 0, 1],
+        },
+        {
+         value: [15, 0, 3],
+        },
+        {
+         value: [16, 0, 4],
+        },
+        {
+         value: [17, 0, 6],
+        },
+        {
+         value: [18, 0, 4],
+        },
+        {
+         value: [19, 0, 4],
+        },
+        {
+         value: [20, 0, 3],
+        },
+        {
+         value: [21, 0, 3],
+        },
+        {
+         value: [22, 0, 2],
+        },
+        {
+         value: [23, 0, 5],
+        },
+        {
+         value: [0, 1, 7],
+        },
+        {
+         value: [1, 1, 0],
+        },
+        {
+         value: [2, 1, 0],
+        },
+        {
+         value: [3, 1, 0],
+        },
+        {
+         value: [4, 1, 0],
+        },
+        {
+         value: [5, 1, 0],
+        },
+        {
+         value: [6, 1, 0],
+        },
+        {
+         value: [7, 1, 0],
+        },
+        {
+         value: [8, 1, 0],
+        },
+        {
+         value: [9, 1, 0],
+        },
+        {
+         value: [10, 1, 5],
+        },
+        {
+         value: [11, 1, 2],
+        },
+        {
+         value: [12, 1, 2],
+        },
+        {
+         value: [13, 1, 6],
+        },
+        {
+         value: [14, 1, 9],
+        },
+        {
+         value: [15, 1, 11],
+        },
+        {
+         value: [16, 1, 6],
+        },
+        {
+         value: [17, 1, 7],
+        },
+        {
+         value: [18, 1, 8],
+        },
+        {
+         value: [19, 1, 12],
+        },
+        {
+         value: [20, 1, 5],
+        },
+        {
+         value: [21, 1, 5],
+        },
+        {
+         value: [22, 1, 7],
+        },
+        {
+         value: [23, 1, 2],
+        },
+        {
+         value: [0, 2, 1],
+        },
+        {
+         value: [1, 2, 1],
+        },
+        {
+         value: [2, 2, 0],
+        },
+        {
+         value: [3, 2, 0],
+        },
+        {
+         value: [4, 2, 0],
+        },
+        {
+         value: [5, 2, 0],
+        },
+        {
+         value: [6, 2, 0],
+        },
+        {
+         value: [7, 2, 0],
+        },
+        {
+         value: [8, 2, 0],
+        },
+        {
+         value: [9, 2, 0],
+        },
+        {
+         value: [10, 2, 3],
+        },
+        {
+         value: [11, 2, 2],
+        },
+        {
+         value: [12, 2, 1],
+        },
+        {
+         value: [13, 2, 9],
+        },
+        {
+         value: [14, 2, 8],
+        },
+        {
+         value: [15, 2, 10],
+        },
+        {
+         value: [16, 2, 6],
+        },
+        {
+         value: [17, 2, 5],
+        },
+        {
+         value: [18, 2, 5],
+        },
+        {
+         value: [19, 2, 5],
+        },
+        {
+         value: [20, 2, 7],
+        },
+        {
+         value: [21, 2, 4],
+        },
+        {
+         value: [22, 2, 2],
+        },
+        {
+         value: [23, 2, 4],
+        },
+        {
+         value: [0, 3, 7],
+        },
+        {
+         value: [1, 3, 3],
+        },
+        {
+         value: [2, 3, 0],
+        },
+        {
+         value: [3, 3, 0],
+        },
+        {
+         value: [4, 3, 0],
+        },
+        {
+         value: [5, 3, 0],
+        },
+        {
+         value: [6, 3, 0],
+        },
+        {
+         value: [7, 3, 0],
+        },
+        {
+         value: [8, 3, 1],
+        },
+        {
+         value: [9, 3, 0],
+        },
+        {
+         value: [10, 3, 5],
+        },
+        {
+         value: [11, 3, 4],
+        },
+        {
+         value: [12, 3, 7],
+        },
+        {
+         value: [13, 3, 14],
+        },
+        {
+         value: [14, 3, 13],
+        },
+        {
+         value: [15, 3, 12],
+        },
+        {
+         value: [16, 3, 9],
+        },
+        {
+         value: [17, 3, 5],
+        },
+        {
+         value: [18, 3, 5],
+        },
+        {
+         value: [19, 3, 10],
+        },
+        {
+         value: [20, 3, 6],
+        },
+        {
+         value: [21, 3, 4],
+        },
+        {
+         value: [22, 3, 4],
+        },
+        {
+         value: [23, 3, 1],
+        },
+        {
+         value: [0, 4, 1],
+        },
+        {
+         value: [1, 4, 3],
+        },
+        {
+         value: [2, 4, 0],
+        },
+        {
+         value: [3, 4, 0],
+        },
+        {
+         value: [4, 4, 0],
+        },
+        {
+         value: [5, 4, 1],
+        },
+        {
+         value: [6, 4, 0],
+        },
+        {
+         value: [7, 4, 0],
+        },
+        {
+         value: [8, 4, 0],
+        },
+        {
+         value: [9, 4, 2],
+        },
+        {
+         value: [10, 4, 4],
+        },
+        {
+         value: [11, 4, 4],
+        },
+        {
+         value: [12, 4, 2],
+        },
+        {
+         value: [13, 4, 4],
+        },
+        {
+         value: [14, 4, 4],
+        },
+        {
+         value: [15, 4, 14],
+        },
+        {
+         value: [16, 4, 12],
+        },
+        {
+         value: [17, 4, 1],
+        },
+        {
+         value: [18, 4, 8],
+        },
+        {
+         value: [19, 4, 5],
+        },
+        {
+         value: [20, 4, 3],
+        },
+        {
+         value: [21, 4, 7],
+        },
+        {
+         value: [22, 4, 3],
+        },
+        {
+         value: [23, 4, 0],
+        },
+        {
+         value: [0, 5, 2],
+        },
+        {
+         value: [1, 5, 1],
+        },
+        {
+         value: [2, 5, 0],
+        },
+        {
+         value: [3, 5, 3],
+        },
+        {
+         value: [4, 5, 0],
+        },
+        {
+         value: [5, 5, 0],
+        },
+        {
+         value: [6, 5, 0],
+        },
+        {
+         value: [7, 5, 0],
+        },
+        {
+         value: [8, 5, 2],
+        },
+        {
+         value: [9, 5, 0],
+        },
+        {
+         value: [10, 5, 4],
+        },
+        {
+         value: [11, 5, 1],
+        },
+        {
+         value: [12, 5, 5],
+        },
+        {
+         value: [13, 5, 10],
+        },
+        {
+         value: [14, 5, 5],
+        },
+        {
+         value: [15, 5, 7],
+        },
+        {
+         value: [16, 5, 11],
+        },
+        {
+         value: [17, 5, 6],
+        },
+        {
+         value: [18, 5, 0],
+        },
+        {
+         value: [19, 5, 5],
+        },
+        {
+         value: [20, 5, 3],
+        },
+        {
+         value: [21, 5, 4],
+        },
+        {
+         value: [22, 5, 2],
+        },
+        {
+         value: [23, 5, 0],
+        },
+        {
+         value: [0, 6, 1],
+        },
+        {
+         value: [1, 6, 0],
+        },
+        {
+         value: [2, 6, 0],
+        },
+        {
+         value: [3, 6, 0],
+        },
+        {
+         value: [4, 6, 0],
+        },
+        {
+         value: [5, 6, 0],
+        },
+        {
+         value: [6, 6, 0],
+        },
+        {
+         value: [7, 6, 0],
+        },
+        {
+         value: [8, 6, 0],
+        },
+        {
+         value: [9, 6, 0],
+        },
+        {
+         value: [10, 6, 1],
+        },
+        {
+         value: [11, 6, 0],
+        },
+        {
+         value: [12, 6, 2],
+        },
+        {
+         value: [13, 6, 1],
+        },
+        {
+         value: [14, 6, 3],
+        },
+        {
+         value: [15, 6, 4],
+        },
+        {
+         value: [16, 6, 0],
+        },
+        {
+         value: [17, 6, 0],
+        },
+        {
+         value: [18, 6, 0],
+        },
+        {
+         value: [19, 6, 0],
+        },
+        {
+         value: [20, 6, 1],
+        },
+        {
+         value: [21, 6, 2],
+        },
+        {
+         value: [22, 6, 2],
+        },
+        {
+         value: [23, 6, 6],
+        },
+       ],
+       shading: 'color',
+       label: {
+        show: false,
+        fontSize: 16,
+        borderWidth: 1,
+       },
+       itemStyle: {
+        opacity: 0.4,
+       },
+       emphasis: {
+        label: {
+         fontSize: 20,
+         color: '#900',
+        },
+        itemStyle: {
+         color: '#900',
+        },
+       },
+      },
+     ],
+    }),
    },
   },
   scatter3d_basic: {
@@ -2169,22 +3374,377 @@ export const WidgetRegistry = {
    desc: 'XYZ Points',
    defaultConfig: {
     type: 'chart',
-    subtype: 'scatter3D',
+    subtype: 'scatter3d_basic',
     width: 'half',
     title: '3D Plot',
     icon: 'fa-snowflake',
     is3D: true,
-    echarts_options: {
-     grid3D: {},
-     xAxis3D: {},
-     yAxis3D: {},
-     zAxis3D: {},
-     series: [{ type: 'scatter3D' }],
-    },
-    data_config: WidgetConfigBuilder.staticData([
-     [1, 2, 3],
-     [4, 5, 6],
-    ]),
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData({
+     tooltip: {},
+     visualMap: {
+      show: false,
+      min: 0,
+      max: 20,
+      inRange: {
+       color: [
+        '#313695',
+        '#4575b4',
+        '#74add1',
+        '#abd9e9',
+        '#e0f3f8',
+        '#ffffbf',
+        '#fee090',
+        '#fdae61',
+        '#f46d43',
+        '#d73027',
+        '#a50026',
+       ],
+      },
+     },
+     xAxis3D: {
+      type: 'value',
+      name: 'X Axis',
+     },
+     yAxis3D: {
+      type: 'value',
+      name: 'Y Axis',
+     },
+     zAxis3D: {
+      type: 'value',
+      name: 'Z Axis',
+     },
+     grid3D: {
+      viewControl: {
+       projection: 'perspective',
+       autoRotate: true,
+       autoRotateSpeed: 5,
+      },
+      light: {
+       main: {
+        intensity: 1.5,
+       },
+       ambient: {
+        intensity: 0.2,
+       },
+      },
+     },
+     series: [
+      {
+       value: {
+        show: true,
+       },
+       type: 'scatter3D',
+       symbolSize: 6,
+       data: [
+        [7.352831764197777, 7.665744384498353, -4.110680898852628, 11.389708923991678],
+        [9.178346060463774, -0.9359317076096918, 0.7116819209095997, 9.253350513381067],
+        [-5.163546195790238, -6.584454483371354, 2.521664407938564, 8.739338736192408],
+        [-5.815754547353298, -6.658461698758982, -7.616507990411538, 11.669160514660158],
+        [-8.467256651717452, -9.181070258810738, -9.82334111206306, 15.889761386100826],
+        [0.41125429306777583, -9.776681607072602, 7.086842927900165, 12.082051813511104],
+        [8.399010188164173, 5.023546083646922, -6.039061308842069, 11.499984734223048],
+        [-1.443034117360524, -5.049025114450629, 7.998852028782714, 9.568523180124558],
+        [-1.6822583667080835, 0.2423502417269674, 7.411547225926469, 7.603930505611082],
+        [6.46528377217091, 8.366732364784827, 6.754424419980843, 12.546886225827823],
+        [6.2847326427139585, -3.1492988606155503, -6.366990420454803, 9.484435392685851],
+        [9.74249487294577, -0.2915509190512289, 9.684859467944417, 13.740367942730167],
+        [7.874854537655626, -3.1639688393882164, 7.971671421758984, 11.643520861936217],
+        [-9.20788351758806, 1.0100445224010492, 1.5861346061542498, 9.397932315118169],
+        [2.7939885425302986, -9.740991100024015, 7.056699942362972, 12.348696030880475],
+        [-3.2139454793930327, 2.5984839890270273, 5.233951112053713, 6.669018580654055],
+        [-7.269064772094486, -4.345088820834107, -8.923689356876386, 12.30249288802361],
+        [-3.0349919525162576, 4.6719072682355005, -3.901146231405635, 6.801237798639343],
+        [-3.790181329224957, -4.668528388037032, 9.42203033571355, 11.177445480315237],
+        [-0.6851058115937896, 5.8139378371668045, 2.835355038793878, 6.504650747237183],
+        [3.0130261992181406, -7.824520831803053, 4.028380055456909, 9.302112609278488],
+        [2.1411089895636692, 7.809529908060917, 9.1008863258458, 12.181922549665769],
+        [8.304250219402189, 2.304705415975416, -1.222944189075692, 8.704471911061678],
+        [0.4649148152292284, -0.3320633053827464, -4.414573375155511, 4.451389660413168],
+        [4.07801994076906, 8.497243221471226, -1.6241950935766134, 9.564068104323972],
+        [-0.16171699301533238, 4.848655842210361, -8.708906588408238, 9.968985396099797],
+        [4.961702982705219, -7.71254373467012, -7.1432577973741935, 11.624455226268989],
+        [0.8313100361337327, 2.98521526162677, -4.7869409791090645, 5.702402166797753],
+        [7.900195136352949, 5.039366252234455, -6.011266498172729, 11.132996915865384],
+        [-8.896975539949379, -0.4930179880352874, -2.2858045522385506, 9.199138163220422],
+        [0.44057040177875706, -4.904979111983046, 2.371271502296482, 5.465880615739508],
+        [3.699833007649506, -3.3532347894759766, 2.1185478691020663, 5.424130613427528],
+        [-1.3053974392803411, -2.527750321274185, 9.966771150809265, 10.364849797936545],
+        [-5.9507117803545695, -9.985664371298661, -6.265864109507011, 13.205510844639152],
+        [-5.295455271072955, -2.4276078949740976, -4.360475344970693, 7.276597546502912],
+        [3.5303080635878388, 4.129534529215439, -1.07218642089469, 5.537663241202634],
+        [-4.398287523697187, 4.2195046317457106, -9.191308059658494, 11.028567283467831],
+        [-7.962447048069583, -8.875343518738726, -5.2862640457142485, 13.04288592029926],
+        [4.936169508089332, -7.296331805407648, -4.549701582056795, 9.914737097521256],
+        [6.032876170951923, -2.427714093661355, -7.353438025300331, 9.816437307217642],
+        [4.190444840915529, 5.9630235290601235, -6.424669435254313, 9.715650000137469],
+        [-7.746534372842984, 3.6711850752963766, 9.744106071184344, 12.978212425954828],
+        [8.973294800356651, -9.392263799467635, -7.864148186526673, 15.184843283766504],
+        [-3.9654652871509626, -4.348764137870398, 5.163640449181276, 7.829421891739386],
+        [-8.575752745693482, -2.343412170749019, 9.673351160398806, 13.138068291406954],
+        [-7.707771020655844, 3.78293833626514, -6.131773919334737, 10.55078233879745],
+        [-5.277596138381842, -9.555287284310532, -9.315588017859412, 14.350495329571565],
+        [-9.466514478855734, 7.244557912217552, 4.369739121774558, 12.696185872703118],
+        [-3.159980207224109, -9.44479965166163, 0.5312891896349914, 9.973564236174486],
+        [0.3085065087726484, 3.7876122190656485, -6.737155669452948, 7.7350144862445145],
+        [-5.580728937281552, 8.059790045698524, -4.967616500172987, 10.990084837932034],
+        [0.7618884602767988, 9.235268231599306, -0.024898048978359455, 9.266675415073804],
+        [9.090963581303743, -1.1414361506162471, -1.888823780026275, 9.355006712692267],
+        [7.712805159693033, 4.185483911764827, 3.548924869632197, 9.465754419871855],
+        [2.460168670025496, -2.4760715442938253, 9.757890737010396, 10.363387082072633],
+        [7.146752549559249, -8.433949466875237, -4.898441897331867, 12.091414666447138],
+        [2.1453089844360314, 4.520123935165186, -3.471161264475491, 6.089567435536801],
+        [-7.513358689667912, 6.812213915106625, 3.0445609811596714, 10.588964481609171],
+        [3.544101385318557, -4.314035741739972, -9.079966709387827, 10.659144170805558],
+        [-9.829608786987997, 5.257257918216601, -5.800802811459038, 12.566196042610265],
+        [8.220854101799262, 9.453246942939288, 5.796861294996045, 13.803982063183216],
+        [8.005225260453411, 6.365749810356359, -9.887878388264888, 14.225910907206233],
+        [6.892700271501944, 3.366476169405532, -4.268781594530077, 8.778665908538555],
+        [4.935511028437121, 6.321370961123531, -0.9516474969536972, 8.076176873893893],
+        [-5.8056183110093285, -3.1559139693833016, 4.550053701649638, 8.022966137481264],
+        [3.1668287998139615, 9.231726868238397, -1.5133948436661235, 9.876434051312298],
+        [7.585471827267444, -3.0066637300660854, -0.9915237516741282, 8.219642874121535],
+        [-9.652125400070148, 1.752531242804249, -9.153989322616168, 13.417541168718474],
+        [-9.051254832954278, -2.551390289756079, -3.8538548550840783, 10.163021386664248],
+        [-1.88121447254154, 4.62652581249888, -5.839252680814246, 7.683786882508814],
+        [6.443999670524573, -1.7520700519890138, 3.356437842571495, 7.4739919863379285],
+        [4.92159483589665, -0.5464996673884812, 4.375108480384034, 6.607747863705802],
+        [6.016991250416275, 9.915138594150115, 4.786929028641943, 12.547065257423586],
+        [-0.18342914019917345, 2.0755585510937244, 9.800591713470688, 10.019640087480328],
+        [-7.3568361418969985, -1.8684942582800765, -8.469549768248946, 11.373107846529606],
+        [6.302847072319835, -4.907785634655497, -8.441148973387909, 11.621757054925444],
+        [-8.308855821396167, -5.464293394503434, -6.659312197816243, 11.968376093269589],
+        [-0.18987315366690005, 8.288375709831271, -0.45597331892658133, 8.303079873720195],
+        [6.681411915757586, -7.368999589182341, 3.1529435184733057, 10.434772300538224],
+        [5.147124008092289, -2.138578769738208, 0.46943220543546005, 5.593457902277894],
+        [-2.1900880212515723, 1.0728988824995795, -9.204712171281086, 9.522306638048821],
+        [-7.74097774656896, -6.388501590208491, -5.705819091263013, 11.545218081231456],
+        [-2.2331512379104073, 0.5850334733406086, -1.440836101766024, 2.721256564247861],
+        [6.025896443261388, -3.849048781403768, -4.138341465805146, 8.261505586401208],
+        [-2.860459397823229, 9.887163480013161, -6.4080654821454575, 12.124418867334025],
+        [-8.076220043733016, 7.667877789284482, -4.093388806114104, 11.864969949570773],
+        [6.437498292466827, 4.370603990299877, -3.6353440128558905, 8.588322862896208],
+        [-6.450515278532272, 8.731783813462762, -8.385932836603667, 13.717764594264482],
+        [4.197550554172784, 3.9946581628310707, 6.3283272796093755, 8.580469139304526],
+        [4.742231057698101, -3.913738426463363, -0.682252589022557, 6.186402223473701],
+        [-9.401778606286587, 6.636475661015634, 3.546863777885722, 12.042279386385239],
+        [3.814374890897449, 1.4204396270674398, 9.31116064844225, 10.161929795248142],
+        [5.467554638038234, -1.4368692106869148, -5.82379671674077, 8.11636341266666],
+        [5.694705397308278, -8.794646384296668, 5.63927188193661, 11.898607563297285],
+        [1.9156202652832839, -8.415505244487868, -0.6829214509529002, 8.657754398742114],
+        [-8.487178233075666, 5.762497613822328, 2.2877246871843617, 10.510578354860126],
+        [7.835287309731999, 7.7384653134359915, -7.593636274872894, 13.376803972113997],
+        [-8.344476437745785, 6.616558724085117, -6.267566845927311, 12.356841446645202],
+        [6.289117745732188, 9.848134529615905, -6.547746632777609, 13.394466831499756],
+        [-5.441742163163674, 1.1862077682911636, -6.865814650344184, 8.840761135376773],
+        [9.371882237226888, -6.3507296017514125, 2.6492797644961428, 11.626806372068783],
+        [2.821026251456651, -7.429606569187365, -6.853230775075589, 10.493998996605765],
+        [-4.329835770694532, -9.218667942736907, -8.901883842269525, 13.526819743786426],
+        [3.9522855598194635, -6.870361374750084, 4.750798105626089, 9.240806740021986],
+        [-9.09629434982661, 4.6977044222516575, -2.8203155441572374, 10.619094947600065],
+        [-4.706140421129215, 2.304302503843246, 2.0102149902657658, 5.612355298775524],
+        [7.094018142961499, 7.4984541213941505, 4.992624592136977, 11.466394722899206],
+        [8.627004109525384, -2.397555850739934, 8.705767097855915, 12.488548943944437],
+        [3.557451103478087, -9.676038559857814, 4.275276950427003, 11.160608118214041],
+        [-3.822631858745047, 6.724999395547023, -1.37372501720691, 7.856541963262244],
+        [-6.187330403338576, -9.033641042425556, 5.327188900117228, 12.176562305552647],
+        [2.5945363320015957, -7.348660780908602, 1.4809252525032122, 7.9326901902470786],
+        [-9.311078230004108, 4.955022682300413, 0.6943350971600193, 10.570266260341612],
+        [2.229675455219608, 5.321433101355325, 5.278963102219013, 7.820265617125719],
+        [2.647563576932182, 5.573689091488365, 3.469292622623211, 7.0789543213572275],
+        [-9.216786909613056, 2.187238312952232, -2.9553585143406806, 9.923069904175152],
+        [3.559506948638468, 6.573725077345351, 4.584903149114151, 8.769566009597142],
+        [-9.951082634089168, -3.9256120490850765, 2.568354436629402, 11.001405367613126],
+        [1.1913547118030472, 1.7199700501725683, -7.5977992311642595, 7.880620291570084],
+        [-1.6992524032024114, -2.047207194413021, -2.507225721055784, 3.6557758195722694],
+        [5.9540437728646225, 7.659607993743755, -9.131953370477905, 13.323393119907331],
+        [-4.862521506533506, 4.127902966301576, -6.389048442503375, 9.027936547260234],
+        [-8.289278605518838, -5.616936648453182, 2.545184022010991, 10.331509029108421],
+        [-4.520898175550656, -6.506097819173182, -4.7814031659340746, 9.253628768302285],
+        [4.20512880809715, 2.013441164556099, 7.295136316328787, 8.657717221625845],
+        [2.0660874139529835, 9.15214704551411, -9.107324143594793, 13.075697526377406],
+        [0.9735404164064825, -1.7143036696568927, 9.509508905474625, 9.711713424390014],
+        [1.7912078402679334, -9.026464492651558, 7.660654714176395, 11.973767887092587],
+        [-1.41757045195153, -7.612916186126277, -6.685587528789423, 10.230497517146182],
+        [3.9297116424743876, 0.6779839149967337, 0.9245221428902699, 4.0935359989485205],
+        [-7.966084243367543, -1.3450741853023, -4.6644754657060865, 9.32872199749619],
+        [-3.1393540154425352, -2.7973477573624645, -7.69926288564027, 8.772647667158058],
+        [-7.699550723752299, -3.634802536383832, 5.025349970394624, 9.8868100594217],
+        [-0.7435610208863164, 4.2822647184979505, -0.9471518984581717, 4.448344729202847],
+        [-5.677456982520253, -4.029705441823699, -0.0048183946855662185, 6.962188373863412],
+        [2.6624621596060507, 7.170734463036862, 8.25858250641642, 11.256656808573583],
+        [-5.764217336713937, -3.774744121585945, -5.705439305113855, 8.94577734759027],
+        [-9.604655538212814, -4.923960091030115, -1.7438479107027156, 10.93324272672301],
+        [-5.659079265145666, -6.7865050666927695, 0.033899833168325344, 8.836457341499312],
+        [-2.9047442635418452, 5.0034763916357345, 9.314416478297336, 10.96497467253857],
+        [0.8400624799358791, -4.162330112846595, 3.8731442570752748, 5.747342287929331],
+        [7.234425914461649, 2.710313347463611, 1.7636296966456992, 7.924210147400451],
+        [9.827746841246764, -7.393304612299508, -3.1422292131918095, 12.693272450165123],
+        [-1.7981073410975217, 2.223695845276822, -6.078448828804344, 6.717555610994457],
+        [-0.5354694334641472, 6.20646838469877, -2.804897033612632, 6.831868316471616],
+        [-6.342147013785107, -3.386864304222634, -2.8675457720060615, 7.740574740562271],
+        [9.780208941138259, -8.73913833610718, -7.958002172558752, 15.341278446348229],
+        [-7.012996261638895, 0.6018894507992574, 4.539096612368779, 8.375427483607165],
+        [-7.55860058059284, 3.3246566323263913, 2.58873481839494, 8.65374672727256],
+        [1.980415759228567, -4.563452264708358, 2.8230175393556767, 5.719840135806462],
+        [4.185846635385007, 4.375931412991719, -3.7620395206736257, 7.1290272226498],
+        [-5.0662737247626355, -5.488466534260688, -1.1675585099296377, 7.559999155160596],
+        [2.3060580082928883, 7.279251084202269, 7.034708509588455, 10.38231783848616],
+        [3.614350942823652, 5.559801341831452, 9.228455121270194, 11.36394771300093],
+        [-6.18068931775028, -2.7410278274869215, 0.650415163049292, 6.792436519978272],
+        [-2.289722654674062, 4.474833790631209, -0.4945620674269904, 5.050896843892198],
+        [6.936209426666512, -1.720865288708584, 3.1924273998142016, 7.827130461129667],
+        [1.6540654379619024, -5.3726696335729285, 7.8115089043528805, 9.623989964009787],
+        [4.975789556876862, 7.2182047381956735, -2.411699267491077, 9.092703377634855],
+        [2.510252272623392, -6.279702348472926, -5.521195615462863, 8.730385391369252],
+        [6.904198663147593, 9.365811561369302, -8.331753659118116, 14.310992433074514],
+        [-0.5462560455975733, 4.610561946003722, 3.6763249063758145, 5.922080879431542],
+        [-8.275918940925441, 0.32718477012823755, 1.5625238989462176, 8.428485339926175],
+        [2.51664087200043, -5.5331610412950365, -0.08051894713898378, 6.079131162294217],
+        [1.593129222188951, -7.600343337571913, 1.5048410889075203, 7.909982697226999],
+        [-4.822993728434342, -2.603100392395543, 8.773708163336554, 10.344822622587847],
+        [-1.896172078802735, -7.608634145745339, 5.11499815032826, 9.362157240406429],
+        [7.055361323717996, 7.931756961083231, -2.2966256986659683, 10.861186928585706],
+        [4.6768909390747595, 8.508658909052848, -1.1143609273020179, 9.773043822827225],
+        [-4.291489531581019, 9.264049066464427, -3.474354930124539, 10.78474059428462],
+        [-4.8528745310205945, 9.336726422470601, 4.171981585051583, 11.319464733276858],
+        [-4.471357568573859, 3.473707137896419, 3.6852151676848415, 6.755774612733146],
+        [-0.9957732249996365, 7.070040759491619, -1.1426142567634727, 7.23067133786747],
+        [-1.814816557830781, -7.9480003952211735, 8.304223053190462, 11.637198543384597],
+        [1.710501666392723, 9.037801139077295, -7.4492996285709605, 11.836373191838224],
+        [-0.6791099507274634, -4.602978052705846, 9.324323581665773, 10.420729702591714],
+        [0.7368236327310385, 8.604434878384652, 5.803944291801821, 10.405045794442819],
+        [-0.6298915713448352, -4.112932765882695, -6.228868840830004, 7.490780090523661],
+        [4.464768788078848, -4.148667421869659, 8.713782097135233, 10.633701149865],
+        [9.694541334018751, 8.261771149641753, -8.58863108063963, 15.362473044577815],
+        [7.840683754067491, 7.851057222096504, -2.021044734739947, 11.278299652684868],
+        [-3.7364987800781835, 7.149174041669486, 9.293233131538926, 12.305945499990619],
+        [-0.6526247148910524, -7.349797182359095, 1.998097448163671, 7.644464078838914],
+        [2.1855381459585743, 5.33312028424451, -2.7866506210341235, 6.40188805254904],
+        [-4.547159989717191, -7.3447675221610975, 2.8487747931501914, 9.096031648403892],
+        [9.917296129089536, -6.21368308605968, -0.6513506809190357, 11.721214856642298],
+        [6.908747252894244, 1.927335778458989, 5.968755601338678, 9.331208669610477],
+        [5.802232311470748, -1.4429678428485015, 3.891129699087548, 7.133648878862148],
+        [-1.3745005230251799, 5.415351641971242, 3.559393945259748, 6.624543029639771],
+        [-6.4289682598676805, -8.498438419666783, -7.120797388804072, 12.81642867228049],
+        [0.7064264910891289, 4.684968201022695, -3.1700482446059963, 5.700629027136907],
+        [5.126414718310583, 2.5163727140062093, 0.11841267520722809, 5.711941969379248],
+        [-1.821874089361554, 2.218987359352278, -7.295940310362523, 7.840527731653334],
+        [5.6426512334311525, 6.462743804880276, 6.611487400960023, 10.831358921331784],
+        [1.6290010768150776, -4.172849553319125, -2.5892746394457316, 5.174037211054548],
+        [1.799639493841898, 2.664505055038278, -3.9108479685467756, 5.062906411262853],
+        [-6.059379897959265, 9.005662321781017, 4.897845979011915, 11.908271656116277],
+        [-7.03019756853452, -8.954421078656862, 6.505007670597781, 13.11184424484439],
+        [-8.492088788887544, 5.619366242442309, -7.766778988691614, 12.806861630556927],
+        [-4.732049479272991, 4.87707824994893, 7.92167924717609, 10.43701042567042],
+        [9.075531206414247, 8.12232008874362, 7.03264901272987, 14.063978897838885],
+        [-0.5647795906804411, -2.889914570705006, -8.02991335336586, 8.552782627577157],
+        [2.9646155962685334, 1.8044618877100955, 9.942302235007404, 10.530641104418578],
+        [5.2393547751976435, -7.132243878161136, -8.618896100354716, 12.353344129694722],
+        [-2.1849267085420436, 4.097508805261045, 8.833442045574522, 9.979638345321737],
+        [-9.557151191080237, -9.145677105215189, 2.210790096142997, 13.411567449453013],
+        [2.2922636191699617, -6.730897046976199, 7.332132843686857, 10.21369764552655],
+        [-2.856422220876609, 0.3491091995341513, -2.2073465890756694, 3.6267622063516964],
+        [-1.9913565991812021, -2.0171895337128065, -3.051416050958946, 4.164816278789846],
+        [-5.640916739765329, -6.919945996840848, 4.31992925634, 9.918033224583423],
+        [8.583022337248153, -1.4506287129946358, 4.899333100918092, 9.988796771304184],
+        [-7.8431182330148985, -4.400506294270952, -4.999866222801986, 10.289685199698054],
+        [-7.917034355726003, 3.215372446031026, -8.305087925948914, 11.916062202514043],
+        [-4.415969887044884, 1.0044342843444802, -9.939386965693329, 10.922503903805586],
+        [-9.809936150440638, -7.8205893067502625, -3.3494489205177373, 12.98519435556265],
+        [-6.213170301727882, -4.539196186308841, 0.8917546176047058, 7.746161211470709],
+        [0.10678604079235221, -2.5029698968246894, 3.9437161089525823, 4.672168480580596],
+        [-2.9613501617572595, 6.505165650985404, -5.898101945740142, 9.26684312425994],
+        [5.041804679702675, 2.805620058240333, -5.3238431296111655, 7.850770918080611],
+        [6.40974352342235, -5.3667621070094125, -0.19281964002904317, 8.36206475476409],
+        [7.750319595871634, -0.2894499621520552, 1.654994583837098, 7.930336827100839],
+        [-8.090844293654039, -4.2011290092695415, 4.3433639947822105, 10.09831951999196],
+        [6.659810921384079, -3.4207195922399247, 0.7333660909891275, 7.522780726615219],
+        [2.316866525884855, -8.232295490868067, 1.5649321582258207, 8.694111352379942],
+        [6.695347643272367, 9.634858918399377, 3.5450280038866655, 12.25664758366143],
+        [-6.882020366790922, -8.798593227687714, -2.9449571410860242, 11.552065602223298],
+        [-6.1943783833937065, -0.9131285668858347, -2.7179286461488577, 6.8257793300014304],
+        [-3.8732948240862575, -5.2146263595694915, -5.64771588313711, 8.607638210383238],
+        [6.460034477244967, 6.166770867224876, -9.208102016798161, 12.827714181716455],
+        [-1.9751509793395385, 8.050907958248413, 9.538816172950852, 12.6375375103191],
+        [3.672150839886994, -8.379310950161354, -9.476638463787983, 13.172100074161394],
+        [9.44907407272455, 4.182363262259676, 3.735553945114429, 10.987789885422577],
+        [1.5720023054477785, -4.2125643616663, 4.6642813619431145, 6.478611762784064],
+        [-2.3257647118143243, -3.346668364218579, -1.766213490948429, 4.44172046963679],
+        [5.168468937255907, -5.801254222666343, 5.867233889808322, 9.736121159327189],
+        [-4.524610126811329, -9.51451410326386, -9.373182578464924, 14.101582431418429],
+        [9.272518088220554, -3.7713892660284802, 3.654823524474601, 10.656486460712326],
+        [-0.8117709596165028, -2.197688291301212, 4.678737350264189, 5.232531806817452],
+        [9.058180263250549, -4.567105643501588, 1.9868831251232049, 10.33715571099445],
+        [-8.704817775269543, -2.1186138958934624, -4.18191851999863, 9.886901428072854],
+        [-6.350052355511342, 0.7181213604610264, 4.24225108480927, 7.670433982028068],
+        [4.768627904919843, 7.491757465765687, 7.811349640292196, 11.827232356909589],
+        [5.865237629474995, 5.214190281212934, -1.1501944725068576, 7.931692131159039],
+        [-2.9604413185118865, -5.777828420138942, 4.719702754873126, 8.026400696904847],
+        [-2.194504946965406, -3.1781255377776008, -3.3382192068654204, 5.104903659151169],
+        [2.117313379957862, -3.940702641259863, -2.8033100576637837, 5.279270833664434],
+        [5.284039547685126, 2.4838089985902005, -3.296894937343831, 6.705214188291189],
+        [-4.045489968790714, 6.488511068400896, 8.042398633376102, 11.097159129726718],
+        [-3.9768469995611166, -9.493020348420666, 6.735195194493304, 12.30022770933013],
+        [-8.025768314913666, -1.7074545721086505, -1.8822024340458157, 8.418494174329211],
+        [4.742302163465551, -0.40363638142401825, 3.60815145343137, 5.9725295352068395],
+        [3.8195142531843445, -8.783254461595869, 1.2198190477473059, 9.65516476175675],
+        [5.0605994536000605, 0.577821212310841, -1.213061289350243, 5.235939445304316],
+        [8.554449327172954, -2.0165801494140005, 2.364714341669913, 9.101487389865447],
+        [3.38830310073112, -1.9821230719900669, -8.31474579476274, 9.194803282640914],
+        [-0.7065867839869355, 4.20182428025068, -0.06898943212271647, 4.2613790851265225],
+        [-2.0331954476078433, 5.643424217450583, 0.804565321079707, 6.052226530969002],
+        [1.6152640326250811, 6.396960755846969, 0.41738450625063095, 6.610929937081208],
+        [-8.266827439900784, 2.391677032197867, -8.633666990236604, 12.190191165266464],
+        [8.62631888633588, 3.1492742090084285, 1.9664141447940011, 9.391383825673758],
+        [6.811959504464692, -7.106760935191458, 8.998622904444467, 13.337318225821216],
+        [2.493370266604046, -3.060221187169427, 0.4144245614449389, 3.969080084593232],
+        [2.4640470936683574, 1.347328535964083, -0.23926866840440297, 2.818522974772179],
+        [4.211905824231465, -8.274879762216292, 8.84799319072134, 12.825785327003679],
+        [-5.361118649994808, 8.02523892928695, 6.767013178031949, 11.787218518510757],
+        [8.17941390521495, 3.3995189302367557, -3.331668168132607, 9.463590944900874],
+        [9.462711883473453, -3.3426881446445407, 6.171632733554194, 11.781575905618674],
+        [7.3795944986569, -2.2897566647354717, 0.7799081992693129, 7.7659292649106195],
+        [2.8387577749176636, -9.376811586859281, -2.0316105492164294, 10.005527605468961],
+        [-7.686816457457121, -6.382011564770678, 2.371238894363742, 10.26839776974206],
+        [2.565598643989798, -2.0568076229857546, -9.723213250392783, 10.264191634640714],
+        [-2.153005578165594, 3.6262006458707656, -8.462891935198087, 9.455437803220248],
+        [7.801147383726811, 1.4595350888302185, 1.6740200305143809, 8.111133474473077],
+        [8.167664849032843, -6.689554828000661, 9.824517360720566, 14.421582238230776],
+        [6.997113358779533, -0.9135572601108972, 9.251399894309738, 11.635402108545565],
+        [6.482728280764661, -4.864095699263, 2.969408531414457, 8.63148770260676],
+        [2.0208942739236093, -3.2210507141500173, 8.847516161795252, 9.630042762248346],
+        [-0.3148892893408366, -9.61867359761512, 7.299424722955926, 12.078892264115115],
+        [4.95972967659792, 7.336832880816903, -7.547768373402988, 11.6360148936182],
+        [-9.755807503446581, 0.9037008119916052, -2.542410271549973, 10.12207020281828],
+        [7.5283794544766, 6.391936382014862, -4.7224058024447935, 10.946892914671034],
+        [-7.817722468674322, 6.619778991184951, 7.383625673523923, 12.627596231115033],
+        [-6.165561124883199, 1.997889187360256, -3.1748795522879902, 7.217033002638853],
+        [-5.65230137287279, -5.4336730154766455, -8.216476188963558, 11.357103249187436],
+        [-3.340338528186331, 3.1579564093404056, -9.746150985222876, 10.775806660892771],
+        [7.8340704652795665, -5.972867412891489, 7.719166772620369, 12.51532424072477],
+        [-1.864100160239822, -9.02819508112977, 6.605734088162649, 11.341027231862903],
+        [4.214140000305376, -3.6928124560615627, -0.9191737932270669, 5.6780912497046625],
+        [4.046050527154277, -4.787179182197745, 1.3880881733806376, 6.41984409217483],
+        [-2.6680813856203685, 3.0600033254502623, 3.474064679087718, 5.343351385277354],
+        [3.6320916296044032, -6.334738313447792, -9.787753800599955, 12.211516022462757],
+        [-3.7152469514376874, 2.268981484677834, -7.312605538265284, 8.510319420929273],
+        [8.396125622848746, -7.3700549386637615, 0.00974963238015647, 11.171961794103616],
+        [7.503815309425935, -4.178540310222099, 0.5424122185820366, 8.605908106469247],
+        [4.374879557194458, 3.5208049054965667, -3.310832237457639, 6.518991365780094],
+        [-7.707767730144861, 9.313420653276733, -2.7488476904547348, 12.397808325347766],
+        [8.97645556371533, 5.5437336188146205, 2.452320265015409, 10.831602448665507],
+        [-5.525087408559606, 1.3437323932818241, -6.825729600772137, 8.88385007751908],
+        [-2.474372743092472, -9.95691231918979, -3.596452633414085, 10.871848736446964],
+        [-1.3679538013530923, 3.3136143337576147, -8.980906520871528, 9.669954472082743],
+       ],
+       itemStyle: {
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.8)',
+       },
+      },
+     ],
+    }),
    },
   },
   line3d_ortho: {
@@ -2194,23 +3754,279 @@ export const WidgetRegistry = {
    desc: 'Orthographic view',
    defaultConfig: {
     type: 'chart',
-    subtype: 'line3D',
+    subtype: 'line3d_ortho',
     width: 'half',
     title: '3D Path',
     icon: 'fa-route',
     is3D: true,
-    echarts_options: {
-     grid3D: { viewControl: { projection: 'orthographic' } },
-     xAxis3D: {},
-     yAxis3D: {},
-     zAxis3D: {},
-     series: [{ type: 'line3D', lineStyle: { width: 4 } }],
-    },
-    data_config: WidgetConfigBuilder.staticData([
-     [0, 0, 0],
-     [1, 1, 1],
-     [2, 0, 2],
-    ]),
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData({
+     tooltip: {},
+     backgroundColor: '#fff',
+     visualMap: {
+      show: false,
+      dimension: 2,
+      min: 0,
+      max: 30,
+      inRange: {
+       color: [
+        '#313695',
+        '#4575b4',
+        '#74add1',
+        '#abd9e9',
+        '#e0f3f8',
+        '#ffffbf',
+        '#fee090',
+        '#fdae61',
+        '#f46d43',
+        '#d73027',
+        '#a50026',
+       ],
+      },
+     },
+     xAxis3D: {
+      type: 'value',
+     },
+     yAxis3D: {
+      type: 'value',
+     },
+     zAxis3D: {
+      type: 'value',
+     },
+     grid3D: {
+      viewControl: {
+       projection: 'orthographic',
+      },
+     },
+     series: [
+      {
+       type: 'line3D',
+       data: [
+        [1.25, 0, 0],
+        [1.2492965798795017, 0.0012492969963118616, 0.15085941454548468],
+        [1.2471902750993031, 0.002494383876044661, 0.30087626494719844],
+        [1.2436929301280628, 0.0037310899836608554, 0.4492127242634909],
+        [1.2388242116216375, 0.0049553232749055395, 0.5950404133226791],
+        [1.2326114976738596, 0.006163108847695295, 0.7375450581720951],
+        [1.2250897236423648, 0.007350626549584482, 0.8759310682224605],
+        [1.2163011854182766, 0.008514247364422505, 1.0094260093475957],
+        [1.206295301248381, 0.009650568289655648, 1.1372849467900707],
+        [1.195128333451962, 0.010756445426662483, 1.2587946334553997],
+        [1.1828630716004769, 0.01182902501946745, 1.3732775200466685],
+        [1.1695684789453806, 0.012865772192063604, 1.4800955644931573],
+        [1.1553193040865, 0.013864497151290116, 1.578653819254967],
+        [1.1401956600691914, 0.01482337864063797, 1.6684037763345154],
+        [1.1242825732820245, 0.015740984450370595, 1.7488464511880344],
+        [1.1076695046968672, 0.01661628881080755, 1.8195351881981907],
+        [1.090449846149036, 0.017448686518379598, 1.8800781719344533],
+        [1.0727203944957702, 0.018238003667965855, 1.9301406300819721],
+        [1.0545808066158668, 0.01898450488990214, 1.9694467156533184],
+        [1.0361330383211873, 0.019688897015731573, 1.9977810579005908],
+        [1.0174807703413138, 0.020352329123075958, 2.0149899732081087],
+        [0.9987288246153707, 0.020976388936756067, 2.020982329157606],
+        [0.9799825741795333, 0.021563095590294252, 2.0157300569078376],
+        [0.9613473499747058, 0.022114888779005484, 1.999268309007815],
+        [0.9429278479160851, 0.022634614362833358, 1.9716952617563899],
+        [0.9248275395647004, 0.023125506503726658, 1.9331715632193869],
+        [0.907148089720582, 0.02359116644849245, 1.8839194300077378],
+        [0.8899887842180558, 0.024035538093518855, 1.8242213978948572],
+        [0.8734459711460066, 0.024462880492354185, 1.7544187332977461],
+        [0.8576125186401511, 0.024877737490684518, 1.6749095145530501],
+        [0.8425772923008028, 0.02528490469560008, 1.5861463937758409],
+        [0.8284246551788627, 0.025689394007022043, 1.488634051884758],
+        [0.8152339931454222, 0.02609639595862348, 1.3829263611022995],
+        [0.803079268317168, 0.026511240133379372, 1.2696232708836959],
+        [0.7920286030515186, 0.026939353934889946, 1.149367434782831],
+        [0.7821438968529987, 0.027386220009719863, 1.0228405972201753],
+        [0.7734804783467552, 0.027857332628076256, 0.8907597604676564],
+        [0.7660867942773621, 0.028358153340118306, 0.7538731534010563],
+        [0.7600041372822934, 0.028894066232970517, 0.6129560246850855],
+        [0.7552664139708114, 0.029470333119036445, 0.4688062840433699],
+        [0.7518999546117946, 0.030092048989430305, 0.3222400161197301],
+        [0.7499233654994505, 0.03076409806722579, 0.17408689215343812],
+        [0.7493474248252854, 0.03149111079374715, 0.025185505265698356],
+        [0.7501750226394823, 0.032277422077294046, -0.12362134441594338],
+        [0.7524011452363351, 0.03312703112751285, -0.27149138828650166],
+        [0.7560129040480262, 0.034043563190132645, -0.4175876248040488],
+        [0.7609896088802267, 0.03503023348601913, -0.5610830254168628],
+        [0.7673028850731275, 0.036089813645525465, -0.7011651844188014],
+        [0.7749168339240362, 0.037224600914012106, -0.8370408865897097],
+        [0.7837882354639416, 0.038436390387258025, -0.9679405669399442],
+        [0.7938667924418635, 0.03972645051640015, -1.0931226374846919],
+        [0.8050954141387092, 0.041095502101134086, -1.2118776567213951],
+        [0.817410538408037, 0.042543700967319444, -1.323532318367952],
+        [0.8307424901258809, 0.044070624501001264, -1.4274532369355704],
+        [0.8450158740267966, 0.04567526218534014, -1.5230505088523942],
+        [0.8601499997097288, 0.04735601026020242, -1.6097810291159786],
+        [0.8760593364162496, 0.04911067059637316, -1.6871515448271788],
+        [0.892653995016198, 0.05093645384770009, -1.7547214284373887],
+        [0.9098402344827152, 0.05282998691514593, -1.8121051551169005],
+        [0.9275209900009644, 0.05478732472691418, -1.8589744703157483],
+        [0.9455964197332357, 0.056803966308717944, -1.8950602353301955],
+        [0.9639644671583469, 0.05887487508808565, -1.9201539404984356],
+        [0.9825214358158403, 0.06099450334654474, -1.9341088775177593],
+        [1.0011625732159484, 0.06315682070379942, -1.9368409642920033],
+        [1.0197826606250395, 0.06535534648882357, -1.9283292176716806],
+        [1.038276605403537, 0.06758318582432687, -1.9086158714288812],
+        [1.056540032559348, 0.06983306922351855, -1.8778061388036398],
+        [1.0744698721846533, 0.07209739547167912, -1.8360676209568296],
+        [1.0919649394675561, 0.07436827753994603, -1.7836293646554622],
+        [1.1089265040123333, 0.07663759125509743, -1.7207805744884463],
+        [1.1252588452627243, 0.07889702642715628, -1.6478689868531804],
+        [1.1408697909014187, 0.08113814011648586, -1.5652989148550303],
+        [1.1556712351952603, 0.08335241170386537, -1.4735289751119698],
+        [1.1695796343691078, 0.08553129941095093, -1.3730695092451226],
+        [1.1825164762211349, 0.08766629790466922, -1.2644797145525173],
+        [1.194408721337904, 0.08974899660757046, -1.1483644999984581],
+        [1.2051892134279605, 0.09177113832707434, -1.0253710851952693],
+        [1.2147970564670538, 0.09372467780996291, -0.8961853614992017],
+        [1.2231779565354823, 0.09560183982446796, -0.7615280356797112],
+        [1.230284526427291, 0.09739517637091594, -0.622150577843827],
+        [1.2360765513211596, 0.09909762262316199, -0.4788309963978431],
+        [1.2405212140224697, 0.10070255120697884, -0.3323694638010379],
+        [1.2435932785141004, 0.10220382442816124, -0.18358381770502458],
+        [1.2452752307886235, 0.10359584407234344, -0.033304962772966754],
+        [1.2455573761754517, 0.10487359841036221, 0.11762780096870837],
+        [1.244437892621771, 0.10603270605738033, 0.26837149698036444],
+        [1.2419228396343662, 0.10706945635083681, 0.41808421172992327],
+        [1.2380261228393639, 0.10798084593152325, 0.565929828237008],
+        [1.2327694143669907, 0.10876461123359386, 0.7110827270267659],
+        [1.2261820295173558, 0.10941925661297648, 0.8527324280628956],
+        [1.218300760409528, 0.10994407786932937, 0.9900881475612449],
+        [1.2091696675584565, 0.11033918094422882, 1.1223832440639105],
+        [1.1988398305611971, 0.11060549560751548, 1.2488795287764076],
+        [1.1873690593041069, 0.11074478397449421, 1.368871415933596],
+        [1.1748215673248774, 0.11075964372878369, 1.4816898898595352],
+        [1.161267609176247, 0.11065350595885713, 1.586706266416982],
+        [1.146783083840728, 0.11043062755048683, 1.683335727698313],
+        [1.1314491064366117, 0.11009607811220082, 1.7710406100845406],
+        [1.1153515506337714, 0.10965572144624859, 1.8493334271857707],
+        [1.0985805643623745, 0.10911619161323796, 1.917779610667019],
+        [1.0812300615476051, 0.10848486367431055, 1.9759999535494814],
+        [1.0633971927380796, 0.10776981923024545, 2.023672742250108],
+        [1.0451817976139834, 0.10697980691198077, 2.060535565372402],
+        [1.0266858424625025, 0.10612419801149839, 2.0863867890787517],
+        [1.0080128457921975, 0.10521293747559243, 2.1010866907492107],
+        [0.9892672953241713, 0.10425649051751958, 2.104558244552898],
+        [0.9705540596458182, 0.10326578513268589, 2.0967875545152386],
+        [0.951977797842336, 0.10225215083415114, 2.0778239326461874],
+        [0.933642370431899, 0.10122725395162187, 2.0477796216901694],
+        [0.915650254922345, 0.10020302986356694, 2.006829164056543],
+        [0.8981019692804817, 0.0991916125559373, 1.955208420478675],
+        [0.881095506559842, 0.09820526192253776, 1.8932132439191045],
+        [0.8647257838691282, 0.0972562892412209, 1.8211978161765556],
+        [0.849084108782098, 0.09635698127661102, 1.7395726565470242],
+        [0.8342576661906806, 0.09551952347388942, 1.6488023137349679],
+        [0.8203290284872448, 0.09475592271916852, 1.5494027539914812],
+        [0.8073756918298592, 0.09407793015006057, 1.4419384601643561],
+        [0.7954696410967665, 0.09349696450512178, 1.327019257970145],
+        [0.7846769459740633, 0.09302403650287659, 1.205296887332165],
+        [0.7750573904445682, 0.09266967474004843, 1.077461338061542],
+        [0.7666641377571399, 0.09244385359443288, 0.9442369704835003],
+        [0.7595434327552837, 0.09235592361053692, 0.8063784428201172],
+        [0.7537343432329332, 0.09241454483569841, 0.6646664682272518],
+        [0.7492685417649907, 0.09262762356093046, 0.5199034253412044],
+        [0.7461701292317825, 0.09300225290426169, 0.3729088470141094],
+        [0.7444555010213662, 0.09354465765494739, 0.22451481260214312],
+        [0.7441332566528926, 0.09426014377470136, 0.07556126971266844],
+        [0.745204153319381, 0.0951530529271609, -0.07310868828675227],
+        [0.7476611036006587, 0.09622672237928119, -0.2206535624459732],
+        [0.7514892173482645, 0.09748345058841015, -0.36623817944546566],
+        [0.7566658874952119, 0.09892446875658857, -0.5090383872445606],
+        [0.7631609192960632, 0.10054991859933382, -0.6482456887640001],
+        [0.7709367022581683, 0.10235883653999908, -0.7830717875506552],
+        [0.7799484237845545, 0.10434914450296, -0.9127530198669226],
+        [0.7901443233141718, 0.10651764743959255, -1.0365546482860812],
+        [0.8014659855173197, 0.10886003768050236, -1.1537749926533767],
+        [0.8138486708843873, 0.11137090616598813, -1.2637493751870947],
+        [0.8272216818357893, 0.11404376056452371, -1.3658538575388657],
+        [0.8415087622813052, 0.11687105024637817, -1.4595087488020093],
+        [0.8566285283691283, 0.11984419803662781, -1.5441818647447103],
+        [0.8724949279897765, 0.12295363862900859, -1.6193915199433468],
+        [0.8890177264386736, 0.12618886349958522, -1.6847092359931841],
+        [0.906103015494507, 0.129538472117334, -1.7397621505698204],
+        [0.9236537430393059, 0.1329902292077245, -1.7842351137968262],
+        [0.9415702602312217, 0.13653112778549445, -1.8178724601329856],
+        [0.9597508831429366, 0.14014745763430547, -1.840479445816975],
+        [0.9780924656979977, 0.14382487887409523, -1.8519233437876343],
+        [0.9964909806745978, 0.1475485002219405, -1.8521341899237862],
+        [1.0148421055018217, 0.15130296151936012, -1.8411051764079764],
+        [1.0330418095472924, 0.15507252006842348, -1.8188926900025022],
+        [1.0509869395877425, 0.15884114029101376, -1.7856159950225192],
+        [1.0685758001652141, 0.1625925862003054, -1.7414565627886776],
+        [1.085708725561414, 0.16631051615114434, -1.6866570513293457],
+        [1.1022886401709366, 0.16997857931672183, -1.621519941068894],
+        [1.1182216041204027, 0.17358051332285407, -1.546405834172725],
+        [1.1334173410646675, 0.1771002424584551, -1.4617314271107076],
+        [1.147789745192584, 0.18052197587151012, -1.367967167838055],
+        [1.1612573645928976, 0.18383030515412502, -1.2656346107657663],
+        [1.1737438582649022, 0.1870103007180947, -1.155303484392017],
+        [1.185178424207861, 0.19004760636395204, -1.0375884880812727],
+        [1.19549619618694, 0.19292853145164446, -0.9131458360008549],
+        [1.2046386069506696, 0.19564014008984193, -0.7826695676461889],
+        [1.2125537158646973, 0.19817033677337856, -0.6468876456982638],
+        [1.219196499127724, 0.20050794791442497, -0.5065578631526497],
+        [1.224529100946978, 0.20264279873261948, -0.36246358273158463],
+        [1.228521044271058, 0.2045657849924441, -0.2154093325338082],
+        [1.2311493999063385, 0.20626893910252725, -0.06621628268489912],
+        [1.2323989130779984, 0.2077454901211305, 0.08428237157988204],
+        [1.2322620867368392, 0.20898991724469831, 0.23524609444229128],
+        [1.2307392211570187, 0.20999799639182828, 0.3858317352992621],
+        [1.227838409616262, 0.2107668395331697, 0.5351982692622856],
+        [1.2235754901976506, 0.21129492645836637, 0.6825115257053059],
+        [1.2179739539993237, 0.21158212871400028, 0.8269488782754031],
+        [1.2110648102839552, 0.21162972549131917, 0.9677038699974277],
+        [1.2028864093423275, 0.2114404112890911, 1.1039907474684583],
+        [1.1934842240833254, 0.21101829522495147, 1.235048878649293],
+        [1.182910591594895, 0.21036889191780997, 1.3601470294144633],
+        [1.1712244161456333, 0.20949910391398388, 1.478587474816484],
+        [1.1584908353134333, 0.20841719568041234, 1.589709921949344],
+        [1.1447808511347914, 0.20713275923929564, 1.6928952223553992],
+        [1.13017092836481, 0.20565667156946854, 1.7875688531032548],
+        [1.1147425621225202, 0.20400104395046825, 1.873204146964661],
+        [1.0985818173678306, 0.20217916347526818, 1.9493252535292789],
+        [1.0817788428142616, 0.20020542700672353, 2.0155098146087784],
+        [1.0644273620247344, 0.1980952679006038, 2.0713913388882155],
+        [1.0466241445652358, 0.19586507586436702, 2.116661262473536],
+        [1.028468460202533, 0.19353211036528453, 2.151070683750023],
+        [1.0100615192265163, 0.19111440804384608, 2.1744317627977305],
+        [0.9915059020548371, 0.18863068462831842, 2.1866187774958363],
+        [0.9729049813366897, 0.18610023188361016, 2.1875688303781455],
+        [0.9543623398136821, 0.18354281016199037, 2.177282202265523],
+        [0.9359811872183983, 0.1809785371544645, 2.1558223506870178],
+        [0.9178637794954593, 0.17842777346953956, 2.1233155530985495],
+        [0.900110843615546, 0.17591100569049656, 2.079950196905117],
+        [0.8828210112200837, 0.17344872758297125, 2.0259757202782698],
+        [0.8660902642832935, 0.17106132014146885, 1.9617012097239808],
+        [0.8500113959093655, 0.16876893117626524, 1.8874936622858554],
+        [0.8346734892960229, 0.16659135515088502, 1.803775922154264],
+        [0.8201614177921924, 0.1645479139848919, 1.7110243032824703],
+        [0.8065553688574996, 0.1626573395370408, 1.609765911376319],
+        [0.7939303945955148, 0.1609376584798713, 1.5005756803142176],
+        [0.7823559913818768, 0.15940608026857297, 1.384073139659708],
+        [0.7718957109434866, 0.1580788888944383, 1.2609189314409106],
+        [0.7626068050667881, 0.15697133909647465, 1.1318110957806955],
+        [0.7545399059227993, 0.15609755768385555, 0.9974811462612048],
+        [0.7477387437950451, 0.1554704505969326, 0.8586899570883618],
+        [0.7422399037850822, 0.1551016163056332, 0.716223485180325],
+        [0.738072622850011, 0.15500126611137288, 0.5708883512317574],
+        [0.7352586282985727, 0.15517815188228462, 0.42350730459886354],
+        [0.7338120186383437, 0.15563950171180244, 0.2749145975032226],
+        [0.7337391874275361, 0.15639096394764115, 0.1259512945622937],
+        [0.7350387905423185, 0.15743655999222594, -0.022539455981793827],
+        [0.7377017570257661, 0.1587786462268955, -0.169717162748403],
+        [0.7417113434389037, 0.16041788536100016, -0.31474871676665295],
+        [0.7470432313892175, 0.16235322745363193, -0.45681307551714256],
+        [0.7536656676688551, 0.16458190080045743, -0.5951058791316559],
+        [0.7615396461948792, 0.16709941282129415, -0.7288439727969571],
+        [0.7873954875120929, -0.10593963183948635, 26.137863125481807],
+       ],
+       lineStyle: {
+        width: 4,
+       },
+      },
+     ],
+    }),
    },
   },
  },

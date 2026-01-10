@@ -1,42 +1,52 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { showToast } from '../utils/helpers.js'
-// ============================================
-// HELPER: LAZY LOAD ECHARTS + GL
-// ============================================
+let echartsPromise = null
+let glPromise = null
+
 async function loadECharts(requireGL = false) {
- // 1. Load Core ECharts
  if (!window.echarts) {
-  await new Promise((resolve, reject) => {
-   const script = document.createElement('script')
-   script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js'
-   script.onload = () => resolve()
-   script.onerror = () => reject(new Error('Gagal load ECharts Core'))
-   document.head.appendChild(script)
-  })
+  if (!echartsPromise) {
+   echartsPromise = loadScript({
+    url: 'https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js',
+    name: 'ECharts Core',
+   })
+  }
+  await echartsPromise
  }
 
- // 2. Load GL (Jika diminta & belum ada)
- if (requireGL && !window.echarts.graphic.GL) {
-  await new Promise((resolve, reject) => {
-   const script = document.createElement('script')
-   script.src = 'https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js'
-   script.onload = () => resolve()
-   script.onerror = () => reject(new Error('Gagal load ECharts GL'))
-   document.head.appendChild(script)
-  })
+ if (requireGL && typeof window.echarts.graphic.GL === 'undefined') {
+  if (!glPromise) {
+   glPromise = loadScript({
+    url: 'https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js',
+    name: 'ECharts GL',
+   })
+  }
+  await glPromise
  }
 
  return window.echarts
 }
 
-// ============================================
-// LOCAL STATE MANAGEMENT
-// ============================================
+function loadScript({ url, name }) {
+ return new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.onload = () => {
+   console.log(`${name} loaded successfully`)
+   resolve()
+  }
+  script.onerror = () => {
+   reject(new Error(`Gagal load ${name}`))
+  }
+  document.head.appendChild(script)
+ })
+}
+
 const dashboardState = {
- configs: {}, // Map ID Widget -> Config Object
- data: {}, // Map ID Widget -> Last Data Array
- activeFsChart: null, // Instance chart fullscreen (untuk dispose saat close)
+ configs: {},
+ data: {},
+ activeFsChart: null,
 }
 
 const selectorState = {
@@ -47,13 +57,9 @@ const selectorState = {
  timer: null,
 }
 
-// ============================================
-// 1. RENDERER UTAMA (UPDATED LAYOUT)
-// ============================================
 export async function renderDashboardView(config, container) {
  clearActiveIntervals()
 
- // Container utama kita berikan background halus dan overflow handling
  container.className = 'w-full h-full bg-gray-50/50 overflow-y-auto custom-scrollbar'
 
  container.innerHTML = `
@@ -150,14 +156,10 @@ export async function renderDashboardView(config, container) {
 
  startClock()
 
- // Load Default Dashboard
  const targetId = AppState.dashboard.activeId || AppState.user?.defaultDashboard || 'default'
  await loadDashboardConfig(targetId)
 }
 
-// ============================================
-// 2. LOAD CONFIGURATION
-// ============================================
 async function loadDashboardConfig(dashboardId) {
  AppState.dashboard.activeId = dashboardId
  const gridContainer = document.getElementById('dashboard-grid')
@@ -178,110 +180,74 @@ async function loadDashboardConfig(dashboardId) {
    return
   }
 
-  // Render Widget Skeleton Grid
   gridContainer.innerHTML = widgetList
    .map((widget) => {
-    // Cache Config
     dashboardState.configs[widget.id] = widget
     const colSpanClass = getColSpanClass(widget.width)
 
     return `
-                <div id="widget-container-${widget.id}" class="${colSpanClass} bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col hover-card group transition-all duration-300">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm">
-                                <i class="fas ${widget.icon || 'fa-cube'}"></i>
-                            </div>
-                            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-tight truncate max-w-[150px] md:max-w-xs">${widget.title}</h3>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <div id="loader-${widget.id}" class="opacity-0 transition-opacity duration-300 text-blue-400 text-[10px]"><i class="fas fa-circle-notch fa-spin"></i></div>
-                            
-                            <button onclick="refreshSingleWidget('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-green-600 hover:bg-green-50 transition-colors" title="Refresh Data">
-                                <i class="fas fa-sync-alt text-xs"></i>
-                            </button>
-                            
-                            <button onclick="openWidgetFullscreen('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Fullscreen">
-                                <i class="fas fa-expand text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="widget-content-${widget.id}" class="flex-1 flex flex-col justify-center min-h-[150px]">
-                        ${renderWidgetSkeleton()} 
-                    </div>
-                </div>`
+    <div id="widget-container-${widget.id}" class="${colSpanClass} bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col hover-card group transition-all duration-300">
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm">
+                    <i class="fas ${widget.icon || 'fa-cube'}"></i>
+                </div>
+                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-tight truncate max-w-[150px] md:max-w-xs">${widget.title}</h3>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="loader-${widget.id}" class="opacity-0 transition-opacity duration-300 text-blue-400 text-[10px]"><i class="fas fa-circle-notch fa-spin"></i></div>
+                
+                <button onclick="refreshSingleWidget('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-green-600 hover:bg-green-50 transition-colors" title="Refresh Data">
+                    <i class="fas fa-sync-alt text-xs"></i>
+                </button>
+                
+                <button onclick="openWidgetFullscreen('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Fullscreen">
+                    <i class="fas fa-expand text-xs"></i>
+                </button>
+            </div>
+        </div>
+        <div id="widget-content-${widget.id}" class="flex-1 flex flex-col justify-center min-h-[150px]">
+            ${renderWidgetSkeleton()} 
+        </div>
+    </div>`
    })
    .join('')
 
-  // Fetch Data Paralel
   widgetList.forEach((widget) => initWidgetDataFetcher(widget))
  } catch (err) {
   gridContainer.innerHTML = `<div class="col-span-full p-10 text-center bg-red-50 rounded-2xl border border-red-100"><i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i><p class="text-red-600 font-bold text-sm">Dashboard tidak ditemukan.</p><div class="mt-4 flex gap-2 justify-center"><button onclick="openDashboardSelector()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">Pilih Lain</button></div></div>`
  }
 }
 
-// ============================================
-// 3. FETCH DATA (INIT & REFRESH)
-// ============================================
-
-// A. Init Fetcher (Read Cached Data / First Load)
 async function initWidgetDataFetcher(widget) {
  const contentContainer = document.getElementById(`widget-content-${widget.id}`)
  const loader = document.getElementById(`loader-${widget.id}`)
  if (!contentContainer) return
 
- // 1. CEK CONFIG SOURCE
  const config = widget.data_config || {}
- const source = config.source || 'static' // Default ke static jika tidak ada config
+ const source = config.source || 'static'
 
- // ---------------------------------------------------------
- // KASUS A: STATIC DATA (Tidak perlu call API)
- // ---------------------------------------------------------
  if (source === 'static') {
   const staticData = config.static_data || []
-
-  // Simpan ke State Lokal (untuk Fullscreen)
   dashboardState.data[widget.id] = staticData
-
-  // Render Langsung
   renderWidgetContent(contentContainer, widget, staticData)
-
-  // Sembunyikan loader (jika ada)
   if (loader) loader.classList.add('opacity-0')
-  return // STOP di sini
+  return
  }
 
- // ---------------------------------------------------------
- // KASUS B: DATABASE (Fetch Snapshot dari API)
- // ---------------------------------------------------------
  if (loader) loader.classList.remove('opacity-0')
-
  try {
-  // Ambil data dari collection widgets (Snapshot terakhir)
-  const filterJson = JSON.stringify({ _id: widget.id }) // Gunakan _id yang spesifik
+  const filterJson = JSON.stringify({ _id: widget.id })
   const queryParams = new URLSearchParams({ page: 1, limit: 1, filter: filterJson })
-
   const response = await apiFetch(`api/collections/widgets?${queryParams.toString()}`)
-
   if (!response || !response.ok) throw new Error('Network Error')
-
   const result = await response.json()
-  // Ambil field 'data' dari dokumen widget di DB
-  // Asumsi: Backend process menyimpan hasil hitungan di field `data`
   const widgetDoc = result.data ? result.data[0] : null
   const liveData = widgetDoc ? widgetDoc.data || [] : []
 
-  // Cache Data
   dashboardState.data[widget.id] = liveData
-
-  // Render
   renderWidgetContent(contentContainer, widget, liveData)
-
-  // Setup Auto Refresh (Client-Side Polling)
-  // Hanya jalankan interval jika source adalah database
   if (widget.refresh_interval && widget.refresh_interval > 0) {
-   // Clear interval lama jika ada (safety)
-   // Note: Idealnya ID interval disimpan per widget agar bisa di-clear spesifik
    const timer = setTimeout(() => refreshSingleWidget(widget.id), widget.refresh_interval * 1000)
    AppState.dashboard.intervals.push(timer)
   }
@@ -293,22 +259,16 @@ async function initWidgetDataFetcher(widget) {
  }
 }
 
-// B. Force Refresh (Trigger Backend Calculation)
 window.refreshSingleWidget = async function (widgetId) {
  const loader = document.getElementById(`loader-${widgetId}`)
  if (loader) loader.classList.remove('opacity-0')
 
  try {
-  // Panggil Endpoint Refresh Khusus
   const response = await apiFetch(`api/collections/widgets/${widgetId}/refresh`, { method: 'POST' })
-
   if (response && response.ok) {
    const result = await response.json()
    const newData = result.data
-
-   // Update Cache & Render
    dashboardState.data[widgetId] = newData
-
    const widgetConfig = dashboardState.configs[widgetId]
    const container = document.getElementById(`widget-content-${widgetId}`)
    if (container && widgetConfig) {
@@ -320,7 +280,7 @@ window.refreshSingleWidget = async function (widgetId) {
   }
  } catch (e) {
   showToast('Gagal memproses data baru', 'error')
-  // Fallback: Coba fetch biasa jika endpoint refresh belum siap
+
   const widgetConfig = dashboardState.configs[widgetId]
   if (widgetConfig) initWidgetDataFetcher(widgetConfig)
  } finally {
@@ -328,21 +288,15 @@ window.refreshSingleWidget = async function (widgetId) {
  }
 }
 
-// C. Refresh All
 window.refreshAllWidgets = function () {
  Object.keys(dashboardState.configs).forEach((id) => {
-  // Beri delay sedikit agar tidak membebani network sekaligus
   setTimeout(() => {
    refreshSingleWidget(id)
   }, Math.random() * 1000)
  })
 }
 
-// ============================================
-// 4. RENDER CONTENT (CLEAN & STRICT)
-// ============================================
 function renderWidgetContent(container, widget, data, isFullscreen = false) {
- // Validasi Ketat: Jika tidak ada data, langsung tolak.
  if (!data || data.length === 0) {
   container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400"><span class="text-[10px] font-bold uppercase tracking-widest opacity-60">No Data Available</span></div>`
   return
@@ -351,13 +305,12 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
  if (widget.type === 'chart') {
   const chartId = isFullscreen ? `echart-fs-${widget.id}` : `echart-${widget.id}`
 
-  // Container Chart
   container.innerHTML = `
-            <div class="w-full h-full min-h-[180px] relative overflow-hidden group">
-                <div id="${chartId}" class="w-full h-full absolute inset-0"></div>
-            </div>`
+    <div class="w-full h-full min-h-[180px] relative overflow-hidden group">
+    <div id="${chartId}" class="w-full h-full absolute inset-0 z-0"></div>
+    
+    </div>`
 
-  // Delay 100ms agar animasi CSS (zoom/fade) selesai sebagian sebelum render chart
   setTimeout(() => initChartDispatcher(chartId, widget, data, isFullscreen), 100)
  } else if (widget.type === 'stat') {
   const item = data[0] || {}
@@ -367,105 +320,61 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
   const sizeClass = isFullscreen ? 'text-6xl md:text-8xl' : 'text-3xl md:text-4xl'
 
   container.innerHTML = `
-            <div class="flex flex-col h-full justify-center items-center animate-in fade-in duration-500">
-                <div class="text-center">
-                    <h2 class="${sizeClass} font-black text-gray-800 tracking-tight text-gradient">${mainValue}</h2>
-                    <p class="text-sm md:text-xl font-medium text-gray-400 mt-2">${subLabel}</p>
-                </div>
-                ${trend ? `<div class="flex items-center gap-3 mt-6 pt-6 border-t border-dashed border-gray-200"><span class="${trend.includes('+') ? 'text-emerald-500 bg-emerald-50' : 'text-red-500 bg-red-50'} px-3 py-1.5 rounded-lg text-sm font-black uppercase tracking-wide">${trend}</span><span class="text-xs text-gray-400 font-bold uppercase">vs last month</span></div>` : ''}
-            </div>`
+    <div class="flex flex-col h-full justify-center items-center animate-in fade-in duration-500">
+        <div class="text-center">
+            <h2 class="${sizeClass} font-black text-gray-800 tracking-tight text-gradient">${mainValue}</h2>
+            <p class="text-sm md:text-xl font-medium text-gray-400 mt-2">${subLabel}</p>
+        </div>
+        ${trend ? `<div class="flex items-center gap-3 mt-6 pt-6 border-t border-dashed border-gray-200"><span class="${trend.includes('+') ? 'text-emerald-500 bg-emerald-50' : 'text-red-500 bg-red-50'} px-3 py-1.5 rounded-lg text-sm font-black uppercase tracking-wide">${trend}</span><span class="text-xs text-gray-400 font-bold uppercase">vs last month</span></div>` : ''}
+    </div>`
  } else if (widget.type === 'table') {
   container.innerHTML = `
-            <div class="overflow-hidden -mx-5 animate-in fade-in duration-500 h-full overflow-y-auto custom-scrollbar px-5">
-                <table class="w-full text-left">
-                    <tbody class="divide-y divide-gray-100">
-                        ${data.map((row) => `<tr class="hover:bg-blue-50/30 transition-colors group"><td class="px-5 py-4 text-sm font-bold text-gray-600 truncate group-hover:text-blue-600 transition-colors">${row.name || row.title || row._id || '-'}</td><td class="px-5 py-4 text-sm font-mono text-gray-400 text-right">${row.status || row.date || row.value || '-'}</td></tr>`).join('')}
-                    </tbody>
-                </table>
-            </div>`
+    <div class="overflow-hidden -mx-5 animate-in fade-in duration-500 h-full overflow-y-auto custom-scrollbar px-5">
+        <table class="w-full text-left">
+            <tbody class="divide-y divide-gray-100">
+                ${data.map((row) => `<tr class="hover:bg-blue-50/30 transition-colors group"><td class="px-5 py-4 text-sm font-bold text-gray-600 truncate group-hover:text-blue-600 transition-colors">${row.name || row.title || row._id || '-'}</td><td class="px-5 py-4 text-sm font-mono text-gray-400 text-right">${row.status || row.date || row.value || '-'}</td></tr>`).join('')}
+            </tbody>
+        </table>
+    </div>`
  } else {
   container.innerHTML = `<div class="text-xs text-gray-400 p-2">Unsupported Type</div>`
  }
 }
 
-// ============================================
-// 5. CHART DISPATCHER (NO SURFACE SUPPORT)
-// ============================================
 async function initChartDispatcher(containerId, widget, data, isFullscreen = false, attempt = 0) {
  const chartDom = document.getElementById(containerId)
  if (!chartDom) return
 
- // A. DOM POLLING (Tunggu Container Siap)
  let width = chartDom.clientWidth
  let height = chartDom.clientHeight
 
- if (height === 0) {
-  if (attempt < 15) {
-   setTimeout(() => initChartDispatcher(containerId, widget, data, isFullscreen, attempt + 1), 100)
-   return
-  }
-  // Fallback terakhir
-  height = 300
-  chartDom.style.height = '300px'
- }
-
  try {
-  // B. SETUP LIBRARY
   const subtype = widget.subtype || 'bar'
-  // Cek 3D standar (Bar3D/Scatter3D) tapi abaikan surface
-  const is3D = widget.is3D || subtype.includes('3D') || widget.category === '3d'
-
+  const is3D = widget.is3D || subtype.includes('3d') || widget.category === '3d'
   const echarts = await loadECharts(is3D)
-
-  // Dispose Chart Lama
   const oldChart = isFullscreen
    ? dashboardState.activeFsChart
    : AppState.dashboard.charts[containerId]
   if (oldChart) oldChart.dispose()
-
-  // Init Baru
   const myChart = echarts.init(chartDom, null, { width: width || 'auto', height: height || 'auto' })
-
   if (!isFullscreen) AppState.dashboard.charts[containerId] = myChart
   else dashboardState.activeFsChart = myChart
 
-  // C. BASE OPTION
   let option = {
    backgroundColor: 'transparent',
    tooltip: { trigger: 'item' },
    ...widget.echarts_options,
   }
-
   if (!option.series || option.series.length === 0) {
    option.series = [{ type: subtype }]
   }
-
-  // D. DISPATCH TO HANDLERS (Tanpa Surface)
   if (is3D) {
-   handleGeneric3DChart(option, data, subtype)
+   handleGeneric3DChart(option, data, subtype, myChart)
   } else if (subtype === 'radar') {
-   handleRadarChart(option, data)
-  } else if (['sankey', 'tree', 'graph'].includes(subtype)) {
-   handleFlowChart(option, data, subtype)
+   handleRadarChart(option, data, myChart)
   } else {
-   // Default: Bar, Line, Mixed, Pie, Gauge
    handleStandardChart(option, data, subtype, myChart)
   }
-
-  // E. RENDER
-  //   if (subtype === 'scatter_aggregate') {
-  //    setInterval(function () {
-  //     myChart.setOption(option, true)
-  //    }, 2000)
-  //   } else {
-  //    myChart.setOption(option)
-  //   }
-
-  // Safety Resize
-  //   setTimeout(() => {
-  //    if (chartDom.style.height === '300px') chartDom.style.height = ''
-  //    myChart.resize()
-  //   }, 100)
 
   if (!chartDom._ro) {
    const ro = new ResizeObserver(() => myChart.resize())
@@ -478,50 +387,23 @@ async function initChartDispatcher(containerId, widget, data, isFullscreen = fal
  }
 }
 
-function handleGeneric3DChart(option, data, subtype) {
- if (!option.grid3D) option.grid3D = { viewControl: { autoRotate: true } }
- if (!option.xAxis3D) option.xAxis3D = { type: 'category' }
- if (!option.yAxis3D) option.yAxis3D = { type: 'category' }
- if (!option.zAxis3D) option.zAxis3D = { type: 'value' }
-
- option.series[0].data = data
-
- if (subtype === 'bar3D') {
-  option.series[0].shading = 'lambert'
-  if (!option.series[0].itemStyle) option.series[0].itemStyle = { opacity: 0.8 }
+function handleGeneric3DChart(option, data, subtype, myChart) {
+ if (subtype.includes('bar3d') || subtype.includes('scatter3d') || subtype.includes('line3d')) {
+  option = data
+  return myChart.setOption(option)
  }
 }
 
-function handleRadarChart(option, data) {
+function handleRadarChart(option, data, myChart) {
  option.series[0].data = data.data
- option.legend = data.legend || { data: [] }
+ option.legend = data.legend || []
  option.radar = {
   indicator: data.indicator,
  } || { indicator: [] }
-}
-
-function handleFlowChart(option, data, subtype) {
- delete option.xAxis
- delete option.yAxis
- delete option.grid
-
- let complexData = data
- // Unwrap jika data dibungkus array
- if (Array.isArray(data) && data.length === 1 && (data[0].nodes || data[0].children)) {
-  complexData = data[0]
- }
-
- if (subtype === 'sankey') {
-  option.series[0].data = complexData.nodes || []
-  option.series[0].links = complexData.links || []
-  option.series[0].layout = 'none'
- } else {
-  option.series[0].data = [complexData]
- }
+ return myChart.setOption(option)
 }
 
 function handleStandardChart(option, data, subtype, myChart) {
- // Cartesian (Bar, Line, Scatter 2D)
  if (subtype.includes('line')) {
   if (subtype === 'line_smooth') {
    const labels = data.map((d) => d.label || d._id || '-')
@@ -604,7 +486,6 @@ function handleStandardChart(option, data, subtype, myChart) {
     '#8378EA',
     '#96BFFF',
    ]
-   var ANIMATION_DURATION_UPDATE = 1500
    function renderItemPoint(params, api) {
     var coord = api.coord([api.value(0), api.value(1)])
     var clusterIdx = api.value(2)
@@ -768,11 +649,32 @@ function handleStandardChart(option, data, subtype, myChart) {
     ],
    }
    let currentOption = scatterOption
-//    setInterval(function () {
-//     currentOption = currentOption === scatterOption ? barOption : scatterOption
-//     console.log(currentOption)
-//    }, 5000)
+
    return myChart.setOption(currentOption)
+  }
+ }
+
+ if (subtype.includes('gauge')) {
+  if (subtype === 'gauge_multi') {
+   option.series[0].data = data
+   return myChart.setOption(option)
+  } else if (subtype === 'gauge_grade') {
+   option.series = data.series
+   return myChart.setOption(option)
+  }
+ }
+
+ if (subtype.includes('tree') || subtype.includes('sankey')) {
+  if (subtype === 'tree_lr' || subtype === 'tree_rl') {
+   option.series[0].data = data
+   return myChart.setOption(option)
+  } else if (
+   subtype === 'tree_multi' ||
+   subtype === 'sankey_basic' ||
+   subtype === 'sankey_levels'
+  ) {
+   option = data
+   return myChart.setOption(option)
   }
  }
 }
