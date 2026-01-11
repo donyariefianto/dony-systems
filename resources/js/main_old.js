@@ -9,9 +9,8 @@ import {
  openCrudModal,
 } from './modules/crud.js'
 
-import { setActiveTab, getCurrentActiveTab } from './modules/settings.js'
-
 import {
+ switchSettingsTab,
  openWidgetEditor,
  addWidgetToBuilder,
  removeBuilderWidget,
@@ -25,13 +24,7 @@ import {
  previewConfig,
  openAddDashboardModal,
  deleteDashboardConfig,
- switchMobileTab,
- updateDashboardSearch,
- changeDashboardPage,
- filterWidgetLibraryOnly,
- switchConfigTab,
- initDashboardGenerator,
-} from './modules/settings_dashboard.js'
+} from './modules/settings.js'
 
 import { toggleSidebar, showToast, logout, closeModal } from './utils/helpers.js'
 
@@ -51,6 +44,7 @@ window.toggleSidebar = toggleSidebar
 window.logout = logout
 window.showToast = showToast
 window.closeModal = closeModal
+
 window.fetchTableData = fetchTableData
 window.deleteData = deleteData
 window.editData = editData
@@ -71,34 +65,22 @@ window.doSearch = (val) => {
  }, 500)
 }
 
+window.switchSettingsTab = switchSettingsTab
 window.saveSettings = () => showToast('Konfigurasi Toko Disimpan!', 'success')
+
 window.openWidgetEditor = openWidgetEditor
 window.saveDashboardBuilder = saveDashboardBuilder
 window.fetchDashboardsFromDB = fetchDashboardsFromDB
 window.openAddDashboardModal = openAddDashboardModal
 window.previewConfig = previewConfig
+
 window.addWidgetToBuilder = addWidgetToBuilder
 window.removeBuilderWidget = removeBuilderWidget
 window.resizeWidget = resizeWidget
 window.moveWidget = moveWidget
+
 window.editWidgetConfig = editWidgetConfig
 window.applyWidgetChanges = applyWidgetChanges
 window.closeWidgetConfigModal = closeWidgetConfigModal
-window.deleteDashboardConfig = deleteDashboardConfig
-window.updateDashboardSearch = updateDashboardSearch
-window.changeDashboardPage = changeDashboardPage
-window.switchMobileTab = switchMobileTab
-window.filterWidgetLibraryOnly = filterWidgetLibraryOnly
-window.switchConfigTab = switchConfigTab
-window.initDashboardGenerator = initDashboardGenerator
-window.switchMobileTab = switchMobileTab
-window.setActiveTab = setActiveTab
-window.getCurrentActiveTab = getCurrentActiveTab
-window.AppState = window.AppState || {}
-window.AppState.settingsActiveTab = getCurrentActiveTab
 
-window.syncSettingsTab = (tab) => {
- if (typeof setActiveTab === 'function') {
-  setActiveTab(tab)
- }
-}
+window.deleteDashboardConfig = deleteDashboardConfig
