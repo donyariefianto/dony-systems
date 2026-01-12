@@ -62,11 +62,10 @@ export async function renderDashboardView(config, container) {
 
  container.className = 'w-full h-full bg-gray-50/50 overflow-y-auto custom-scrollbar'
 
- container.innerHTML = `
+ const dashboardContent = `
     <div class="min-h-full w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 py-8 space-y-8 animate-in fade-in zoom-in-95 duration-300 pb-32">
         
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-200/60 pb-6">
-            
             <div class="flex items-start gap-4">
                 <div class="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] text-blue-600 shrink-0">
                     <i class="fas fa-chart-pie text-2xl"></i>
@@ -75,12 +74,9 @@ export async function renderDashboardView(config, container) {
                     <h1 id="dashboard-title" class="text-3xl font-black text-gray-800 tracking-tight leading-none mb-2">
                         Loading...
                     </h1>
-                    
                     <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span id="current-time" class="bg-gray-100 px-2 py-1 rounded-md">...</span>
-                        
                         <span class="text-gray-300">/</span>
-                        
                         <button onclick="openDashboardSelector()" class="group flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors">
                             <span>Ganti Dashboard</span> 
                             <i class="fas fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
@@ -103,8 +99,45 @@ export async function renderDashboardView(config, container) {
         <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8">
             ${renderSkeletonPage()}
         </div>
-    </div>
+    </div>`
 
+ const modalFullscreenHTML = `
+    <div id="widget-fullscreen-modal" 
+         class="fixed inset-0 hidden" 
+         style="z-index: 2147483647 !important; position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background-color: #ffffff;">
+        
+        <div class="flex flex-col w-full h-full relative">
+            
+            <div style="height: env(safe-area-inset-top); width: 100%; background-color: #ffffff; flex-shrink: 0;"></div>
+
+            <div class="flex items-center justify-between px-4 border-b border-gray-200 shadow-sm" 
+                 style="height: 64px; background-color: #ffffff; flex-shrink: 0; position: relative; z-index: 999;">
+                
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm shrink-0 border border-blue-100">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h2 id="fs-title" class="text-base font-black text-gray-800 tracking-tight truncate leading-tight">Widget</h2>
+                        <p id="fs-desc" class="text-[10px] text-gray-500 font-medium truncate hidden sm:block">Description</p>
+                    </div>
+                </div>
+                
+                <button onclick="closeWidgetFullscreen()" class="h-10 px-4 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 font-bold text-xs uppercase hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2 shrink-0 active:scale-95">
+                    <span>TUTUP</span> <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 relative w-full overflow-hidden" style="background-color: #f8fafc;">
+                <div id="fs-content-body" class="w-full h-full p-4 md:p-6 overflow-y-auto" style="-webkit-overflow-scrolling: touch;">
+                    </div>
+            </div>
+
+            <div style="height: env(safe-area-inset-bottom); width: 100%; background-color: #ffffff; flex-shrink: 0;"></div>
+        </div>
+    </div>`
+
+ const modalSelectorHTML = `
     <div id="dashboard-selector-modal" class="fixed inset-0 z-[100] hidden">
         <div id="selector-backdrop" class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300" onclick="closeDashboardSelector()"></div>
         <div id="selector-panel" class="absolute inset-x-0 bottom-0 top-10 md:inset-y-0 md:left-auto md:right-0 md:w-[500px] bg-white shadow-2xl rounded-t-2xl md:rounded-none transform transition-transform duration-300 ease-out translate-y-full md:translate-y-0 md:translate-x-full flex flex-col border-l border-gray-100">
@@ -130,29 +163,9 @@ export async function renderDashboardView(config, container) {
                 </div>
             </div>
         </div>
-    </div>
+    </div>`
 
-    <div id="widget-fullscreen-modal" class="fixed inset-0 z-[200] hidden transition-all duration-300">
-        <div class="absolute inset-0 bg-white/95 backdrop-blur-md"></div>
-        <div class="absolute inset-0 flex flex-col h-full w-full animate-in zoom-in-95 duration-200">
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm shrink-0">
-                <div class="flex items-center gap-4">
-                    <div id="fs-icon-box" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
-                        <i class="fas fa-cube"></i>
-                    </div>
-                    <div>
-                        <h2 id="fs-title" class="text-xl font-black text-gray-800 tracking-tight">Widget Title</h2>
-                        <p id="fs-desc" class="text-xs text-gray-400 font-medium mt-0.5">Widget Description</p>
-                    </div>
-                </div>
-                <button onclick="closeWidgetFullscreen()" class="h-10 px-6 rounded-xl bg-gray-100 text-gray-600 font-bold text-xs uppercase hover:bg-red-50 hover:text-red-500 transition-colors flex items-center gap-2">
-                    <span class="hidden md:inline">Tutup</span> <i class="fas fa-times text-lg"></i>
-                </button>
-            </div>
-            <div id="fs-content-body" class="flex-1 p-6 md:p-10 overflow-hidden relative bg-gray-50/30"></div>
-        </div>
-    </div>
-    `
+ container.innerHTML = dashboardContent + modalFullscreenHTML + modalSelectorHTML
 
  startClock()
 
@@ -779,31 +792,62 @@ window.switchDashboard = (id) => {
  if (id === AppState.dashboard.activeId) return
  setTimeout(() => loadDashboardConfig(id), 300)
 }
+
 window.openWidgetFullscreen = function (widgetId) {
  const modal = document.getElementById('widget-fullscreen-modal')
+
  const titleEl = document.getElementById('fs-title')
  const descEl = document.getElementById('fs-desc')
  const iconBox = document.getElementById('fs-icon-box')
+
  const body = document.getElementById('fs-content-body')
+
  const widget = dashboardState.configs[widgetId]
  const data = dashboardState.data[widgetId]
+
  if (!widget || !data) {
-  showToast('Data widget belum siap', 'error')
+  if (typeof showToast === 'function') showToast('Data widget belum siap', 'error')
+  else alert('Data widget belum siap')
   return
  }
- titleEl.innerText = widget.title
- descEl.innerText = widget.description || 'Detail Widget'
- iconBox.innerHTML = `<i class="fas ${widget.icon || 'fa-cube'} text-xl"></i>`
- body.innerHTML = ''
- renderWidgetContent(body, widget, data, true)
- modal.classList.remove('hidden')
+
+ if (titleEl) titleEl.innerText = widget.title
+ if (descEl) descEl.innerText = widget.description || ''
+
+ if (iconBox) {
+  iconBox.innerHTML = `<i class="fas ${widget.icon || 'fa-cube'}"></i>`
+ }
+
+ if (body) {
+  body.innerHTML = ''
+
+  renderWidgetContent(body, widget, data, true)
+ }
+
+ if (modal) {
+  modal.classList.remove('hidden')
+
+  modal.style.zIndex = '2147483647'
+ }
 }
+
 window.closeWidgetFullscreen = function () {
  const modal = document.getElementById('widget-fullscreen-modal')
- modal.classList.add('hidden')
+ const body = document.getElementById('fs-content-body')
+
+ if (modal) {
+  modal.classList.add('hidden')
+ }
+
  if (dashboardState.activeFsChart) {
   dashboardState.activeFsChart.dispose()
   dashboardState.activeFsChart = null
+ }
+
+ if (body) {
+  setTimeout(() => {
+   body.innerHTML = ''
+  }, 300)
  }
 }
 function clearActiveIntervals() {

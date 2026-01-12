@@ -1,347 +1,200 @@
 @import 'tailwindcss';
 
+@theme {
+ /* Mendaftarkan Custom Easing agar bisa dipakai dengan class: ease-pro / ease-bounce */
+ --ease-pro: cubic-bezier(0.16, 1, 0.3, 1);
+ --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* ============================================
-   1. DESIGN SYSTEM & VARIABLES
+   1. VARIABLES & THEME CONFIG
    ============================================ */
 :root {
- /* --- COLORS --- */
+ /* Colors (HSL format allows opacity manipulation in Tailwind) */
  --primary-hue: 221;
- --primary: hsl(var(--primary-hue), 83%, 53%); /* #3b82f6 */
- --primary-dark: hsl(var(--primary-hue), 83%, 45%); /* #2563eb */
+ --sidebar-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+ --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 
- /* --- GRADIENTS --- */
- --gradient-sidebar: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
- --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-
- /* --- DIMENSIONS --- */
- --sidebar-width: 18rem;
-
- /* --- SHADOWS (Soft & Deep) --- */
- --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
- --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
- --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
- --shadow-active: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Focus Ring */
-
- /* --- ANIMATION PHYSICS (The Secret Sauce) --- */
- /* ease-out-expo: Cepat di awal, sangat lambat di akhir. Terasa mahal. */
- --ease-pro: cubic-bezier(0.16, 1, 0.3, 1);
- /* ease-elastic: Sedikit memantul untuk interaksi taktil */
- --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-
+ /* Animation Timings */
  --dur-fast: 150ms;
  --dur-normal: 300ms;
  --dur-slow: 500ms;
 }
 
 /* ============================================
-   2. GLOBAL RESET
+   2. BASE LAYER (HTML/Body Defaults)
    ============================================ */
-html,
-body {
- height: 100%;
- scroll-behavior: smooth;
-}
+@layer base {
+ html {
+  @apply h-full scroll-smooth antialiased;
+ }
 
-body {
- font-family:
-  'Inter',
-  system-ui,
-  -apple-system,
-  sans-serif;
- background: #f8fafc;
- background-image:
-  radial-gradient(at 0% 0%, hsla(221, 100%, 96%, 1) 0, transparent 50%),
-  radial-gradient(at 50% 0%, hsla(210, 100%, 98%, 1) 0, transparent 50%),
-  radial-gradient(at 100% 0%, hsla(221, 100%, 96%, 1) 0, transparent 50%);
- background-attachment: fixed;
- color: #334155;
- -webkit-font-smoothing: antialiased;
+ body {
+  @apply h-full bg-slate-50 text-slate-700 font-sans;
+  background-image:
+   radial-gradient(at 0% 0%, hsla(221, 100%, 96%, 1) 0, transparent 50%),
+   radial-gradient(at 50% 0%, hsla(210, 100%, 98%, 1) 0, transparent 50%),
+   radial-gradient(at 100% 0%, hsla(221, 100%, 96%, 1) 0, transparent 50%);
+  background-attachment: fixed;
+ }
+
+ /* Headings Default */
+ h1,
+ h2,
+ h3,
+ h4,
+ h5,
+ h6 {
+  @apply font-bold text-slate-800 tracking-tight;
+ }
 }
 
 /* ============================================
-   3. INTERACTIVE ELEMENTS (BUTTONS & CARDS)
+   3. COMPONENTS LAYER (Reusable UI Elements)
    ============================================ */
+@layer components {
+ /* --- Interactive Cards --- */
+ .hover-card {
+  @apply transition-all duration-300 ease-pro 
+           border border-gray-100 bg-white
+           hover:-translate-y-1 hover:shadow-xl hover:border-blue-300/50;
+  will-change: transform, box-shadow;
+ }
 
-/* Button Reset & Pro Feel */
-button {
- transition:
-  transform var(--dur-fast) var(--ease-pro),
-  background-color var(--dur-fast) ease,
-  box-shadow var(--dur-fast) ease,
-  opacity var(--dur-fast) ease;
-}
+ /* --- Forms & Inputs --- */
+ .form-input,
+ .form-select,
+ .form-textarea {
+  @apply w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5
+           text-sm font-medium text-slate-700 transition-all duration-300 ease-pro
+           focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10
+           placeholder:text-slate-400 disabled:bg-slate-50 disabled:text-slate-400;
+ }
 
-button:active {
- transform: scale(0.96); /* Efek tekan yang memuaskan */
-}
+ /* --- Buttons (Base Reset & Interaction) --- */
+ .btn-interaction {
+  @apply active:scale-95 transition-transform duration-150 ease-pro select-none;
+ }
 
-/* Card Hover Lift */
-.hover-card {
- transition:
-  transform var(--dur-normal) var(--ease-pro),
-  box-shadow var(--dur-normal) var(--ease-pro),
-  border-color var(--dur-normal) ease;
- will-change: transform, box-shadow; /* Optimasi GPU */
-}
+ /* --- Navigation Items --- */
+ .nav-item {
+  @apply relative rounded-xl mx-3 my-1 overflow-hidden
+           transition-all duration-150 ease-pro
+           active:scale-[0.98];
+ }
 
-.hover-card:hover {
- transform: translateY(-4px);
- box-shadow: var(--shadow-lg);
- border-color: rgba(59, 130, 246, 0.4);
+ .nav-item.active {
+  @apply shadow-lg shadow-blue-600/30 font-semibold text-white;
+  background: var(--primary-gradient);
+ }
+
+ /* --- Custom Scrollbar --- */
+ .custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
+ }
+
+ .custom-scrollbar::-webkit-scrollbar {
+  @apply w-[5px] h-[5px];
+ }
+
+ .custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+ }
+
+ .custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full transition-colors duration-300;
+ }
+
+ .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+ }
+
+ /* --- Table Styles --- */
+ .table-header {
+  @apply bg-slate-50/90 backdrop-blur-sm text-slate-500 text-[11px] 
+           uppercase tracking-wider font-bold px-5 py-4 border-b border-slate-200;
+ }
+
+ .table-row {
+  @apply transition-colors duration-150 hover:bg-slate-50/80;
+ }
 }
 
 /* ============================================
-   4. FORMS & INPUTS
+   4. UTILITIES LAYER (Animations & Helpers)
    ============================================ */
-input,
-textarea,
-select {
- background-color: #fff;
- border: 1px solid #e2e8f0;
- transition: all var(--dur-normal) var(--ease-pro);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
- outline: none;
- border-color: var(--primary);
- box-shadow: var(--shadow-active);
- transform: translateY(-1px); /* Sedikit naik saat fokus */
-}
-
-/* ============================================
-   5. NAVIGATION & SIDEBAR
-   ============================================ */
-#sidebar {
- background: var(--gradient-sidebar);
- color: white;
- box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
- z-index: 50;
- transition: width var(--dur-normal) var(--ease-pro);
-}
-
-.nav-item {
- position: relative;
- border-radius: 0.75rem;
- margin: 0.25rem 0.75rem;
- overflow: hidden;
- transition:
-  background-color var(--dur-fast) ease,
-  transform var(--dur-fast) var(--ease-pro);
-}
-
-.nav-item:active {
- transform: scale(0.98);
-}
-
-.nav-item.active {
- background: var(--gradient-primary);
- box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
- font-weight: 600;
-}
-
-/* ============================================
-   6. TABLES
-   ============================================ */
-table {
- border-collapse: separate;
- border-spacing: 0;
- width: 100%;
-}
-
-thead th {
- background: rgba(248, 250, 252, 0.9);
- backdrop-filter: blur(8px);
- color: #64748b;
- font-size: 0.7rem;
- text-transform: uppercase;
- letter-spacing: 0.08em;
- font-weight: 800;
- padding: 1rem;
- border-bottom: 1px solid #e2e8f0;
-}
-
-tbody tr {
- transition: background-color var(--dur-fast) ease;
-}
-
-tbody tr:hover {
- background-color: #f1f5f9;
-}
-
-/* ============================================
-   7. MODAL & SLIDE PANELS (Smooth Transitions)
-   ============================================ */
-/* Base Modal Style */
-.fixed.inset-0 {
- transition:
-  visibility 0s linear 0s,
-  opacity var(--dur-normal) var(--ease-pro);
-}
-
-/* Panel Transform Animation */
-#modal-panel {
- transition: transform var(--dur-slow) var(--ease-pro);
- will-change: transform;
-}
-
-/* Backdrop Fade */
-#modal-backdrop {
- transition: opacity var(--dur-normal) ease;
-}
-
-/* ============================================
-   8. UTILITY ANIMATIONS
-   ============================================ */
-
-/* Entrance Animation (Untuk Halaman/Tabel) */
-.animate-in {
- animation: fadeUp var(--dur-slow) var(--ease-pro) forwards;
- opacity: 0;
-}
-
-@keyframes fadeUp {
- from {
+@layer utilities {
+ /* --- Entrance Animation --- */
+ .animate-in {
+  animation: fadeUp var(--dur-slow) var(--ease-pro) forwards;
   opacity: 0;
-  transform: translateY(15px) scale(0.98);
- }
- to {
-  opacity: 1;
-  transform: translateY(0) scale(1);
- }
-}
-
-/* Skeleton Loading (Shimmer Halus) */
-.skeleton {
- background: #f1f5f9;
- background-image: linear-gradient(
-  90deg,
-  rgba(255, 255, 255, 0) 0%,
-  rgba(255, 255, 255, 0.6) 50%,
-  rgba(255, 255, 255, 0) 100%
- );
- background-repeat: no-repeat;
- background-size: 200px 100%;
- animation: shimmer 2s infinite linear;
-}
-
-@keyframes shimmer {
- 0% {
-  background-position: -200px 0;
- }
- 100% {
-  background-position: calc(100% + 200px) 0;
- }
-}
-
-/* Glass Effect Helper */
-.glass {
- background: rgba(255, 255, 255, 0.7);
- backdrop-filter: blur(12px);
- -webkit-backdrop-filter: blur(12px);
- border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-/* ============================================
-   9. SCROLLBAR (Elegant & Minimal)
-   ============================================ */
-.custom-scrollbar::-webkit-scrollbar {
- width: 5px;
- height: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
- background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
- background-color: #cbd5e1;
- border-radius: 100vh;
- transition: background-color var(--dur-normal) ease;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
- background-color: #94a3b8;
-}
-/* Tambahkan di file CSS global atau inline */
-.tab-content-transition {
- animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
- from {
-  opacity: 0;
-  transform: translateY(10px);
- }
- to {
-  opacity: 1;
-  transform: translateY(0);
- }
-}
-
-/* Desktop hover effects */
-@media (min-width: 1024px) {
- .desktop-tab-btn {
-  transition: all 0.2s ease;
  }
 
- .desktop-tab-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ @keyframes fadeUp {
+  from {
+   opacity: 0;
+   transform: translateY(15px) scale(0.98);
+  }
+  to {
+   opacity: 1;
+   transform: translateY(0) scale(1);
+  }
  }
 
- .desktop-tab-btn.active {
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+ /* --- Skeleton Loading (Shimmer) --- */
+ .skeleton {
+  @apply bg-slate-100 bg-no-repeat;
+  background-image: linear-gradient(
+   90deg,
+   rgba(255, 255, 255, 0) 0%,
+   rgba(255, 255, 255, 0.6) 50%,
+   rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite linear;
+ }
+
+ @keyframes shimmer {
+  0% {
+   background-position: -200px 0;
+  }
+  100% {
+   background-position: calc(100% + 200px) 0;
+  }
+ }
+
+ /* --- Glassmorphism --- */
+ .glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/50;
+ }
+
+ /* --- Mobile Optimized Touch Targets --- */
+ .touch-target {
+  @apply min-h-[44px] min-w-[44px];
  }
 }
 
 /* ============================================
-   10. RESPONSIVE
+   5. MEDIA QUERY OVERRIDES (Specific Fixes)
    ============================================ */
 @media (max-width: 1024px) {
- :root {
-  --sidebar-width: 0px;
+ /* Fix untuk Mobile Sidebar Z-Index */
+ #sidebar {
+  z-index: 50; /* Sesuai dengan layer modal backdrop */
  }
- /* Touch target size increase */
+
+ /* Touch optimizations */
  button,
  input,
- select {
-  min-height: 44px;
- }
- #tab-content-general,
- #tab-content-generator,
- #tab-content-sidemenu,
- #tab-content-options_sidemenu {
-  padding-bottom: 5rem !important; /* Space for bottom navigation */
+ select,
+ .nav-item {
+  @apply min-h-[44px]; /* Standar aksesibilitas Apple/Google */
  }
 
- /* Ensure content is scrollable */
- .custom-scrollbar {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
- }
-
- /* Better touch targets */
- button,
- .widget-item,
- [onclick] {
-  min-height: 44px;
-  min-width: 44px;
- }
-
- /* Prevent text selection on buttons */
- button {
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
- }
- .mobile-tab-btn:active {
-  transform: scale(0.95);
-  transition: transform 0.1s ease;
- }
- #sidebar {
-  z-index: 1000 !important;
- }
-
- /* Optional: Tab navigasi Settings (turunkan sedikit) */
- .lg\\:hidden.fixed.bottom-4 {
-  z-index: 999 !important;
+ /* Fix padding bawah agar tidak tertutup nav bar browser */
+ .pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
  }
 }
