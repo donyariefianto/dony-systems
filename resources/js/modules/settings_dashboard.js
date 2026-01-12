@@ -16,15 +16,15 @@ let currentEditingIndex = null
 
 export function renderDashboardGenerator() {
  return `
-        <div class="flex flex-col lg:flex-row h-full w-full bg-white relative overflow-hidden group/dashboard">
-            ${renderFilesPanel()}
-            ${renderEditorPanel()}
-            ${renderToolsPanel()}
-            
-            ${renderMobileNavigation()}
-            
-            ${renderWidgetConfigModal()}
-        </div>
+    <div class="flex flex-col lg:flex-row h-full w-full bg-white relative overflow-hidden group/dashboard">
+        ${renderFilesPanel()}
+        ${renderEditorPanel()}
+        ${renderToolsPanel()}
+        
+        ${renderMobileNavigation()}
+        
+        ${renderWidgetConfigModal()}
+    </div>
     `
 }
 
@@ -51,6 +51,71 @@ function renderFilesPanel() {
             <div id="dashboard-pagination" class="shrink-0 h-12 border-t border-gray-100 bg-gray-50/80 backdrop-blur-sm flex items-center justify-between px-3 lg:mb-0 mb-20"></div>
         </div>
     `
+}
+
+function dragElement(elmnt) {
+ let pos1 = 0,
+  pos2 = 0,
+  pos3 = 0,
+  pos4 = 0
+
+ const header = document.getElementById('widget-config-header')
+
+ if (header) {
+  header.onmousedown = dragStart
+
+  header.ontouchstart = dragStart
+ } else {
+  elmnt.onmousedown = dragStart
+  elmnt.ontouchstart = dragStart
+ }
+
+ function dragStart(e) {
+  const evt = e.type === 'touchstart' ? e.touches[0] : e
+
+  const targetTag = e.target.tagName
+
+  if (['INPUT', 'TEXTAREA', 'BUTTON', 'I'].includes(targetTag)) {
+   return
+  }
+
+  pos3 = evt.clientX
+  pos4 = evt.clientY
+
+  if (e.type === 'touchstart') {
+   document.ontouchend = closeDragElement
+   document.ontouchmove = elementDrag
+  } else {
+   e.preventDefault()
+   document.onmouseup = closeDragElement
+   document.onmousemove = elementDrag
+  }
+ }
+
+ function elementDrag(e) {
+  if (e.cancelable) e.preventDefault()
+
+  const evt = e.type === 'touchmove' ? e.touches[0] : e
+
+  pos1 = pos3 - evt.clientX
+  pos2 = pos4 - evt.clientY
+  pos3 = evt.clientX
+  pos4 = evt.clientY
+
+  elmnt.style.top = elmnt.offsetTop - pos2 + 'px'
+  elmnt.style.left = elmnt.offsetLeft - pos1 + 'px'
+
+  elmnt.style.position = 'fixed'
+  elmnt.style.margin = '0'
+  elmnt.style.transform = 'none'
+ }
+
+ function closeDragElement() {
+  document.onmouseup = null
+  document.onmousemove = null
+  document.ontouchend = null
+  document.ontouchmove = null
+ }
 }
 
 function renderEditorPanel() {
@@ -108,28 +173,30 @@ function renderToolsPanel() {
 
 function renderMobileNavigation() {
  return `
-        <div id="dashboard-mobile-nav" class="lg:hidden absolute right-3 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3 pointer-events-none">
+        <div id="dashboard-mobile-nav" class="lg:hidden fixed right-3 top-1/2 z-50 flex flex-col gap-2 items-center touch-none transition-opacity duration-200">
+            
+            <div id="mob-nav-handle" class="w-8 h-8 rounded-full bg-black/20 backdrop-blur-md border border-white/20 flex items-center justify-center cursor-move active:bg-black/40 shadow-sm mb-1">
+                <i class="fas fa-grip-lines text-white text-[10px] opacity-70"></i>
+            </div>
             
             <div class="flex flex-col gap-3 pointer-events-auto">
-                
                 <button onclick="window.switchMobileTab('files')" id="mob-btn-files" 
-                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md">
+                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md bg-white/90">
                     <i class="fas fa-folder text-xs"></i>
                 </button>
                 
                 <button onclick="window.switchMobileTab('editor')" id="mob-btn-editor" 
-                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md">
+                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md bg-white/90">
                     <i class="fas fa-pen-nib text-xs"></i>
                 </button>
                 
                 <button onclick="window.switchMobileTab('tools')" id="mob-btn-tools" 
-                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md">
+                        class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md bg-white/90">
                     <i class="fas fa-th-large text-xs"></i>
                 </button>
-
             </div>
             
-            <div id="mob-nav-indicator" class="absolute right-12 top-0 bottom-0 w-24 flex items-center justify-end pointer-events-none opacity-0 transition-opacity">
+            <div id="mob-nav-indicator" class="absolute right-14 top-10 w-24 flex items-center justify-end pointer-events-none opacity-0 transition-opacity">
                <span class="bg-gray-800 text-white text-[9px] font-bold px-2 py-1 rounded shadow-sm uppercase tracking-wider">Editor</span>
             </div>
         </div>
@@ -138,27 +205,26 @@ function renderMobileNavigation() {
 
 function renderWidgetConfigModal() {
  return `
-        <div id="widget-config-modal" class="fixed inset-0 z-[100] hidden">
-            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeWidgetConfigModal()"></div>
-            <div id="config-panel" class="absolute inset-x-0 bottom-0 top-12 lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[420px] bg-white shadow-2xl lg:shadow-[-10px_0_40px_rgba(0,0,0,0.1)] rounded-t-2xl lg:rounded-none transform transition-transform duration-300 ease-out translate-y-full lg:translate-y-0 lg:translate-x-full flex flex-col border-l border-gray-100">
-                
-                <div class="h-12 border-b border-gray-100 flex justify-between items-center px-5 bg-white shrink-0 rounded-t-2xl lg:rounded-none">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-sliders-h text-blue-500 text-xs"></i>
-                        <h3 class="font-bold text-gray-800 text-xs uppercase tracking-widest">Properties</h3>
+        <div id="widget-config-modal" class="fixed top-24 right-4 lg:right-10 z-[100] w-[90vw] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[80vh] transition-all duration-200 animate-in fade-in zoom-in-95">
+            
+            <div id="widget-config-header" class="h-12 border-b border-gray-100 flex justify-between items-center px-5 bg-gray-50 rounded-t-2xl shrink-0 cursor-move select-none group">
+                <div class="flex items-center gap-2 pointer-events-none">
+                    <div class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
+                        <i class="fas fa-sliders-h text-[10px]"></i>
                     </div>
-                    <button onclick="closeWidgetConfigModal()" class="w-7 h-7 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
+                    <h3 class="font-bold text-gray-700 text-xs uppercase tracking-widest group-hover:text-blue-600 transition-colors">Properties</h3>
                 </div>
-                
-                <div id="widget-config-form" class="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-gray-50/30"></div>
-                
-                <div class="p-5 border-t border-gray-100 bg-white pb-[calc(1.5rem+env(safe-area-inset-bottom))] lg:pb-5">
-                    <button onclick="applyWidgetChanges()" class="w-full py-3 bg-gray-900 hover:bg-black text-white rounded-lg font-bold uppercase text-[10px] tracking-widest shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle"></i> Apply Changes
-                    </button>
-                </div>
+                <button onclick="closeWidgetConfigModal()" class="w-7 h-7 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            
+            <div id="widget-config-form" class="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-white"></div>
+            
+            <div class="p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))] lg:pb-5">
+                <button onclick="applyWidgetChanges()" class="w-full py-2.5 bg-gray-900 hover:bg-black text-white rounded-lg font-bold uppercase text-[10px] tracking-widest shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+                    <i class="fas fa-check-circle"></i> Apply Changes
+                </button>
             </div>
         </div>
     `
@@ -253,7 +319,6 @@ function renderSavedDashboardsList() {
  )
 
  dashboardListState.totalPages = Math.max(1, Math.ceil(filtered.length / dashboardListState.limit))
-
  const startIndex = (dashboardListState.page - 1) * dashboardListState.limit
  const paginatedItems = filtered.slice(startIndex, startIndex + dashboardListState.limit)
 
@@ -264,20 +329,21 @@ function renderSavedDashboardsList() {
   container.innerHTML = paginatedItems
    .map(
     (d) => `
-                <div onclick="openWidgetEditor('${d._id}', '${d.name}'); switchMobileTab('editor');" 
-                     class="group flex items-center justify-between pl-3 pr-16 lg:px-3 py-3 lg:py-2 rounded-lg cursor-pointer transition-all border border-transparent hover:bg-gray-50 ${AppState.currentEditingDashboardId === d._id ? 'bg-blue-50 border-blue-200' : 'border-b border-gray-50 lg:border-none'}">
-                    
-                    <div class="flex items-center gap-3 overflow-hidden flex-1">
-                        <i class="fas fa-chart-pie text-[10px] ${AppState.currentEditingDashboardId === d._id ? 'text-blue-500' : 'text-gray-300'}"></i>
-                        <span class="text-[11px] font-bold text-gray-700 truncate uppercase w-full">${d.name}</span>
-                    </div>
+        <div onclick="openWidgetEditor('${d._id}', '${d.name}'); switchMobileTab('editor');" 
+                class="group flex items-center justify-between pl-3 pr-2 lg:px-3 py-3 lg:py-2 rounded-lg cursor-pointer transition-all border border-transparent hover:bg-gray-50 ${AppState.currentEditingDashboardId === d._id ? 'bg-blue-50 border-blue-200' : 'border-b border-gray-50 lg:border-none'}">
+            
+            <div class="flex items-center gap-3 overflow-hidden flex-1">
+                <i class="fas fa-chart-pie text-[10px] ${AppState.currentEditingDashboardId === d._id ? 'text-blue-500' : 'text-gray-300'}"></i>
+                <span class="text-[11px] font-bold text-gray-700 truncate uppercase w-full">${d.name}</span>
+            </div>
 
-                    <button onclick="event.stopPropagation(); deleteDashboardConfig('${d._id}', '${d.name}')" 
-                            class="w-8 h-8 lg:w-6 lg:h-6 flex items-center justify-center rounded-full hover:bg-red-100 text-gray-300 hover:text-red-500 transition-colors opacity-100 lg:opacity-0 lg:group-hover:opacity-100" title="Hapus">
-                        <i class="fas fa-trash-alt text-xs lg:text-[10px]"></i>
-                    </button>
-                </div>
-            `
+            <button onclick="event.stopPropagation(); deleteDashboardConfig('${d._id}', '${d.name}')" 
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors z-10 shrink-0" 
+                    title="Hapus Dashboard">
+                <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+        </div>
+    `
    )
    .join('')
  }
@@ -575,11 +641,11 @@ export function editWidgetConfig(index) {
 
  currentEditingIndex = index
  const widget = AppState.tempBuilderWidgets[index]
+
  const formContainer = document.getElementById('widget-config-form')
  const modal = document.getElementById('widget-config-modal')
- const panel = document.getElementById('config-panel')
 
- if (!formContainer || !modal || !panel) return
+ if (!formContainer || !modal) return
 
  const currentConfig = widget.data_config || {}
  const source = currentConfig.source || 'static'
@@ -588,12 +654,10 @@ export function editWidgetConfig(index) {
   source === 'database'
    ? currentConfig.collection || widget.collection || ''
    : widget.collection || ''
-
  const valPipeline =
   source === 'database'
    ? JSON.stringify(currentConfig.pipeline || [{ $match: {} }], null, 2)
    : '[\n  { "$match": {} }\n]'
-
  const valStatic =
   source === 'static'
    ? JSON.stringify(currentConfig.static_data || [{ label: 'Data', value: 0 }], null, 2)
@@ -602,14 +666,9 @@ export function editWidgetConfig(index) {
  let echartsOptionsValue = '{}'
  if (widget.echarts_options) {
   try {
-   if (typeof widget.echarts_options === 'string') {
-    const parsed = JSON.parse(widget.echarts_options)
-    echartsOptionsValue = JSON.stringify(parsed, null, 2)
-   } else {
-    echartsOptionsValue = JSON.stringify(widget.echarts_options, null, 2)
-   }
+   echartsOptionsValue = JSON.stringify(widget.echarts_options, null, 2)
   } catch (e) {
-   echartsOptionsValue = JSON.stringify({}, null, 2)
+   echartsOptionsValue = '{}'
   }
  }
 
@@ -659,7 +718,7 @@ export function editWidgetConfig(index) {
                 <div id="panel-config-static" class="${source === 'static' ? '' : 'hidden'} space-y-2 animate-in fade-in">
                     <div class="flex justify-between items-center">
                          <label class="text-[10px] font-bold text-gray-400 uppercase">JSON Data</label>
-                         <span class="text-[9px] text-blue-500 cursor-pointer hover:underline">Lihat format ${widget.type}</span>
+                         <span class="text-[9px] text-blue-500 cursor-pointer hover:underline">Lihat format</span>
                     </div>
                     <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valStatic)}</textarea>
                 </div>
@@ -676,9 +735,8 @@ export function editWidgetConfig(index) {
                     <div class="space-y-1.5">
                         <div class="flex justify-between items-center">
                              <label class="text-[10px] font-bold text-gray-400 uppercase">Aggregation Pipeline</label>
-                             <span class="text-[9px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded font-bold">MongoDB</span>
                         </div>
-                        <textarea id="conf-pipeline" rows="6" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='[{"$match": ...}]'>${escapeHtml(valPipeline)}</textarea>
+                        <textarea id="conf-pipeline" rows="6" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valPipeline)}</textarea>
                     </div>
                 </div>
             </div>
@@ -689,31 +747,23 @@ export function editWidgetConfig(index) {
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ECharts Configuration</label>
                 <div class="space-y-1.5">
                     <div class="flex justify-between items-center">
-                         <label class="text-[10px] font-bold text-gray-400 uppercase">ECharts Options (JSON)</label>
-                         <span class="text-[9px] text-blue-500 cursor-pointer hover:underline">ECharts Documentation</span>
+                         <label class="text-[10px] font-bold text-gray-400 uppercase">ECharts Options</label>
                     </div>
-                    <textarea id="conf-echarts-options" rows="10" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='{"title": {"text": "Chart Title"}, "series": [...]}'>${escapeHtml(echartsOptionsValue)}</textarea>
-                    <p class="text-[10px] text-gray-500">Konfigurasi ECharts untuk menyesuaikan tampilan chart. Gunakan format JSON.</p>
+                    <textarea id="conf-echarts-options" rows="10" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(echartsOptionsValue)}</textarea>
                 </div>
             </div>
         </div>`
 
  modal.classList.remove('hidden')
- setTimeout(() => {
-  panel.classList.remove('translate-y-full')
-  panel.classList.remove('lg:translate-x-full')
- }, 10)
+
+ dragElement(modal)
 }
 
 export function closeWidgetConfigModal() {
  const modal = document.getElementById('widget-config-modal')
- const panel = document.getElementById('config-panel')
-
- if (!modal || !panel) return
-
- panel.classList.add('translate-y-full')
- panel.classList.add('lg:translate-x-full')
- setTimeout(() => modal.classList.add('hidden'), 300)
+ if (modal) {
+  modal.classList.add('hidden')
+ }
  currentEditingIndex = null
 }
 
@@ -1043,4 +1093,82 @@ export function initDashboardGenerator() {
  updateMobileViewVisibility()
  fetchDashboardsFromDB()
  renderWidgetLibrary()
+
+ setTimeout(initMobileNavDrag, 500)
+}
+
+function initMobileNavDrag() {
+ const nav = document.getElementById('dashboard-mobile-nav')
+ const handle = document.getElementById('mob-nav-handle')
+
+ if (!nav || !handle) {
+  console.warn('Mobile Nav elements not found, retrying...')
+
+  setTimeout(initMobileNavDrag, 1000)
+  return
+ }
+
+ let isDragging = false
+ let startY = 0
+ let startTop = 0
+ let screenHeight = window.innerHeight
+
+ function preventDefault(e) {
+  if (e.cancelable) e.preventDefault()
+ }
+
+ handle.addEventListener(
+  'touchstart',
+  (e) => {
+   isDragging = true
+
+   const touch = e.touches[0]
+   startY = touch.clientY
+
+   const rect = nav.getBoundingClientRect()
+   startTop = rect.top
+
+   nav.style.transform = 'none'
+   nav.style.top = startTop + 'px'
+
+   nav.style.transition = 'none'
+
+   document.body.style.overflow = 'hidden'
+  },
+  { passive: false }
+ )
+
+ document.addEventListener(
+  'touchmove',
+  (e) => {
+   if (!isDragging) return
+   preventDefault(e)
+
+   const touch = e.touches[0]
+   const deltaY = touch.clientY - startY
+   let newTop = startTop + deltaY
+
+   const maxTop = screenHeight - nav.offsetHeight - 20
+   const minTop = 60
+
+   if (newTop < minTop) newTop = minTop
+   if (newTop > maxTop) newTop = maxTop
+
+   nav.style.top = `${newTop}px`
+  },
+  { passive: false }
+ )
+
+ document.addEventListener('touchend', () => {
+  if (!isDragging) return
+  isDragging = false
+
+  document.body.style.overflow = ''
+
+  nav.style.transition = 'opacity 0.2s ease'
+ })
+
+ window.addEventListener('resize', () => {
+  screenHeight = window.innerHeight
+ })
 }
