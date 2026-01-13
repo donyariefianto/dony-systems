@@ -1,7 +1,9 @@
 import { apiFetch } from '../core/api.js'
 import { showToast } from '../utils/helpers.js'
 import { renderDashboardGenerator, initDashboardGenerator } from './settings_dashboard.js'
-import { renderGeneralTab, renderSideMenuTab, renderOptionsMenuTab } from './settings_general.js'
+import { renderGeneralTab } from './settings_general.js'
+import { renderSideMenuTab } from './settings_menu.js'
+import { renderOptionsMenuTab } from './settings_options.js'
 
 let currentActiveTab = 'general'
 
