@@ -600,7 +600,6 @@ export async function openCrudModal(existingData = null) {
 
     if (field.type === 'repeater') {
      const subFields = field.sub_fields || [{ name: 'value', label: 'Value' }]
-
      let initialData = []
      if (typeof val === 'string') {
       try {
@@ -655,6 +654,23 @@ export async function openCrudModal(existingData = null) {
     if (field.type === 'boolean') {
      const isChecked = val === true || val === 'true' || val === 1 ? 'checked' : ''
      return `<div class="space-y-1"><div class="flex items-center justify-between p-3.5 border border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-colors cursor-pointer" onclick="this.querySelector('input').click()"><span class="text-xs font-bold text-gray-700 uppercase tracking-wide">${field.label}</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" name="${field.name}" value="true" class="sr-only peer" ${isChecked} onclick="event.stopPropagation()"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div></label></div></div>`
+    }
+
+    if (field.type === 'radio') {
+     const opts = field.options || []
+     const radioHtml = opts
+      .map((opt) => {
+       const v = typeof opt === 'object' ? opt.value : opt
+       const l = typeof opt === 'object' ? opt.label : opt
+       const isChecked = String(val) === String(v) ? 'checked' : ''
+       return `
+                    <label class="inline-flex items-center gap-2 cursor-pointer bg-white border border-gray-200 px-3 py-2 rounded-lg hover:border-blue-300 transition-colors">
+                        <input type="radio" name="${field.name}" value="${v}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" ${isChecked} ${field.required ? 'required' : ''}>
+                        <span class="text-xs font-medium text-gray-700">${l}</span>
+                    </label>`
+      })
+      .join('')
+     return `<div class="space-y-2">${labelHtml}<div class="flex flex-wrap gap-2">${radioHtml}</div></div>`
     }
 
     if (field.type === 'select') {
