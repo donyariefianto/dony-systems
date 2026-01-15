@@ -1,3 +1,12 @@
+const API_CONFIG = {
+ URL_LOAD: '/api/menu',
+ URL_SAVE: '/api/settings/menu/update',
+ headers: {
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer ' + localStorage.getItem('token'),
+ },
+}
+
 if (!window.menuBuilderState) {
  window.menuBuilderState = {
   selectedId: null,
@@ -10,17 +19,19 @@ const FIXED_DASHBOARD = {
  id: 'fixed_dashboard',
  name: 'Dashboard',
  icon: 'fas fa-home',
- type: 'chartview',
- path: 'dashboard',
- locked: true,
- permissions: ['admin', 'user'],
  daftar_sub_sidemenu: [
   {
    id: '1.1',
-   name: 'Main Dashboard',
-   icon: 'fas fa-chart-pie',
-   path: 'dashboard/main',
+   name: 'Dashboard',
+   icon: 'fas fa-chart-line',
    type: 'chartview',
+   path: 'dashboard',
+   permissions: ['admin', 'user'],
+   config: {
+    endpoint: '/api/dashboard/stats',
+    charts: ['overview', 'performance'],
+    refreshInterval: 30000,
+   },
   },
  ],
 }
@@ -38,15 +49,87 @@ const FIXED_SETTINGS = {
    id: '8.1',
    name: 'User Management',
    icon: 'fas fa-users-cog',
-   path: 'settings/users',
    type: 'tableview',
+   path: 'settings/users',
+   config: {
+    endpoint: '/api/collections/users',
+    collectionName: 'users',
+    fields: [
+     {
+      name: 'username',
+      label: 'Username',
+      type: 'text',
+      required: true,
+      unique: true,
+     },
+     {
+      name: 'email',
+      label: 'Email',
+      type: 'email',
+      required: true,
+      unique: true,
+     },
+     {
+      name: 'role',
+      label: 'Role',
+      type: 'select',
+      options: ['admin', 'warehouse', 'finance', 'user'],
+      required: true,
+     },
+     {
+      name: 'status',
+      label: 'Status Akun',
+      type: 'select',
+      options: ['Active', 'Inactive', 'Suspended'],
+      default: 'Active',
+     },
+     {
+      name: 'last_login',
+      label: 'Terakhir Login',
+      type: 'datetime',
+      readonly: true,
+     },
+    ],
+    operations: {
+     create: true,
+     read: true,
+     update: true,
+     delete: true,
+     reset_password: true,
+    },
+   },
   },
   {
    id: '8.2',
    name: 'App Config',
    icon: 'fas fa-sliders-h',
+   type: 'settings',
    path: 'settings/config',
-   type: 'formview',
+   config: {
+    endpoint: '/api/settings/general',
+    collectionName: 'app_config',
+    fields: [
+     {
+      name: 'app_name',
+      label: 'Nama Aplikasi',
+      type: 'text',
+      default: 'TB Sahabat System',
+     },
+     {
+      name: 'maintenance_mode',
+      label: 'Mode Maintenance',
+      type: 'boolean',
+      default: false,
+     },
+     {
+      name: 'timezone',
+      label: 'Zona Waktu Default',
+      type: 'select',
+      options: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'],
+      default: 'Asia/Jakarta',
+     },
+    ],
+   },
   },
  ],
 }
@@ -63,17 +146,19 @@ window.findItemById = function (items, id) {
 }
 
 window.findParentArray = function (items, id) {
+ const index = items.findIndex((i) => i.id === id)
+ if (index > -1) {
+  return items
+ }
+
  for (let item of items) {
-  if (item.id === id) return items
-  if (item.daftar_sub_sidemenu) {
-   if (item.daftar_sub_sidemenu.some((child) => child.id === id)) {
-    return item.daftar_sub_sidemenu
-   }
+  if (item.daftar_sub_sidemenu && item.daftar_sub_sidemenu.length > 0) {
    const found = window.findParentArray(item.daftar_sub_sidemenu, id)
    if (found) return found
   }
  }
- return items
+
+ return null
 }
 
 window.getAllCollections = function () {
@@ -106,80 +191,72 @@ export function renderSideMenuTab(settings) {
   )
  }
 
+ setTimeout(() => {
+  if (window.menuBuilderState.data.length === 0) {
+   window.initMenuBuilder()
+  }
+ }, 100)
  return `
-        <div class="w-full h-[calc(100vh-100px)] flex flex-col gap-4 relative">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex justify-between items-center shrink-0">
+        <div class="w-full h-[calc(100vh-100px)] flex flex-col gap-4 relative overflow-hidden">
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex justify-between items-center shrink-0 z-10">
                 <div>
-                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <h2 class="text-base lg:text-lg font-bold text-gray-800 flex items-center gap-2">
                         <i class="fas fa-sitemap text-blue-600"></i>
                         Menu Builder
                     </h2>
-                    <p class="text-xs text-gray-500 hidden sm:block">Fixed Dashboard & Settings • Custom Middle Content</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="window.resetMenuBuilder()" class="px-3 py-2 text-xs md:text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-                        <i class="fas fa-undo md:mr-1"></i> <span class="hidden md:inline">Reset</span>
+                    <button onclick="window.resetMenuBuilder()" class="w-9 h-9 lg:w-auto lg:px-3 lg:h-auto flex items-center justify-center text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+                        <i class="fas fa-undo lg:mr-1"></i> <span class="hidden lg:inline">Reset</span>
                     </button>
-                    <button onclick="window.exportMenuJSON()" class="px-3 py-2 text-xs md:text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors">
-                        <i class="fas fa-code md:mr-1"></i> <span class="hidden md:inline">JSON</span>
+                    <button onclick="window.exportMenuJSON()" class="w-9 h-9 lg:w-auto lg:px-3 lg:h-auto flex items-center justify-center text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors">
+                        <i class="fas fa-code lg:mr-1"></i> <span class="hidden lg:inline">JSON</span>
                     </button>
-                    <button onclick="saveMenuSettings()" class="px-3 py-2 text-xs md:text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors">
-                        <i class="fas fa-save md:mr-1"></i> <span class="hidden md:inline">Save</span>
+                    <button onclick="saveMenuSettings()" class="w-9 h-9 lg:w-auto lg:px-3 lg:h-auto flex items-center justify-center text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors">
+                        <i class="fas fa-save lg:mr-1"></i> <span class="hidden lg:inline">Save</span>
                     </button>
                 </div>
             </div>
 
-            <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+            <div class="flex-1 flex lg:gap-4 min-h-0 relative">
                 
-                <div class="hidden lg:flex w-1/5 bg-white rounded-xl shadow-sm border border-gray-200 flex-col">
-                    <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl">
-                        <h3 class="font-bold text-gray-700 text-sm">Library</h3>
-                    </div>
-                    <div class="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Structure</p>
-                        ${renderDraggableTemplate('Folder / Parent', 'fas fa-folder', 'group')}
-                        
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2 mt-6">Modules</p>
-                        ${renderDraggableTemplate('Table Collection', 'fas fa-table', 'tableview')}
-                    </div>
-                </div>
-
-                <div class="w-full lg:w-2/5 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col relative">
-                    <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl flex justify-between items-center">
-                        <h3 class="font-bold text-gray-700 text-sm">Menu Structure</h3>
+                <div class="w-full lg:w-1/2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+                    <div class="p-3 border-b border-gray-100 bg-gray-50 rounded-t-xl flex justify-between items-center">
+                        <h3 class="font-bold text-gray-700 text-sm">Structure</h3>
                         <div class="flex gap-2">
-                             <button onclick="window.addRootItem()" class="text-[10px] font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 border border-blue-100 transition-colors">
-                                + Folder
+                            <button onclick="window.addTemplateItem('tableview', 'Table', 'fas fa-table')" class="text-[10px] font-bold bg-white text-gray-600 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-300 hover:text-blue-600 shadow-sm flex items-center gap-1 transition-all active:scale-95">
+                                <i class="fas fa-plus"></i> Table
+                            </button>
+                            <button onclick="window.addRootItem()" class="text-[10px] font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 shadow-sm flex items-center gap-1 transition-all active:scale-95">
+                                <i class="fas fa-folder-plus"></i> Folder
                             </button>
                         </div>
                     </div>
-                    <div id="menu-tree-canvas" class="p-4 overflow-y-auto flex-1 bg-gray-50/30 space-y-2 custom-scrollbar">
+                    
+                    <div id="menu-tree-canvas" class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar bg-gray-50/30">
                         ${renderFixedItem(FIXED_DASHBOARD)}
-                        
-                        <div class="flex items-center gap-2 my-2 opacity-50">
-                            <div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase">Custom Area</span>
-                            <div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div>
-                        </div>
-
-                        <div id="user-menu-list" class="min-h-[100px]">
-                            ${renderTree(window.menuBuilderState.data)}
-                        </div>
-
-                        <div class="flex items-center gap-2 my-2 opacity-50">
-                            <div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase">System Area</span>
-                            <div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div>
-                        </div>
-
+                        <div class="flex items-center gap-2 my-2 opacity-50"><div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div><span class="text-[9px] font-bold text-gray-400 uppercase">Custom</span><div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div></div>
+                        <div id="user-menu-list" class="min-h-[100px]">${renderTree(window.menuBuilderState.data)}</div>
+                        <div class="flex items-center gap-2 my-2 opacity-50"><div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div><span class="text-[9px] font-bold text-gray-400 uppercase">System</span><div class="h-px bg-gray-300 flex-1 border-t border-dashed"></div></div>
                         ${renderFixedItem(FIXED_SETTINGS)}
                     </div>
                 </div>
 
-                <div class="w-full lg:w-2/5 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
-                    <div class="p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl">
+                <div id="properties-backdrop" onclick="window.closePropertiesDrawer()" 
+                     class="hidden lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-30 transition-opacity duration-300 opacity-0"></div>
+
+                <div id="properties-drawer" class="fixed inset-y-0 right-0 w-[85%] sm:w-[400px] lg:w-1/2 lg:static bg-white lg:rounded-xl shadow-2xl lg:shadow-sm border-l lg:border border-gray-200 flex flex-col transform translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
+                    
+                    <div class="lg:hidden p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <h3 class="font-bold text-gray-800">Item Properties</h3>
+                        <button onclick="window.closePropertiesDrawer()" class="w-8 h-8 flex items-center justify-center bg-white rounded-full text-gray-500 shadow-sm active:scale-95 transition-transform"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <div class="hidden lg:flex p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl">
                         <h3 class="font-bold text-gray-700 text-sm">Properties</h3>
                     </div>
+
                     <div id="menu-properties-panel" class="flex-1 overflow-y-auto h-full custom-scrollbar bg-white relative">
                         ${renderPropertiesPanel()}
                     </div>
@@ -188,47 +265,37 @@ export function renderSideMenuTab(settings) {
             </div>
         </div>
         
-        <div id="table-config-overlay" class="fixed inset-0 z-[100] bg-gray-100 hidden flex-col transition-transform duration-300 translate-y-full">
-            <div class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm shrink-0">
-                <div class="flex items-center gap-4">
-                    <button onclick="window.closeTableConfig()" class="w-10 h-10 rounded-full bg-gray-50 hover:bg-gray-200 flex items-center justify-center transition-colors">
+        <div id="table-config-overlay" class="fixed inset-0 h-[100dvh] z-[60] bg-gray-50 hidden flex-col transition-transform duration-300 translate-y-full">
+            <div class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm shrink-0 safe-top">
+                <div class="flex items-center gap-3">
+                    <button onclick="window.closeTableConfig()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
                         <i class="fas fa-arrow-left text-gray-600"></i>
                     </button>
-                    <div>
-                        <h2 class="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-sm font-black text-gray-800 tracking-tight flex items-center gap-2 truncate">
                             <i class="fas fa-database text-blue-600"></i>
-                            Table Configuration
+                            <span class="truncate">Table Config</span>
                         </h2>
-                        <p id="overlay-subtitle" class="text-sm text-gray-500">Editing: Module Name</p>
+                        <p id="overlay-subtitle" class="text-[10px] text-gray-500 truncate">Editing...</p>
                     </div>
                 </div>
-                <div class="flex gap-3">
-                     <button onclick="window.closeTableConfig()" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all">
-                        <i class="fas fa-check mr-2"></i> Done
-                    </button>
-                </div>
+                <button onclick="window.closeTableConfig()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-sm text-xs flex items-center gap-2">
+                    <i class="fas fa-check"></i> <span class="hidden sm:inline">Done</span>
+                </button>
             </div>
             
-            <div id="table-config-body" class="flex-1 overflow-hidden relative">
+            <div id="table-config-body" class="flex-1 w-full h-full overflow-hidden relative">
                 </div>
         </div>
 
-        <div id="json-output-modal" class="hidden fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[110] flex items-center justify-center animate-in fade-in duration-200">
-            <div class="bg-white p-6 rounded-xl w-3/4 h-3/4 flex flex-col shadow-2xl transform scale-100">
-                <div class="flex justify-between items-center mb-4 border-b pb-4">
-                    <h3 class="font-bold text-lg text-gray-800">Generated Configuration JSON</h3>
-                    <button onclick="document.getElementById('json-output-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors flex items-center justify-center">
-                        <i class="fas fa-times"></i>
-                    </button>
+        <div id="json-output-modal" class="hidden fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+            <div class="bg-white p-4 rounded-xl w-full max-w-2xl h-3/4 flex flex-col shadow-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg">JSON Output</h3>
+                    <button onclick="document.getElementById('json-output-modal').classList.add('hidden')"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="flex-1 relative rounded-lg overflow-hidden bg-gray-900">
-                    <textarea id="json-output-textarea" class="absolute inset-0 w-full h-full font-mono text-xs text-green-400 bg-gray-900 p-4 resize-none focus:outline-none custom-scrollbar" readonly></textarea>
-                </div>
-                <div class="mt-4 flex justify-end gap-2">
-                    <button onclick="copyJSON()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors shadow-sm">
-                        <i class="far fa-copy mr-2"></i> Copy to Clipboard
-                    </button>
-                </div>
+                <textarea id="json-output-textarea" class="flex-1 bg-gray-900 text-green-400 p-4 rounded-lg text-xs font-mono resize-none"></textarea>
+                <div class="mt-4 text-right"><button onclick="copyJSON()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Copy</button></div>
             </div>
         </div>
     `
@@ -339,56 +406,48 @@ function renderTableConfigOverlay(item) {
  const fields = config.fields || []
 
  return `
-        <div class="h-full flex flex-col bg-gray-50">
-            <div class="bg-white border-b border-gray-200 px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-6 shrink-0">
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">API Endpoint</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-globe"></i></div>
+        <div class="flex flex-col h-full bg-gray-50">
+            
+            <div class="bg-white border-b border-gray-200 px-4 py-4 shrink-0 shadow-sm z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">API Endpoint</label>
                         <input type="text" value="${config.endpoint || ''}" placeholder="/api/v1/resource" 
                                onchange="window.updateTableConfig('endpoint', this.value)"
-                               class="w-full pl-9 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono focus:bg-white focus:border-blue-500 transition-all">
+                               class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
                     </div>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Collection / Table Name</label>
-                    <div class="relative">
-                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-database"></i></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Collection Name</label>
                         <input type="text" value="${config.collectionName || ''}" 
                                onchange="window.updateTableConfig('collectionName', this.value)"
-                               class="w-full pl-9 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono focus:bg-white focus:border-blue-500 transition-all">
+                               class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
                     </div>
                 </div>
             </div>
 
-            <div class="px-6 py-3 bg-gray-100 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 shrink-0 sticky top-0 z-20 backdrop-blur-md bg-opacity-90">
-                <div class="flex items-center gap-3">
-                    <span class="text-xs font-black text-gray-600 uppercase bg-white px-3 py-1 rounded-md border border-gray-200 shadow-sm">
+            <div class="px-4 py-2 bg-gray-100 border-b border-gray-200 flex flex-wrap justify-between items-center gap-2 shrink-0 z-10">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black text-gray-600 uppercase bg-white px-2 py-1 rounded border border-gray-200">
                         ${fields.length} Fields
                     </span>
-                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
-                    <button onclick="window.toggleAllFields(true)" class="text-xs font-bold text-gray-500 hover:text-blue-600 flex items-center gap-1 transition-colors">
-                        <i class="fas fa-expand-alt"></i> Expand All
-                    </button>
-                    <button onclick="window.toggleAllFields(false)" class="text-xs font-bold text-gray-500 hover:text-blue-600 flex items-center gap-1 transition-colors ml-3">
-                        <i class="fas fa-compress-alt"></i> Collapse All
-                    </button>
+                    <div class="h-4 w-px bg-gray-300 mx-1"></div>
+                    <button onclick="window.toggleAllFields(true)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-expand-alt text-xs"></i></button>
+                    <button onclick="window.toggleAllFields(false)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-compress-alt text-xs"></i></button>
                 </div>
                 
-                <button onclick="window.addNewField()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-md transition-all active:scale-95 flex items-center gap-2">
-                    <i class="fas fa-plus"></i> Add New Field
+                <button onclick="window.addNewField()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase rounded shadow-sm flex items-center gap-1">
+                    <i class="fas fa-plus"></i> Add Field
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+            <div class="flex-1 overflow-y-auto min-h-0 p-4 pb-32 custom-scrollbar overscroll-contain">
                 ${
                  fields.length === 0
-                  ? `<div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60">
-                        <i class="fas fa-layer-group text-6xl mb-4 text-gray-300"></i>
-                        <h3 class="text-xl font-bold text-gray-500">No Fields Configured</h3>
-                        <p class="text-sm">Click the "Add New Field" button above to start.</p>
+                  ? `<div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 min-h-[200px]">
+                        <i class="fas fa-columns text-4xl mb-2"></i>
+                        <p class="text-xs">No fields configured yet</p>
                      </div>`
-                  : `<div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 pb-20">
+                  : `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         ${fields.map((field, idx) => renderFieldCard(field, idx)).join('')}
                      </div>`
                 }
@@ -625,19 +684,6 @@ function renderFieldCard(field, idx) {
     `
 }
 
-function renderDraggableTemplate(label, icon, type) {
- return `
-        <div class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-blue-400 hover:shadow-md hover:translate-x-1 transition-all group"
-             onclick="window.addTemplateItem('${type}', '${label}', '${icon}')">
-            <div class="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                <i class="${icon}"></i>
-            </div>
-            <div class="text-sm font-medium text-gray-700">${label}</div>
-            <i class="fas fa-plus ml-auto text-gray-300 group-hover:text-blue-500"></i>
-        </div>
-    `
-}
-
 function renderFixedItem(item) {
  return `
         <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50 opacity-70 select-none cursor-not-allowed grayscale">
@@ -673,22 +719,37 @@ function renderTree(items, level = 0, parentId = null) {
 
               return `
                 <li class="relative">
-                    <div class="flex items-center gap-3 p-2.5 rounded-xl border transition-all cursor-pointer group relative overflow-hidden
+                    <div class="flex items-center gap-2 p-2.5 rounded-lg border transition-all cursor-pointer group touch-manipulation
                         ${isSelected ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500 shadow-sm z-10' : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm'}"
                         onclick="window.selectMenuItem('${item.id}')"
                     >
-                        <div class="text-gray-300 cursor-move hover:text-gray-500"><i class="fas fa-grip-vertical text-xs"></i></div>
+                        <div class="text-gray-300 cursor-move hover:text-gray-500 px-1"><i class="fas fa-grip-vertical text-xs"></i></div>
+                        
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSelected ? 'bg-blue-100 text-blue-600' : 'bg-gray-50 text-gray-400 group-hover:text-blue-500'}">
                             <i class="${item.icon || 'fas fa-circle'} text-xs"></i>
                         </div>
+                        
                         <div class="flex-1 min-w-0">
-                            <div class="text-sm font-bold text-gray-700 truncate ${isSelected ? 'text-blue-700' : ''}">${item.name || 'Untitled'}</div>
+                            <div class="text-sm font-medium text-gray-800 truncate">${item.name || 'Untitled'}</div>
                             ${item.type ? `<div class="text-[9px] font-mono text-gray-400 uppercase tracking-wide">${item.type === 'group' ? 'Folder' : 'Module'}</div>` : ''}
                         </div>
-                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm rounded-lg px-1 shadow-sm absolute right-2">
-                             <button onclick="event.stopPropagation(); window.moveItemUp('${item.id}')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-blue-600 transition-colors"><i class="fas fa-arrow-up text-[10px]"></i></button>
-                             <button onclick="event.stopPropagation(); window.moveItemDown('${item.id}')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-blue-600 transition-colors"><i class="fas fa-arrow-down text-[10px]"></i></button>
-                             <button onclick="event.stopPropagation(); window.deleteMenuItem('${item.id}')" class="p-1.5 hover:bg-red-50 rounded-md text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-trash-alt text-[10px]"></i></button>
+
+                        <div class="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm rounded-lg px-1 shadow-sm absolute right-2 border border-gray-100 lg:border-none">
+                             
+                             <button onclick="event.stopPropagation(); window.moveItemUp('${item.id}')" 
+                                     class="p-2 lg:p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-blue-600 transition-colors">
+                                <i class="fas fa-arrow-up text-[10px]"></i>
+                             </button>
+                             
+                             <button onclick="event.stopPropagation(); window.moveItemDown('${item.id}')" 
+                                     class="p-2 lg:p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-blue-600 transition-colors">
+                                <i class="fas fa-arrow-down text-[10px]"></i>
+                             </button>
+                             
+                             <button onclick="event.stopPropagation(); window.deleteMenuItem('${item.id}')" 
+                                     class="p-2 lg:p-1.5 hover:bg-red-50 rounded-md text-gray-400 hover:text-red-500 transition-colors">
+                                <i class="fas fa-trash-alt text-[10px]"></i>
+                             </button>
                         </div>
                     </div>
                     ${hasChildren ? renderTree(item.daftar_sub_sidemenu, level + 1, item.id) : ''}
@@ -743,17 +804,15 @@ window.closeTableConfig = function () {
 window.selectMenuItem = function (id) {
  window.menuBuilderState.selectedId = id
  window.refreshBuilderUI()
+
+ if (window.innerWidth < 1024) {
+  window.openPropertiesDrawer()
+ }
 }
 
 window.addTemplateItem = function (type, label, icon) {
  const newId = Date.now().toString()
- const newItem = {
-  id: newId,
-  name: label,
-  icon: icon,
-  type: type,
-  daftar_sub_sidemenu: [],
- }
+ const newItem = { id: newId, name: label, icon: icon, type: type, daftar_sub_sidemenu: [] }
  if (type === 'tableview') {
   newItem.config = {
    endpoint: '/api/resource',
@@ -767,20 +826,22 @@ window.addTemplateItem = function (type, label, icon) {
    window.menuBuilderState.data,
    window.menuBuilderState.selectedId
   )
-  if (parent) {
-   if (parent.type === 'group' || !parent.type) {
-    if (!parent.daftar_sub_sidemenu) parent.daftar_sub_sidemenu = []
-    parent.daftar_sub_sidemenu.push(newItem)
-   } else {
-    alert('Can only add children to Folder groups.')
-    return
-   }
+  if (parent && (parent.type === 'group' || !parent.type)) {
+   if (!parent.daftar_sub_sidemenu) parent.daftar_sub_sidemenu = []
+   parent.daftar_sub_sidemenu.push(newItem)
+  } else {
+   window.menuBuilderState.data.push(newItem)
   }
  } else {
   window.menuBuilderState.data.push(newItem)
  }
+
  window.menuBuilderState.selectedId = newId
  window.refreshBuilderUI()
+
+ if (window.innerWidth < 1024) {
+  window.openPropertiesDrawer()
+ }
 }
 
 window.addRootItem = function () {
@@ -944,18 +1005,28 @@ window.duplicateField = function (index) {
 
 window.moveItemUp = function (id) {
  const list = window.findParentArray(window.menuBuilderState.data, id)
+
+ if (!list) return
+
  const index = list.findIndex((i) => i.id === id)
+
  if (index > 0) {
   ;[list[index - 1], list[index]] = [list[index], list[index - 1]]
+
   window.refreshBuilderUI()
  }
 }
 
 window.moveItemDown = function (id) {
  const list = window.findParentArray(window.menuBuilderState.data, id)
+
+ if (!list) return
+
  const index = list.findIndex((i) => i.id === id)
+
  if (index < list.length - 1) {
   ;[list[index + 1], list[index]] = [list[index], list[index + 1]]
+
   window.refreshBuilderUI()
  }
 }
@@ -967,6 +1038,7 @@ window.resetMenuBuilder = function () {
   window.refreshBuilderUI()
  }
 }
+
 window.exportMenuJSON = function () {
  const final = {
   name: 'menu',
@@ -975,14 +1047,44 @@ window.exportMenuJSON = function () {
  document.getElementById('json-output-textarea').value = JSON.stringify(final, null, 2)
  document.getElementById('json-output-modal').classList.remove('hidden')
 }
+
 window.copyJSON = function () {
  document.getElementById('json-output-textarea').select()
  document.execCommand('copy')
  alert('Copied!')
 }
-window.saveMenuSettings = function () {
- alert('Saved! Check console.')
- console.log(window.menuBuilderState.data)
+
+window.saveMenuSettings = async function () {
+ const btn = document.getElementById('btn-save-menu')
+ const originalText = btn.innerHTML
+
+ btn.disabled = true
+ btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-1"></i> Saving...`
+
+ try {
+  const payload = {
+   menu_structure: [FIXED_DASHBOARD, ...window.menuBuilderState.data, FIXED_SETTINGS],
+  }
+
+  const response = await fetch(API_CONFIG.URL_SAVE, {
+   method: 'POST',
+   headers: API_CONFIG.headers,
+   body: JSON.stringify(payload),
+  })
+
+  const result = await response.json()
+
+  if (!response.ok) throw new Error(result.message || 'Failed to save menu')
+
+  alert('Menu successfully saved!')
+  console.log('Server Response:', result)
+ } catch (error) {
+  console.error('Save Error:', error)
+  alert('Error saving menu: ' + error.message)
+ } finally {
+  btn.disabled = false
+  btn.innerHTML = originalText
+ }
 }
 
 window.addSubField = function (fieldIndex) {
@@ -1016,5 +1118,66 @@ window.updateSubField = function (fieldIndex, subIndex, key, value) {
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
  if (item && item.config && item.config.fields[fieldIndex]) {
   item.config.fields[fieldIndex].sub_fields[subIndex][key] = value
+ }
+}
+
+window.openPropertiesDrawer = function () {
+ const drawer = document.getElementById('properties-drawer')
+ const backdrop = document.getElementById('properties-backdrop')
+ if (drawer && backdrop) {
+  drawer.classList.remove('translate-x-full')
+  backdrop.classList.remove('hidden')
+  setTimeout(() => backdrop.classList.remove('opacity-0'), 10)
+ }
+}
+
+window.closePropertiesDrawer = function () {
+ const drawer = document.getElementById('properties-drawer')
+ const backdrop = document.getElementById('properties-backdrop')
+ if (drawer && backdrop) {
+  drawer.classList.add('translate-x-full')
+  backdrop.classList.add('opacity-0')
+  setTimeout(() => backdrop.classList.add('hidden'), 300)
+ }
+}
+
+window.initMenuBuilder = async function () {
+ const treeContainer = document.getElementById('user-menu-list')
+
+ if (treeContainer) {
+  treeContainer.innerHTML = `
+    <div class="animate-pulse space-y-3 p-4">
+        <div class="h-10 bg-gray-100 rounded-lg"></div>
+        <div class="h-10 bg-gray-100 rounded-lg"></div>
+        <div class="h-10 bg-gray-100 rounded-lg"></div>
+    </div>`
+ }
+
+ try {
+  const response = await fetch(API_CONFIG.URL_LOAD, {
+   method: 'GET',
+   headers: API_CONFIG.headers,
+  })
+
+  if (!response.ok) throw new Error('Failed to load menu data')
+
+  const result = await response.json()
+
+  const serverData = result.daftar_sidemenu || result.menu_structure || []
+
+  window.menuBuilderState.data = serverData.filter(
+   (item) => item.id !== 'fixed_dashboard' && item.id !== 'fixed_settings'
+  )
+
+  window.refreshBuilderUI()
+ } catch (error) {
+  console.error('Load Error:', error)
+  if (treeContainer) {
+   treeContainer.innerHTML = `
+    <div class="p-4 text-center text-red-500 text-xs">
+        <p class="font-bold">Gagal memuat data</p>
+        <button onclick="window.initMenuBuilder()" class="mt-2 text-blue-600 underline">Coba Lagi</button>
+    </div>`
+  }
  }
 }

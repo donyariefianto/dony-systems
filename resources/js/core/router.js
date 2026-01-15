@@ -23,8 +23,6 @@ export function navigate(path) {
 
  const main = document.getElementById('main-view')
 
- console.log(config)
-
  if (config.type === 'tableview') {
   renderTableView(config, main)
   fetchTableData()

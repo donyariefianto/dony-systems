@@ -8,7 +8,7 @@ export default class BackendsController {
    name: 'struktur_menu',
    daftar_sidemenu: [
     {
-     id: '1',
+     id: 'fixed_dashboard',
      name: 'Dashboard',
      icon: 'fas fa-home',
      daftar_sub_sidemenu: [
@@ -580,7 +580,7 @@ export default class BackendsController {
      ],
     },
     {
-     id: '8',
+     id: 'fixed_settings',
      name: 'Settings',
      icon: 'fas fa-cogs',
      permissions: ['admin'],
