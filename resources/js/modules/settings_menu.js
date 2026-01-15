@@ -406,282 +406,305 @@ function renderTableConfigOverlay(item) {
  const fields = config.fields || []
 
  return `
-        <div class="flex flex-col h-full bg-gray-50">
-            
-            <div class="bg-white border-b border-gray-200 px-4 py-4 shrink-0 shadow-sm z-10">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">API Endpoint</label>
-                        <input type="text" value="${config.endpoint || ''}" placeholder="/api/v1/resource" 
-                               onchange="window.updateTableConfig('endpoint', this.value)"
-                               class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Collection Name</label>
-                        <input type="text" value="${config.collectionName || ''}" 
-                               onchange="window.updateTableConfig('collectionName', this.value)"
-                               class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
-                    </div>
+    <div class="flex flex-col h-full bg-gray-50">
+        
+        <div class="bg-white border-b border-gray-200 px-4 py-4 shrink-0 shadow-sm z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">API Endpoint</label>
+                    <input type="text" value="${config.endpoint || ''}" placeholder="/api/v1/resource" 
+                            onchange="window.updateTableConfig('endpoint', this.value)"
+                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
                 </div>
-            </div>
-
-            <div class="px-4 py-2 bg-gray-100 border-b border-gray-200 flex flex-wrap justify-between items-center gap-2 shrink-0 z-10">
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-black text-gray-600 uppercase bg-white px-2 py-1 rounded border border-gray-200">
-                        ${fields.length} Fields
-                    </span>
-                    <div class="h-4 w-px bg-gray-300 mx-1"></div>
-                    <button onclick="window.toggleAllFields(true)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-expand-alt text-xs"></i></button>
-                    <button onclick="window.toggleAllFields(false)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-compress-alt text-xs"></i></button>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Collection Name</label>
+                    <input type="text" value="${config.collectionName || ''}" 
+                            onchange="window.updateTableConfig('collectionName', this.value)"
+                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
                 </div>
-                
-                <button onclick="window.addNewField()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase rounded shadow-sm flex items-center gap-1">
-                    <i class="fas fa-plus"></i> Add Field
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto min-h-0 p-4 pb-32 custom-scrollbar overscroll-contain">
-                ${
-                 fields.length === 0
-                  ? `<div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 min-h-[200px]">
-                        <i class="fas fa-columns text-4xl mb-2"></i>
-                        <p class="text-xs">No fields configured yet</p>
-                     </div>`
-                  : `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        ${fields.map((field, idx) => renderFieldCard(field, idx)).join('')}
-                     </div>`
-                }
             </div>
         </div>
+
+        <div class="px-4 py-2 bg-gray-100 border-b border-gray-200 flex flex-wrap justify-between items-center gap-2 shrink-0 z-10">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-black text-gray-600 uppercase bg-white px-2 py-1 rounded border border-gray-200">
+                    ${fields.length} Fields
+                </span>
+                <div class="h-4 w-px bg-gray-300 mx-1"></div>
+                <button onclick="window.toggleAllFields(true)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-expand-alt text-xs"></i></button>
+                <button onclick="window.toggleAllFields(false)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-compress-alt text-xs"></i></button>
+            </div>
+            
+            <button onclick="window.addNewField()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase rounded shadow-sm flex items-center gap-1">
+                <i class="fas fa-plus"></i> Add Field
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto min-h-0 p-4 pb-32 custom-scrollbar overscroll-contain">
+            ${
+             fields.length === 0
+              ? `<div class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60 min-h-[200px]">
+                    <i class="fas fa-columns text-4xl mb-2"></i>
+                    <p class="text-xs">No fields configured yet</p>
+                    </div>`
+              : `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${fields.map((field, idx) => renderFieldCard(field, idx)).join('')}
+                    </div>`
+            }
+        </div>
+    </div>
     `
 }
 
 function renderFieldCard(field, idx) {
- const validation = field.validation || {}
- const ui = field.ui || {}
- const relation = field.relation || { collection: '', key: '_id', display: 'name' }
- const dataSource = field.dataSource || 'manual'
- const availableCollections = window.getAllCollections()
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ const totalFields = item?.config?.fields?.length || 0
 
- const isSelect = ['select', 'multiselect', 'radio'].includes(field.type)
- const isRelation = field.type === 'relation'
+ const isCollapsed = field._isCollapsed === true
+
  const isRepeater = field.type === 'repeater'
- const isOpen = field._isOpen || false
+ const isRelation = field.type === 'relation'
+ const isSelect = field.type === 'select'
+ const isNumeric = ['number', 'currency'].includes(field.type)
 
- const activeTab = field._activeTab || 'general'
+ const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200'
+ const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20'
 
- const getTabClass = (tabName) => {
-  return activeTab === tabName
-   ? 'border-blue-600 text-blue-600'
-   : 'border-transparent hover:text-blue-600'
- }
+ const chevronRotation = isCollapsed ? '-rotate-90' : 'rotate-0'
 
- const getContentClass = (tabName) => {
-  return activeTab === tabName ? '' : 'hidden'
+ return `
+    <div class="bg-white border ${cardBorderColor} rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col group relative overflow-hidden mb-3 focus-within:ring-4 ${activeRing}">
+        
+        <div class="flex items-center gap-2 p-2 bg-gray-50/80 border-b ${cardBorderColor} select-none">
+            
+            <button onclick="window.toggleFieldCollapse(${idx})" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all active:scale-90">
+                <i class="fas fa-chevron-down transition-transform duration-300 ${chevronRotation}"></i>
+            </button>
+
+            <div class="w-6 h-6 bg-gray-200 rounded text-[10px] font-bold flex items-center justify-center text-gray-600 shrink-0">
+                ${idx + 1}
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <input type="text" value="${field.label || ''}" 
+                    oninput="window.updateField(${idx}, 'label', this.value)" 
+                    class="bg-transparent font-bold text-xs md:text-sm text-gray-800 w-full outline-none focus:text-blue-600 placeholder-gray-400 truncate" 
+                    placeholder="Label Field">
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button onclick="window.moveField(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 transition-all active:scale-90"'} title="Geser Naik">
+                    <i class="fas fa-arrow-up text-[10px]"></i>
+                </button>
+                
+                <button onclick="window.moveField(${idx}, 1)" ${idx === totalFields - 1 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 transition-all active:scale-90"'} title="Geser Turun">
+                    <i class="fas fa-arrow-down text-[10px]"></i>
+                </button>
+
+                <div class="w-px h-4 bg-gray-300 mx-1"></div>
+
+                <button onclick="window.duplicateField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 hover:text-blue-600 text-gray-400 transition-all" title="Duplicate">
+                    <i class="fas fa-copy text-[10px]"></i>
+                </button>
+
+                <button onclick="window.removeField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 hover:text-red-600 text-gray-400 transition-all" title="Hapus">
+                    <i class="fas fa-trash text-[10px]"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="${isCollapsed ? 'hidden' : 'block'} p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
+                <div class="md:col-span-7">
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
+                    <div class="relative">
+                        <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:bg-white focus:border-blue-500 outline-none appearance-none transition-colors">
+                            <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text</option>
+                            <option value="number" ${field.type === 'number' ? 'selected' : ''}>Number</option>
+                            <option value="currency" ${field.type === 'currency' ? 'selected' : ''}>Currency (Rp)</option>
+                            <option value="date" ${field.type === 'date' ? 'selected' : ''}>Date</option>
+                            <option value="select" ${field.type === 'select' ? 'selected' : ''}>Select (Dropdown)</option>
+                            <option value="relation" ${field.type === 'relation' ? 'selected' : ''}>Relation (Lookup)</option>
+                            <option value="repeater" ${field.type === 'repeater' ? 'selected' : ''}>Repeater (Tabel)</option>
+                            <option value="textarea" ${field.type === 'textarea' ? 'selected' : ''}>Textarea</option>
+                            <option value="image" ${field.type === 'image' ? 'selected' : ''}>Image</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down text-[10px]"></i></div>
+                    </div>
+                </div>
+                <div class="md:col-span-5">
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Database Key</label>
+                    <input type="text" value="${field.name || ''}" oninput="window.updateField(${idx}, 'name', this.value)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs font-mono bg-yellow-50 focus:bg-white focus:border-yellow-400 outline-none" placeholder="field_name">
+                </div>
+            </div>
+
+            ${isSelect ? renderSelectConfig(field, idx) : ''}
+            ${isRelation ? renderRelationConfig(field, idx) : ''}
+            ${isNumeric ? renderCalculationConfig(field, idx) : ''}
+            ${isRepeater ? renderRepeaterConfig(field, idx) : ''}
+
+            <div class="flex flex-wrap items-center gap-4 pt-4 mt-2 border-t border-gray-100">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">Wajib</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" ${field.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'ui.readonly', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase">ReadOnly</span>
+                </label>
+                <div class="ml-auto flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Width:</span>
+                    <select onchange="window.updateField(${idx}, 'width', this.value)" class="text-[10px] font-bold border border-gray-200 rounded px-2 py-1 bg-white">
+                        <option value="50">50%</option>
+                        <option value="100" ${field.width === '100' ? 'selected' : ''}>100%</option>
+                        <option value="33" ${field.width === '33' ? 'selected' : ''}>33%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>`
+}
+
+function renderSelectConfig(field, idx) {
+ return `
+    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-1.5">
+        <label class="text-[10px] font-bold text-gray-500 uppercase">Opsi Pilihan (Pisahkan dengan koma)</label>
+        <textarea onchange="window.updateFieldOptions(${idx}, this.value)" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none resize-none" placeholder="Contoh: Tunai, Transfer, Kredit">${(field.options || []).join(', ')}</textarea>
+    </div>`
+}
+
+function renderRelationConfig(field, idx) {
+ const collections = window.getAllCollections()
+ const autoPopStr = Object.entries(field.relation?.auto_populate || {})
+  .map(([k, v]) => `${k}:${v}`)
+  .join(', ')
+
+ return `
+    <div class="bg-indigo-50/60 p-3 rounded-lg border border-indigo-100 space-y-3">
+        <div class="flex items-center gap-2 text-indigo-800 border-b border-indigo-200/50 pb-2">
+            <i class="fas fa-link"></i> <span class="text-xs font-bold uppercase">Konfigurasi Relasi</span>
+        </div>
+        
+        <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-indigo-400 uppercase">Ambil Data Dari</label>
+            <select onchange="window.updateDeepField(${idx}, 'relation.collection', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white focus:border-indigo-500 outline-none h-10">
+                <option value="">-- Pilih Koleksi --</option>
+                ${collections.map((c) => `<option value="${c.collection}" ${field.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
+            </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-indigo-400 uppercase">Value Key</label>
+                <input value="${field.relation?.key || '_id'}" oninput="window.updateDeepField(${idx}, 'relation.key', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="_id">
+            </div>
+            <div class="space-y-1">
+                <label class="text-[10px] font-bold text-indigo-400 uppercase">Label Display</label>
+                <input value="${field.relation?.display || 'name'}" oninput="window.updateDeepField(${idx}, 'relation.display', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="nama">
+            </div>
+        </div>
+        
+        <div class="space-y-1">
+            <label class="text-[10px] font-bold text-indigo-400 uppercase">Auto Populate (Isi Otomatis)</label>
+            <input value="${autoPopStr}" onchange="window.updateAutoPopulate(${idx}, this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs font-mono bg-white" placeholder="Format: field_sini:field_sana, ...">
+        </div>
+    </div>`
+}
+
+function renderCalculationConfig(field, idx) {
+ return `
+    <div class="bg-green-50 p-2 rounded border border-green-100 space-y-2">
+        <label class="text-[9px] font-bold text-green-700 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Auto Calc</label>
+        <div class="flex gap-2">
+            <select onchange="window.updateDeepField(${idx}, 'calculation.operation', this.value)" class="w-1/3 px-2 py-1 border border-green-200 rounded text-[10px] bg-white">
+                <option value="">None</option>
+                <option value="multiply">(*)</option>
+                <option value="add">(+)</option>
+            </select>
+            <input value="${(field.calculation?.fields || []).join(',')}" onchange="window.updateCalculationFields(${idx}, this.value)" class="w-2/3 px-2 py-1 border border-green-200 rounded text-[10px] font-mono" placeholder="field1, field2">
+        </div>
+    </div>`
+}
+
+function renderRepeaterConfig(field, idx) {
+ return `
+    <div class="bg-white border-2 border-dashed border-purple-200 rounded-xl overflow-hidden">
+        <div class="flex justify-between items-center p-3 bg-purple-50 border-b border-purple-100">
+            <div class="flex items-center gap-2 text-purple-700">
+                <i class="fas fa-table"></i>
+                <span class="text-xs font-bold uppercase">Kolom Tabel (Sub-fields)</span>
+            </div>
+            <button onclick="window.addSubField(${idx})" class="text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg shadow-sm font-bold transition-all active:scale-95 flex items-center gap-1">
+                <i class="fas fa-plus"></i> <span class="hidden sm:inline">Tambah Kolom</span>
+            </button>
+        </div>
+        
+        <div class="p-3 bg-gray-50/50 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+            ${(field.sub_fields || []).map((subField, sIdx) => renderSubFieldItem(subField, idx, sIdx)).join('')}
+            ${
+             !field.sub_fields || field.sub_fields.length === 0
+              ? `
+                <div class="py-8 flex flex-col items-center justify-center text-gray-400 text-center">
+                    <i class="fas fa-columns text-2xl mb-2 opacity-30"></i>
+                    <p class="text-xs">Belum ada kolom.<br>Klik tombol tambah diatas.</p>
+                </div>`
+              : ''
+            }
+        </div>
+    </div>`
+}
+
+function renderSubFieldItem(sf, fIdx, sIdx) {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ const totalSubs = item?.config?.fields?.[fIdx]?.sub_fields?.length || 0
+
+ let extraConfig = ''
+ const collections = window.getAllCollections()
+
+ if (sf.type === 'relation') {
+  const autoPopStr = Object.entries(sf.relation?.auto_populate || {})
+   .map(([k, v]) => `${k}:${v}`)
+   .join(', ')
+  extraConfig = `
+        <div class="mt-2 pt-2 border-t border-dashed border-purple-200 grid grid-cols-1 gap-2 bg-purple-50/50 p-2 rounded">
+             <select onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.collection', this.value)" class="w-full text-[10px] border border-purple-200 rounded px-2 py-1 bg-white"><option value="">- Collection -</option>${collections.map((c) => `<option value="${c.collection}" ${sf.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
+             <div class="flex gap-2"><input value="${sf.relation?.key || '_id'}" oninput="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.key', this.value)" class="w-1/2 text-[10px] border rounded px-2 py-1" placeholder="Key"><input value="${sf.relation?.display || 'name'}" oninput="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.display', this.value)" class="w-1/2 text-[10px] border rounded px-2 py-1" placeholder="Display"></div>
+             <input value="${autoPopStr}" onchange="window.updateSubAutoPopulate(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border rounded px-2 py-1 font-mono" placeholder="AutoPop: price:unit_price">
+        </div>`
+ } else if (sf.type === 'select') {
+  extraConfig = `<div class="mt-2"><input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border rounded px-2 py-1" placeholder="Options: A, B, C"></div>`
  }
 
  return `
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col ${isOpen ? 'ring-2 ring-blue-500/30' : ''}">
-        
-        <div class="p-4 flex items-start gap-3 cursor-pointer select-none border-b border-gray-100 ${isOpen ? 'bg-blue-50/30' : ''}" 
-             onclick="window.toggleFieldDetails(${idx})">
-            
-            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0">
-                ${idx + 1}
-            </div>
-            
-            <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start">
-                    <h4 class="text-sm font-bold text-gray-800 truncate pr-2">${field.label || 'Untitled'}</h4>
-                    <div class="flex gap-1">
-                        <button onclick="event.stopPropagation(); window.duplicateField(${idx})" class="w-6 h-6 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors"><i class="fas fa-copy text-xs"></i></button>
-                        <button onclick="event.stopPropagation(); window.removeField(${idx})" class="w-6 h-6 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"><i class="fas fa-trash-alt text-xs"></i></button>
-                    </div>
-                </div>
-                <div class="flex flex-wrap gap-2 mt-1">
-                    <span class="text-[10px] px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded text-gray-600 font-mono font-bold uppercase">${field.type}</span>
-                    <span class="text-[10px] px-1.5 py-0.5 bg-yellow-50 border border-yellow-200 rounded text-yellow-700 font-mono">${field.name}</span>
-                    ${isRepeater ? '<span class="text-[10px] px-1.5 py-0.5 bg-purple-50 border border-purple-200 rounded text-purple-700 font-bold"><i class="fas fa-layer-group mr-1"></i>Repeater</span>' : ''}
-                    ${isRelation ? '<span class="text-[10px] px-1.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-indigo-700 font-bold"><i class="fas fa-link mr-1"></i>Relation</span>' : ''}
-                </div>
-            </div>
-        </div>
-
-        <div class="${isOpen ? 'block' : 'hidden'} animate-in slide-in-from-top-2 duration-200">
-            
-            <div class="flex border-b border-gray-100 bg-gray-50/50 text-[10px] font-bold text-gray-500">
-                <button class="flex-1 py-2.5 hover:bg-white border-b-2 transition-colors ${getTabClass('general')}" onclick="window.switchTab(this, 'general-${idx}')">GENERAL</button>
-                <button class="flex-1 py-2.5 hover:bg-white border-b-2 transition-colors ${getTabClass('validation')}" onclick="window.switchTab(this, 'validation-${idx}')">RULES</button>
-                <button class="flex-1 py-2.5 hover:bg-white border-b-2 transition-colors ${getTabClass('ui')}" onclick="window.switchTab(this, 'ui-${idx}')">UI</button>
-                ${isSelect || isRelation || isRepeater ? `<button class="flex-1 py-2.5 hover:bg-white border-b-2 transition-colors ${getTabClass('data')}" onclick="window.switchTab(this, 'data-${idx}')">DATA CONFIG</button>` : ''}
-            </div>
-
-            <div class="p-5 space-y-4">
+    <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm relative group hover:border-purple-300 transition-colors mb-2">
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-gray-100 rounded text-[9px] font-bold flex items-center justify-center text-gray-500">${sIdx + 1}</div>
                 
-                <div id="general-${idx}" class="field-tab-content space-y-3 ${getContentClass('general')}">
-                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Display Label</label>
-                        <input type="text" value="${field.label || ''}" oninput="window.updateField(${idx}, 'label', this.value)" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:border-blue-500">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Field Type</label>
-                            <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full px-2 py-2 text-xs border border-gray-300 rounded-lg bg-white">
-                                <optgroup label="Basic">
-                                    <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text</option>
-                                    <option value="number" ${field.type === 'number' ? 'selected' : ''}>Number</option>
-                                    <option value="textarea" ${field.type === 'textarea' ? 'selected' : ''}>Text Area</option>
-                                    <option value="boolean" ${field.type === 'boolean' ? 'selected' : ''}>Switch (Boolean)</option>
-                                </optgroup>
-                                <optgroup label="Advanced">
-                                    <option value="currency" ${field.type === 'currency' ? 'selected' : ''}>Currency (Rp)</option>
-                                    <option value="date" ${field.type === 'date' ? 'selected' : ''}>Date</option>
-                                    <option value="image" ${field.type === 'image' ? 'selected' : ''}>Image Upload</option>
-                                    <option value="file" ${field.type === 'file' ? 'selected' : ''}>File Upload</option>
-                                </optgroup>
-                                <optgroup label="Complex Data">
-                                    <option value="select" ${field.type === 'select' ? 'selected' : ''}>Select Dropdown</option>
-                                    <option value="relation" ${field.type === 'relation' ? 'selected' : ''}>Relation (Lookup)</option>
-                                    <option value="repeater" ${field.type === 'repeater' ? 'selected' : ''}>Repeater (Nested)</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div>
-                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Database Key</label>
-                             <input type="text" value="${field.name || ''}" oninput="window.updateField(${idx}, 'name', this.value)" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg font-mono bg-yellow-50">
-                        </div>
-                    </div>
+                <input value="${sf.label || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'label', this.value)" class="flex-1 text-xs font-bold border-b border-transparent hover:border-gray-300 focus:border-purple-500 outline-none bg-transparent placeholder-gray-300" placeholder="Label Kolom">
+                
+                <div class="flex items-center bg-gray-50 rounded p-0.5">
+                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled class="opacity-30"' : ''} class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-purple-600 hover:bg-white rounded"><i class="fas fa-chevron-up text-[8px]"></i></button>
+                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, 1)" ${sIdx === totalSubs - 1 ? 'disabled class="opacity-30"' : ''} class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-purple-600 hover:bg-white rounded"><i class="fas fa-chevron-down text-[8px]"></i></button>
                 </div>
 
-                <div id="validation-${idx}" class="field-tab-content space-y-3 ${getContentClass('validation')}">
-                     <div class="flex gap-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <label class="flex items-center text-xs cursor-pointer text-gray-700 font-medium">
-                            <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="mr-2 rounded text-blue-600"> Required
-                        </label>
-                        <label class="flex items-center text-xs cursor-pointer text-gray-700 font-medium">
-                            <input type="checkbox" ${field.unique ? 'checked' : ''} onchange="window.updateField(${idx}, 'unique', this.checked)" class="mr-2 rounded text-orange-600"> Unique Value
-                        </label>
-                    </div>
-                </div>
+                <button onclick="window.removeSubField(${fIdx}, ${sIdx})" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"><i class="fas fa-times"></i></button>
+            </div>
 
-                <div id="ui-${idx}" class="field-tab-content space-y-3 ${getContentClass('ui')}">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">Placeholder Text</label>
-                        <input type="text" value="${field.placeholder || ''}" oninput="window.updateField(${idx}, 'placeholder', this.value)" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg">
-                    </div>
-                    
-                    ${
-                     field.type === 'boolean'
-                      ? `
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">Default State</label>
-                        <select onchange="window.updateField(${idx}, 'defaultValue', this.value === 'true')" class="w-full px-2 py-2 text-xs border border-gray-300 rounded-lg bg-white">
-                            <option value="true" ${field.defaultValue === true ? 'selected' : ''}>ON (True)</option>
-                            <option value="false" ${field.defaultValue !== true ? 'selected' : ''}>OFF (False)</option>
-                        </select>
-                    </div>
-                    `
-                      : `
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">Grid Width</label>
-                        <select onchange="window.updateField(${idx}, 'width', this.value)" class="w-full px-2 py-2 text-xs border border-gray-300 rounded-lg bg-white">
-                            <option value="100" ${field.width === '100' ? 'selected' : ''}>Full Width (100%)</option>
-                            <option value="50" ${field.width === '50' || !field.width ? 'selected' : ''}>Half Width (50%)</option>
-                            <option value="33" ${field.width === '33' ? 'selected' : ''}>1/3 Width</option>
-                        </select>
-                    </div>
-                    `
-                    }
-                </div>
-
-                ${
-                 isSelect || isRelation || isRepeater
-                  ? `
-                <div id="data-${idx}" class="field-tab-content space-y-4 ${getContentClass('data')}">
-                    
-                    ${
-                     isSelect
-                      ? `
-                        <div>
-                            <label class="block text-[10px] font-bold text-gray-400 mb-1">Options List (Comma Separated)</label>
-                            <textarea rows="3" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg font-mono focus:border-blue-500" placeholder="Option A, Option B, Option C" oninput="window.updateField(${idx}, 'options', this.value.split(',').map(s=>s.trim()))">${(field.options || []).join(', ')}</textarea>
-                            <p class="text-[9px] text-gray-400 mt-1">Example: Baru, Bekas, Refurbished</p>
-                        </div>
-                    `
-                      : ''
-                    }
-
-                    ${
-                     isRelation
-                      ? `
-                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 space-y-3">
-                             <div>
-                                 <label class="block text-[10px] font-bold text-indigo-700 uppercase mb-1">Target Collection (Table)</label>
-                                 <select onchange="window.updateDeepField(${idx}, 'relation.collection', this.value)" class="w-full px-2 py-2 text-xs border border-indigo-200 rounded-lg bg-white focus:border-indigo-500">
-                                    <option value="">-- Select Source Table --</option>
-                                    ${availableCollections.map((c) => `<option value="${c.collection}" ${relation.collection === c.collection ? 'selected' : ''}>${c.name} (${c.collection})</option>`).join('')}
-                                 </select>
-                             </div>
-                             <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[9px] font-bold text-indigo-500 mb-1">Value Field (ID)</label>
-                                    <input value="${relation.key || '_id'}" oninput="window.updateDeepField(${idx}, 'relation.key', this.value)" class="w-full px-2 py-1.5 text-xs border border-indigo-200 rounded-lg" placeholder="_id">
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-bold text-indigo-500 mb-1">Display Field (Label)</label>
-                                    <input value="${relation.display || 'name'}" oninput="window.updateDeepField(${idx}, 'relation.display', this.value)" class="w-full px-2 py-1.5 text-xs border border-indigo-200 rounded-lg" placeholder="name">
-                                </div>
-                             </div>
-                        </div>
-                    `
-                      : ''
-                    }
-
-                    ${
-                     isRepeater
-                      ? `
-                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 space-y-3">
-                            <div class="flex justify-between items-center border-b border-purple-200 pb-2">
-                                <label class="text-[10px] font-bold text-purple-800 uppercase flex items-center gap-1"><i class="fas fa-columns"></i> Sub Fields Configuration</label>
-                                <button onclick="window.addSubField(${idx})" class="text-[9px] bg-purple-600 text-white px-2 py-1 rounded shadow-sm hover:bg-purple-700 transition-colors"><i class="fas fa-plus mr-1"></i> Add Column</button>
-                            </div>
-                            
-                            <div class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
-                                ${(field.sub_fields || [])
-                                 .map(
-                                  (sub, sIdx) => `
-                                    <div class="flex gap-2 items-center bg-white p-2 rounded-lg border border-purple-100 shadow-sm group/sub">
-                                        <div class="flex-1 space-y-1">
-                                            <input type="text" value="${sub.label}" placeholder="Label Name" oninput="window.updateSubField(${idx}, ${sIdx}, 'label', this.value)" class="w-full px-2 py-1 text-xs border rounded focus:border-purple-500">
-                                            <div class="flex gap-1">
-                                                <input type="text" value="${sub.name}" placeholder="key_name" oninput="window.updateSubField(${idx}, ${sIdx}, 'name', this.value)" class="flex-1 px-2 py-1 text-[10px] border rounded font-mono bg-gray-50 text-gray-600">
-                                                <select onchange="window.updateSubField(${idx}, ${sIdx}, 'type', this.value)" class="w-20 px-1 py-1 text-[10px] border rounded bg-gray-50">
-                                                    <option value="text" ${sub.type === 'text' ? 'selected' : ''}>Text</option>
-                                                    <option value="number" ${sub.type === 'number' ? 'selected' : ''}>Number</option>
-                                                    <option value="currency" ${sub.type === 'currency' ? 'selected' : ''}>Currency</option>
-                                                    <option value="select" ${sub.type === 'select' ? 'selected' : ''}>Select</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <button onclick="window.removeSubField(${idx}, ${sIdx})" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `
-                                 )
-                                 .join('')}
-                                ${(field.sub_fields || []).length === 0 ? '<div class="text-center py-4 text-purple-300 italic text-xs border-2 border-dashed border-purple-100 rounded-lg">No columns added yet.</div>' : ''}
-                            </div>
-                        </div>
-                    `
-                      : ''
-                    }
-
-                </div>`
-                  : ''
-                }
+            <div class="grid grid-cols-2 gap-2">
+                <input value="${sf.name || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'name', this.value)" class="w-full text-[10px] font-mono border border-gray-200 rounded px-2 py-1 bg-gray-50 focus:bg-white" placeholder="db_key">
+                <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'type', this.value)" class="w-full text-[10px] border border-gray-200 rounded px-1 py-1 bg-white focus:border-purple-500">
+                    <option value="text" ${sf.type === 'text' ? 'selected' : ''}>Text</option>
+                    <option value="number" ${sf.type === 'number' ? 'selected' : ''}>Number</option>
+                    <option value="currency" ${sf.type === 'currency' ? 'selected' : ''}>Currency</option>
+                    <option value="relation" ${sf.type === 'relation' ? 'selected' : ''}>Relation</option>
+                    <option value="select" ${sf.type === 'select' ? 'selected' : ''}>Select</option>
+                </select>
             </div>
         </div>
-    </div>
-    `
+        ${extraConfig}
+    </div>`
 }
 
 function renderFixedItem(item) {
@@ -1087,20 +1110,18 @@ window.saveMenuSettings = async function () {
  }
 }
 
-window.addSubField = function (fieldIndex) {
+window.addSubField = (fIdx) => {
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
- if (item && item.config && item.config.fields[fieldIndex]) {
-  if (!item.config.fields[fieldIndex].sub_fields) {
-   item.config.fields[fieldIndex].sub_fields = []
-  }
-  item.config.fields[fieldIndex].sub_fields.push({
-   name: 'new_column',
+ if (item?.config?.fields?.[fIdx]) {
+  if (!item.config.fields[fIdx].sub_fields) item.config.fields[fIdx].sub_fields = []
+
+  item.config.fields[fIdx].sub_fields.push({
+   name: 'col_' + Date.now(),
    label: 'New Column',
    type: 'text',
+   width: 'auto',
   })
-
-  const overlayBody = document.getElementById('table-config-body')
-  if (overlayBody) overlayBody.innerHTML = renderTableConfigOverlay(item)
+  window.refreshBuilderUI()
  }
 }
 
@@ -1114,11 +1135,58 @@ window.removeSubField = function (fieldIndex, subIndex) {
  }
 }
 
-window.updateSubField = function (fieldIndex, subIndex, key, value) {
+window.updateSubField = (fIdx, sIdx, k, v) => {
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
- if (item && item.config && item.config.fields[fieldIndex]) {
-  item.config.fields[fieldIndex].sub_fields[subIndex][key] = value
+ if (item?.config?.fields?.[fIdx]?.sub_fields?.[sIdx]) {
+  item.config.fields[fIdx].sub_fields[sIdx][k] = v
+
+  if (k === 'type') window.refreshBuilderUI()
  }
+}
+
+window.updateDeepSubField = (fIdx, sIdx, path, v) => {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (!item?.config?.fields?.[fIdx]?.sub_fields?.[sIdx]) return
+
+ const parts = path.split('.')
+ let obj = item.config.fields[fIdx].sub_fields[sIdx]
+
+ for (let i = 0; i < parts.length - 1; i++) {
+  if (!obj[parts[i]]) obj[parts[i]] = {}
+  obj = obj[parts[i]]
+ }
+ obj[parts[parts.length - 1]] = v
+}
+
+window.updateSubFieldOptions = (fIdx, sIdx, str) => {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (item?.config?.fields?.[fIdx]?.sub_fields?.[sIdx]) {
+  item.config.fields[fIdx].sub_fields[sIdx].options = str
+   .split(',')
+   .map((s) => s.trim())
+   .filter((s) => s)
+ }
+}
+
+window.updateSubAutoPopulate = (fIdx, sIdx, str) => {
+ try {
+  const map = {}
+  str.split(',').forEach((s) => {
+   const [k, v] = s.split(':')
+   if (k && v) map[k.trim()] = v.trim()
+  })
+  window.updateDeepSubField(fIdx, sIdx, 'relation.auto_populate', map)
+ } catch (e) {
+  console.error(e)
+ }
+}
+
+window.updateSubCalculation = (fIdx, sIdx, str) => {
+ const arr = str
+  .split(',')
+  .map((s) => s.trim())
+  .filter((s) => s)
+ window.updateDeepSubField(fIdx, sIdx, 'calculation.fields', arr)
 }
 
 window.openPropertiesDrawer = function () {
@@ -1179,5 +1247,72 @@ window.initMenuBuilder = async function () {
         <button onclick="window.initMenuBuilder()" class="mt-2 text-blue-600 underline">Coba Lagi</button>
     </div>`
   }
+ }
+}
+
+window.updateCalculation = function (index, key, value) {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (item && item.config && item.config.fields[index]) {
+  if (!item.config.fields[index].calculation) {
+   item.config.fields[index].calculation = { operation: '', fields: [] }
+  }
+
+  if (key === 'fields') {
+   item.config.fields[index].calculation.fields = value
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s)
+  } else {
+   item.config.fields[index].calculation[key] = value
+  }
+ }
+}
+
+window.updateAutoPopulate = function (index, value) {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (item && item.config && item.config.fields[index]) {
+  const map = {}
+  value.split(',').forEach((pair) => {
+   const [source, target] = pair.split(':')
+   if (source && target) {
+    map[source.trim()] = target.trim()
+   }
+  })
+
+  if (!item.config.fields[index].relation) item.config.fields[index].relation = {}
+  item.config.fields[index].relation.auto_populate = map
+ }
+}
+
+window.moveField = (idx, direction) => {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (!item?.config?.fields) return
+
+ const fields = item.config.fields
+ const newIdx = idx + direction
+
+ if (newIdx < 0 || newIdx >= fields.length) return
+ ;[fields[idx], fields[newIdx]] = [fields[newIdx], fields[idx]]
+
+ window.refreshBuilderUI()
+}
+
+window.moveSubField = (fIdx, sIdx, direction) => {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (!item?.config?.fields?.[fIdx]?.sub_fields) return
+
+ const subFields = item.config.fields[fIdx].sub_fields
+ const newSubIdx = sIdx + direction
+
+ if (newSubIdx < 0 || newSubIdx >= subFields.length) return
+ ;[subFields[sIdx], subFields[newSubIdx]] = [subFields[newSubIdx], subFields[sIdx]]
+ window.refreshBuilderUI()
+}
+
+window.toggleFieldCollapse = (idx) => {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (item?.config?.fields?.[idx]) {
+  item.config.fields[idx]._isCollapsed = !item.config.fields[idx]._isCollapsed
+  window.refreshBuilderUI()
  }
 }

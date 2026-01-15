@@ -20,7 +20,7 @@ router
  .prefix('/authentication')
 router
  .group(() => {
-  router.get('/menu', '#controllers/backends_controller.menu')
+  router.get('/menu', '#controllers/backends_controller.menu_example')
   router.post('/dashboard-snapshot', '#controllers/backends_controller.dashboardSnapshots')
   router.get('/settings', '#controllers/backends_controller.settingsGeneral')
   router.get('collections/:col', '#controllers/backends_controller.getCollectionData')
