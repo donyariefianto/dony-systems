@@ -183,7 +183,7 @@ window.getAllCollections = function () {
    }
   })
  }
- traverse(window.menuBuilderState.data)
+ traverse(window.menuBuilderState.data) 
  return collections
 }
 
