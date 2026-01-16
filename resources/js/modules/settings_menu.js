@@ -460,29 +460,31 @@ function renderTableConfigOverlay(item) {
 }
 
 function renderFieldCard(field, idx) {
-    const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId);
-    const totalFields = item?.config?.fields?.length || 0;
-    const isCollapsed = field._isCollapsed === true;
-    
-    // Flag Tipe Data
-    const isRepeater = field.type === 'repeater';
-    const isRelation = field.type === 'relation';
-    const isSelect = field.type === 'select';
-    const isNumeric = ['number', 'currency'].includes(field.type);
-    
-    // Style Dinamis
-    const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200';
-    const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20';
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ const totalFields = item?.config?.fields?.length || 0
+ const isCollapsed = field._isCollapsed === true
 
-    // Helper Select Options (Array -> String)
-    const safeOptions = Array.isArray(field.options) ? field.options : [];
+ // Flag Tipe Data
+ const isRepeater = field.type === 'repeater'
+ const isRelation = field.type === 'relation'
+ const isSelect = field.type === 'select'
+ const isNumeric = ['number', 'currency'].includes(field.type)
 
-    // Helper Collections untuk Relation
-    const collections = window.getAllCollections();
-    const autoPopStr = Object.entries(field.relation?.auto_populate || {}).map(([k,v]) => `${k}:${v}`).join(', ');
-    const isAutoPopEnabled = field.relation?.enable_auto_populate === true;
+ // Style Dinamis
+ const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200'
+ const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20'
 
-    return `
+ // Helper Select Options (Array -> String)
+ const safeOptions = Array.isArray(field.options) ? field.options : []
+
+ // Helper Collections untuk Relation
+ const collections = window.getAllCollections()
+ const autoPopStr = Object.entries(field.relation?.auto_populate || {})
+  .map(([k, v]) => `${k}:${v}`)
+  .join(', ')
+ const isAutoPopEnabled = field.relation?.enable_auto_populate === true
+
+ return `
     <div class="bg-white border ${cardBorderColor} rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col group relative overflow-hidden mb-3 focus-within:ring-4 ${activeRing} animate-in fade-in slide-in-from-bottom-2 duration-300">
         
         <div class="flex items-center gap-2 p-2 bg-gray-50/80 border-b ${cardBorderColor} select-none">
@@ -537,23 +539,29 @@ function renderFieldCard(field, idx) {
                 </div>
             </div>
 
-            ${isSelect ? `
+            ${
+             isSelect
+              ? `
             <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 space-y-2 animate-in slide-in-from-top-1">
                 <div class="flex justify-between items-center">
                     <label class="text-[10px] font-bold text-blue-600 uppercase"><i class="fas fa-list-ul mr-1"></i> Static Options</label>
                     <span class="text-[9px] text-blue-400 bg-white px-1.5 rounded border border-blue-100">Pisahkan koma</span>
                 </div>
                 <textarea rows="2" onchange="window.updateFieldOptions(${idx}, this.value)" class="w-full px-3 py-2 border border-blue-200 rounded-lg text-xs font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none placeholder-blue-300" placeholder="Pcs, Box, Pack">${safeOptions.join(', ')}</textarea>
-            </div>` : ''}
+            </div>`
+              : ''
+            }
             
-            ${isRelation ? `
+            ${
+             isRelation
+              ? `
             <div class="bg-indigo-50/60 p-3 rounded-lg border border-indigo-100 space-y-3 animate-in slide-in-from-top-1">
                 <div class="flex items-center gap-2 text-indigo-800 border-b border-indigo-200/50 pb-2">
                     <i class="fas fa-link"></i> <span class="text-xs font-bold uppercase">Konfigurasi Relasi</span>
                 </div>
                 <select onchange="window.updateDeepField(${idx}, 'relation.collection', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white outline-none">
                     <option value="">-- Pilih Collection --</option>
-                    ${collections.map(c => `<option value="${c.collection}" ${field.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
+                    ${collections.map((c) => `<option value="${c.collection}" ${field.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
                 </select>
                 <div class="grid grid-cols-2 gap-3">
                     <input value="${field.relation?.key || '_id'}" oninput="window.updateDeepField(${idx}, 'relation.key', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="Key (_id)">
@@ -565,16 +573,24 @@ function renderFieldCard(field, idx) {
                         <input type="checkbox" ${isAutoPopEnabled ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'relation.enable_auto_populate', this.checked); window.refreshBuilderUI()" class="rounded text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 border-indigo-300">
                         <span class="text-[9px] font-bold text-indigo-600 uppercase">Aktifkan Auto Fill</span>
                     </label>
-                    ${isAutoPopEnabled ? `
+                    ${
+                     isAutoPopEnabled
+                      ? `
                     <div class="mt-2 animate-in slide-in-from-top-1">
                         <input value="${autoPopStr}" onchange="window.updateAutoPopulate(${idx}, this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs font-mono bg-white" placeholder="field_sumber:field_target, ...">
-                    </div>` : ''}
+                    </div>`
+                      : ''
+                    }
                 </div>
-            </div>` : ''}
+            </div>`
+              : ''
+            }
 
             ${isNumeric ? renderCalculationConfig(field, idx) : ''}
 
-            ${isRepeater ? `
+            ${
+             isRepeater
+              ? `
             <div class="bg-white border-2 border-dashed border-purple-200 rounded-xl overflow-hidden animate-in slide-in-from-top-1">
                 <div class="flex justify-between items-center p-3 bg-purple-50 border-b border-purple-100">
                     <div class="flex items-center gap-2 text-purple-700">
@@ -586,9 +602,11 @@ function renderFieldCard(field, idx) {
                 </div>
                 <div class="p-3 bg-gray-50/50 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
                     ${(field.sub_fields || []).map((sf, sIdx) => renderSubFieldItem(sf, idx, sIdx)).join('')}
-                    ${(!field.sub_fields || field.sub_fields.length === 0) ? '<p class="text-center text-gray-400 text-[10px] italic py-4">Belum ada kolom. Klik "Add Col".</p>' : ''}
+                    ${!field.sub_fields || field.sub_fields.length === 0 ? '<p class="text-center text-gray-400 text-[10px] italic py-4">Belum ada kolom. Klik "Add Col".</p>' : ''}
                 </div>
-            </div>` : ''}
+            </div>`
+              : ''
+            }
 
             <div class="flex flex-wrap items-center gap-4 pt-4 mt-2 border-t border-gray-100">
                 <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
@@ -612,7 +630,7 @@ function renderFieldCard(field, idx) {
                 </div>
             </div>
         </div>
-    </div>`;
+    </div>`
 }
 
 function renderSelectConfig(field, idx) {
@@ -1291,24 +1309,27 @@ window.copyJSON = function () {
 // FIX: HELPER UPDATE MAIN FIELD OPTIONS
 // =================================================================
 window.updateFieldOptions = (idx, strValue) => {
-    // 1. Ambil Item yang sedang diedit
-    const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId);
-    if (!item?.config?.fields?.[idx]) return;
+ // 1. Ambil Item yang sedang diedit
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (!item?.config?.fields?.[idx]) return
 
-    // 2. Logic Parsing: String "A, B, C" -> Array ["A", "B", "C"]
-    // - split(','): pecah berdasarkan koma
-    // - map(trim): hilangkan spasi di depan/belakang
-    // - filter: buang string kosong agar tidak ada opsi blank
-    const optionsArray = strValue.split(',').map(s => s.trim()).filter(s => s !== '');
+ // 2. Logic Parsing: String "A, B, C" -> Array ["A", "B", "C"]
+ // - split(','): pecah berdasarkan koma
+ // - map(trim): hilangkan spasi di depan/belakang
+ // - filter: buang string kosong agar tidak ada opsi blank
+ const optionsArray = strValue
+  .split(',')
+  .map((s) => s.trim())
+  .filter((s) => s !== '')
 
-    // 3. Simpan langsung ke state
-    item.config.fields[idx].options = optionsArray;
+ // 3. Simpan langsung ke state
+ item.config.fields[idx].options = optionsArray
 
-    // Catatan: Kita TIDAK memanggil refreshBuilderUI() di sini 
-    // agar kursor tidak lepas (blur) saat user masih mengetik/edit.
-    // Data sudah tersimpan di memory state.
-    console.log("Updated Main Options:", optionsArray); // Debugging
-};
+ // Catatan: Kita TIDAK memanggil refreshBuilderUI() di sini
+ // agar kursor tidak lepas (blur) saat user masih mengetik/edit.
+ // Data sudah tersimpan di memory state.
+ console.log('Updated Main Options:', optionsArray) // Debugging
+}
 
 function cleanMenuData(items) {
  return items

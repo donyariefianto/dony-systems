@@ -10,13 +10,13 @@ export default class BackendsController {
   const existingDoc = await collections?.findOne({ id: 'fixed_menu' })
   let data
   if (existingDoc) {
-    body.created_at = existingDoc.created_at
+   body.created_at = existingDoc.created_at
    body.updated_at = new Date()
-   
+
    data = await collections?.replaceOne({ id: 'fixed_menu' }, body, { upsert: false })
   } else {
-      body.created_at = new Date()
-      body.updated_at = new Date()
+   body.created_at = new Date()
+   body.updated_at = new Date()
    data = await collections?.replaceOne({ id: 'fixed_menu' }, body, { upsert: true })
   }
   return response.send(data)
@@ -184,7 +184,11 @@ export default class BackendsController {
    let object_search = JSON.parse(search)
    query.$or = []
    for (const element of Object.keys(object_search)) {
-    query.$or.push({ [element]: { $regex: object_search[element], $options: 'i' } })
+    if (typeof object_search[element] === 'string') {
+     query.$or.push({ [element]: { $regex: object_search[element], $options: 'i' } })
+    } else if (typeof Number(object_search[element]) === 'number') {
+     query.$or.push({ [element]: object_search[element] })
+    }
    }
   }
   if (filter) {
@@ -195,6 +199,7 @@ export default class BackendsController {
   }
   const skip = (page - 1) * limit
   const sort = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
+
   let data = await collections?.find(query).skip(skip).limit(Number(limit)).sort(sort).toArray()
   const total = await collections?.countDocuments(query)
   return response.send({ data, total, page: Number(page), totalPages: Math.ceil(total / limit) })

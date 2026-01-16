@@ -151,81 +151,208 @@ const DropdownManager = {
  },
 }
 
-function debounce(func, wait) {
- let timeout
- return function (...args) {
-  clearTimeout(timeout)
-  timeout = setTimeout(() => func.apply(this, args), wait)
- }
-}
-
 window.DropdownManager = DropdownManager
 
 export function renderTableView(config, container) {
+ if (!AppState.searchFields) {
+  AppState.searchFields = []
+ }
+
  const fields = config.config.fields || []
+ const displayFields = fields.filter((f) => !['repeater', 'image', 'textarea'].includes(f.type))
+ const searchableFields = fields.filter((f) =>
+  ['text', 'textarea', 'number', 'currency', 'relation', 'select'].includes(f.type)
+ )
+
  container.innerHTML = `
-    <div class="flex flex-col h-[calc(100vh-64px)] bg-gray-50/50 relative overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-        <div class="shrink-0 px-4 md:px-8 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-b border-gray-200 z-20 shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shadow-lg shadow-gray-200"><i class="fas fa-database text-lg"></i></div>
-                <div><h1 class="text-lg md:text-xl font-black text-gray-800 tracking-tight leading-none">${config.name}</h1><p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Management Data</p></div>
+    <div class="flex flex-col h-[calc(100vh-64px)] bg-slate-50 relative overflow-hidden animate-in fade-in duration-300 font-sans">
+        
+        <div class="shrink-0 px-6 py-5 bg-white border-b border-slate-200 z-30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg shadow-slate-200">
+                    <i class="${config.icon || 'fas fa-database'} text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight leading-tight">${config.name}</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 uppercase tracking-wider border border-slate-200">
+                            ${config.config.collectionName}
+                        </span>
+                    </div>
+                </div>
             </div>
+            
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <button onclick="openCrudModal()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-200 flex items-center justify-center gap-2 transition-all active:scale-95"><i class="fas fa-plus"></i> <span>Tambah Data</span></button>
+                <div class="relative group w-full md:w-[340px] transition-all duration-300 z-50">
+                    
+                    <div class="flex items-center bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all">
+                        <button id="search-filter-btn" onclick="window.toggleSearchFilter()" class="pl-3 pr-2 py-2.5 flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors cursor-pointer outline-none border-r border-transparent hover:bg-slate-50 rounded-l-xl group/btn">
+                            <i class="fas fa-sliders-h text-xs"></i>
+                            <div id="filter-active-dot" class="${AppState.searchFields && AppState.searchFields.length > 0 ? '' : 'hidden'} w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-sm shadow-blue-500/50"></div>
+                            <i class="fas fa-chevron-down text-[8px] opacity-50 ml-0.5 group-hover/btn:translate-y-0.5 transition-transform"></i>
+                        </button>
+                        <div class="w-px h-5 bg-slate-200 mx-1"></div>
+                        <div class="flex-1 flex items-center relative pr-3">
+                            <input type="text" placeholder="Cari data..." oninput="doSearch(this.value)" value="${AppState.searchQuery || ''}" class="w-full py-2.5 bg-transparent text-sm font-medium text-slate-700 placeholder:text-slate-400 outline-none">
+                            <i class="fas fa-search text-slate-300 text-xs pointer-events-none absolute right-3"></i>
+                        </div>
+                    </div>
+
+                    <div id="search-filter-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 w-64 bg-white border border-slate-100 rounded-2xl shadow-2xl shadow-slate-200/50 animate-in fade-in slide-in-from-top-2 overflow-hidden ring-1 ring-slate-900/5">
+                        <div class="px-4 py-3 bg-slate-50/80 backdrop-blur border-b border-slate-100 flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Filter Pencarian</span>
+                            <span class="text-[9px] font-bold bg-white border border-slate-200 text-slate-400 px-2 py-0.5 rounded-full">Max 3</span>
+                        </div>
+                        
+                        <div class="max-h-60 overflow-y-auto custom-scrollbar p-1.5 space-y-0.5">
+                            ${searchableFields
+                             .map((f) => {
+                              const isSelected = AppState.searchFields.includes(f.name)
+
+                              return `
+                                <div class="search-option-item cursor-pointer px-3 py-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs font-medium text-slate-600 transition-all group/item select-none 
+                                     ${isSelected ? 'bg-blue-50/50 text-blue-700' : ''}" 
+                                     data-field="${f.name}" 
+                                     onclick="window.toggleSearchField('${f.name}')">
+                                    
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="checkbox-box w-4 h-4 rounded border 
+                                            ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-300 bg-white group-hover/item:border-blue-400'} 
+                                            flex items-center justify-center transition-colors">
+                                            <i class="fas fa-check text-white text-[8px] ${isSelected ? '' : 'hidden'}"></i>
+                                        </div>
+                                        <span class="truncate">${f.label}</span>
+                                    </div>
+                                    <span class="text-[9px] text-slate-300 uppercase tracking-wider opacity-0 group-hover/item:opacity-100 transition-opacity">${f.type}</span>
+                                </div>`
+                             })
+                             .join('')}
+                        </div>
+                        
+                        <div class="p-2 bg-slate-50 border-t border-slate-100">
+                            <button onclick="window.resetSearchFilter()" 
+                                class="w-full py-2 text-[10px] text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg font-bold uppercase tracking-wide transition-colors">
+                                Reset Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="window.refreshTable()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
+                    <i id="refresh-icon" class="fas fa-sync-alt text-slate-400 group-hover:text-blue-500 transition-colors"></i>
+                    <span class="hidden sm:inline">Refresh</span>
+                </button>
+                <button onclick="openCrudModal()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 active:scale-95">
+                    <i class="fas fa-plus"></i> <span>Create New</span>
+                </button>
             </div>
         </div>
-        <div class="flex-1 overflow-hidden relative bg-gray-50 flex flex-col">
+
+        <div class="flex-1 overflow-hidden relative flex flex-col">
             <div class="hidden md:block flex-1 overflow-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
+                    <thead class="bg-white/80 backdrop-blur-md sticky top-0 z-20 shadow-sm ring-1 ring-slate-200/50">
                         <tr>
-                            ${fields
-                             .filter((f) => f.type !== 'repeater')
-                             .map(
-                              (f) =>
-                               `<th class="p-4 text-[10px] font-black text-gray-500 uppercase tracking-widest whitespace-nowrap border-b border-gray-200">${f.label}</th>`
-                             )
+                            <th class="p-4 w-16 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 bg-slate-50/50">#</th>
+                            ${displayFields
+                             .map((f) => {
+                              const align = ['number', 'currency'].includes(f.type)
+                               ? 'text-right'
+                               : 'text-left'
+                              return `<th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap border-b border-slate-200 ${align} bg-slate-50/50">${f.label}</th>`
+                             })
                              .join('')}
-                            <th class="p-4 text-[10px] font-black text-gray-500 uppercase tracking-widest text-right whitespace-nowrap border-b border-gray-200 sticky right-0 bg-gray-100/95">Aksi</th>
+                            <th class="p-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right whitespace-nowrap border-b border-slate-200 sticky right-0 bg-white/95 backdrop-blur z-20 shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.03)]">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="table-data-body-desktop" class="bg-white divide-y divide-gray-100"></tbody>
+                    <tbody id="table-data-body-desktop" class="bg-white divide-y divide-slate-100 text-sm"></tbody>
                 </table>
             </div>
-            <div id="table-data-body-mobile" class="md:hidden flex-1 overflow-y-auto p-4 space-y-4 pb-24"></div>
-            <div id="loading-state" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex-col items-center justify-center"><div class="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-3"></div><span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Memuat Data...</span></div>
+            <div id="table-data-body-mobile" class="md:hidden flex-1 overflow-y-auto p-4 space-y-4 pb-24 bg-slate-50"></div>
+            <div id="loading-state" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex-col items-center justify-center">
+                <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-3 shadow-lg"></div>
+                <span class="text-xs font-bold text-slate-500 uppercase animate-pulse">Memuat Data...</span>
+            </div>
         </div>
-        <div id="pagination-container" class="shrink-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]"></div>
+        <div id="pagination-container" class="shrink-0 bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]"></div>
     </div>
     
-    <div id="crud-modal" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300" id="modal-backdrop" onclick="window.closeModal()"></div>
-        <div id="modal-panel" class="absolute inset-x-0 bottom-0 top-10 md:inset-y-0 md:left-auto md:right-0 md:w-[600px] lg:w-[800px] bg-white shadow-2xl rounded-t-2xl md:rounded-none transform transition-transform duration-300 ease-out translate-y-full md:translate-y-0 md:translate-x-full flex flex-col border-l border-gray-100">
-            <div class="h-16 border-b border-gray-100 flex justify-between items-center px-6 bg-white shrink-0 rounded-t-2xl md:rounded-none">
-                <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-pen-nib"></i></div><h3 id="modal-title" class="font-black text-gray-800 text-sm uppercase tracking-widest">Form Data</h3></div>
-                <button onclick="window.closeModal()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><i class="fas fa-times"></i></button>
+    <div id="crud-modal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        
+        <div id="modal-backdrop" 
+             class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-500 ease-out opacity-0" 
+             onclick="window.closeModal()"></div>
+
+        <div id="modal-panel" 
+             class="absolute inset-x-0 bottom-0 top-10 md:inset-y-0 md:left-auto md:right-0 md:w-[600px] lg:w-[800px] bg-white shadow-2xl border-l border-white/50 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) translate-y-full md:translate-y-0 md:translate-x-full flex flex-col">
+            
+            <div class="h-16 border-b border-slate-100 flex justify-between items-center px-6 bg-white/80 backdrop-blur shrink-0 z-20">
+                <div>
+                    <h3 id="modal-title" class="font-bold text-lg text-slate-800 tracking-tight">Form Data</h3>
+                    <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Input detail data sistem</p>
+                </div>
+                <button onclick="window.closeModal()" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all active:scale-90 flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <form id="dynamic-form" class="flex-1 flex flex-col overflow-hidden"></form>
+            
+            <form id="dynamic-form" class="flex-1 flex flex-col overflow-hidden bg-slate-50/50 relative" onsubmit="handleFormSubmit(event)">
+                </form>
         </div>
     </div>`
+
+ setTimeout(() => {
+  if (typeof renderSearchUI === 'function') renderSearchUI()
+ }, 0)
 }
 
 export async function fetchTableData() {
  const desktopBody = document.getElementById('table-data-body-desktop')
  const mobileBody = document.getElementById('table-data-body-mobile')
  const loadingOverlay = document.getElementById('loading-state')
+
  if (!desktopBody || !AppState.currentModule) return
- if (loadingOverlay) loadingOverlay.classList.remove('hidden')
- loadingOverlay.classList.add('flex')
+
+ if (loadingOverlay) {
+  loadingOverlay.classList.remove('hidden')
+  loadingOverlay.classList.add('flex')
+ }
 
  try {
   const colName = AppState.currentModule.config.collectionName
   const fields = AppState.currentModule.config.fields
-  const displayFields = fields.filter((f) => f.type !== 'repeater')
 
-  const url = `api/collections/${colName}?page=${AppState.currentPage}&limit=${AppState.pageSize}&search=${AppState.searchQuery}`
+  const displayFields = fields.filter((f) => !['repeater', 'image', 'textarea'].includes(f.type))
+
+  let query_search
+  if (AppState.searchFields.length > 0) {
+   for (const element of AppState.searchFields) {
+    query_search = {}
+    const find_obj_field = fields.find((x) => x.name === element)
+    if (find_obj_field.type === 'number') {
+     query_search[element] = Number(AppState.searchQuery)
+    } else {
+     query_search[element] = String(AppState.searchQuery)
+    }
+   }
+   query_search = JSON.stringify(query_search)
+  } else {
+   query_search = ''
+  }
+  const params = new URLSearchParams({
+   page: AppState.currentPage,
+   limit: AppState.pageSize,
+   search: query_search,
+  })
+
+  if (AppState.searchFields && AppState.searchFields.length > 0) {
+   params.append('search_fields', AppState.searchFields.join(','))
+  }
+
+  const url = `api/collections/${colName}?${params.toString()}`
   const response = await apiFetch(url)
   if (!response) return
+
   const result = await response.json()
   const data = result.data || []
 
@@ -233,46 +360,80 @@ export async function fetchTableData() {
   mobileBody.innerHTML = ''
 
   if (data.length === 0) {
-   desktopBody.innerHTML = `<tr><td colspan="100%" class="p-10 text-center text-gray-400 font-bold text-xs uppercase">Tidak ada data</td></tr>`
+   const emptyHtml = `<div class="p-12 text-center text-slate-400 text-sm italic flex flex-col items-center"><i class="fas fa-inbox text-3xl mb-3 opacity-30"></i>Data tidak ditemukan</div>`
+   desktopBody.innerHTML = `<tr><td colspan="100%">${emptyHtml}</td></tr>`
+   mobileBody.innerHTML = emptyHtml
   } else {
    desktopBody.innerHTML = data
     .map(
-     (item) => `
-                <tr class="hover:bg-blue-50/40 transition-colors group">
+     (item, idx) => `
+                <tr class="group hover:bg-blue-50/30 transition-colors border-b border-slate-100 last:border-0">
+                    <td class="p-4 text-center text-xs font-mono text-slate-400 group-hover:text-blue-500">
+                        ${(AppState.currentPage - 1) * AppState.pageSize + (idx + 1)}
+                    </td>
+                    
                     ${displayFields
                      .map((f) => {
-                      let cellData = item[f.name]
+                      let rawData = item[f.name]
+                      let cellContent = rawData
+                      const alignClass = ['number', 'currency'].includes(f.type)
+                       ? 'text-right'
+                       : 'text-left'
 
                       if (
                        f.type === 'relation' &&
-                       typeof cellData === 'object' &&
-                       cellData !== null
+                       typeof rawData === 'object' &&
+                       rawData !== null
                       ) {
-                       cellData = cellData[f.relation.display] || cellData[f.relation.key] || '-'
+                       const displayKey = f.relation?.display || 'name'
+                       cellContent =
+                        rawData[displayKey] || '<span class="text-slate-300 italic">-</span>'
+                      } else if (f.type === 'currency') {
+                       cellContent = `<span class="font-mono text-slate-700 tracking-tight">Rp ${(Number(rawData) || 0).toLocaleString('id-ID')}</span>`
+                      } else if (f.type === 'date' || f.type === 'datetime') {
+                       if (rawData) {
+                        const d = new Date(rawData)
+                        const dateStr = !isNaN(d)
+                         ? d.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                           })
+                         : '-'
+                        const timeStr = !isNaN(d)
+                         ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                         : ''
+                        cellContent = `<div class="flex flex-col"><span class="font-bold text-slate-700 text-xs">${dateStr}</span><span class="text-[10px] text-slate-400 font-mono">${timeStr}</span></div>`
+                       } else {
+                        cellContent = '<span class="text-slate-300">-</span>'
+                       }
+                      } else if (f.type === 'boolean') {
+                       cellContent = rawData
+                        ? '<span class="text-emerald-600 font-bold text-[10px] uppercase"><i class="fas fa-check-circle mr-1"></i> Yes</span>'
+                        : '<span class="text-slate-400 font-bold text-[10px] uppercase"><i class="fas fa-times-circle mr-1"></i> No</span>'
+                      } else if (f.type === 'select') {
+                       if (rawData) {
+                        const badgeColor = getDynamicBadgeColor(String(rawData))
+                        cellContent = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${badgeColor}">${rawData}</span>`
+                       } else {
+                        cellContent = '<span class="text-slate-300">-</span>'
+                       }
+                      } else {
+                       if (typeof rawData === 'string' && rawData.length > 40) {
+                        cellContent = `<div class="truncate max-w-[200px]" title="${rawData}">${rawData}</div>`
+                       } else {
+                        cellContent = rawData || '<span class="text-slate-300">-</span>'
+                       }
                       }
 
-                      if (f.type === 'currency')
-                       cellData = `Rp ${(Number(cellData) || 0).toLocaleString('id-ID')}`
-
-                      if (f.type === 'date' && cellData) {
-                        const d = new Date(cellData);
-                        // Format: 25 Oktober 2023 14:30:45
-                        cellData = !isNaN(d) ? d.toLocaleString('id-ID', {
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit'
-                        }) : cellData;
-                    }
-                      return `<td class="p-4 text-xs font-semibold text-gray-700 whitespace-nowrap border-b border-gray-50">${cellData || '-'}</td>`
+                      return `<td class="p-4 whitespace-nowrap text-slate-600 text-sm ${alignClass}">${cellContent}</td>`
                      })
                      .join('')}
-                    <td class="p-3 text-right whitespace-nowrap border-b border-gray-50 sticky right-0 bg-white shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.05)]">
-                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editData('${item._id}')" class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-blue-600 hover:border-blue-300 flex items-center justify-center"><i class="fas fa-pen text-[10px]"></i></button>
-                            <button onclick="deleteData('${item._id}')" class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-red-500 hover:border-red-300 flex items-center justify-center"><i class="fas fa-trash text-[10px]"></i></button>
+
+                    <td class="p-3 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-blue-50/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.03)] border-b border-slate-100 z-10">
+                        <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all"><i class="fas fa-pen text-xs"></i></button>
+                            <button onclick="deleteData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all"><i class="fas fa-trash-alt text-xs"></i></button>
                         </div>
                     </td>
                 </tr>`
@@ -281,32 +442,56 @@ export async function fetchTableData() {
 
    mobileBody.innerHTML = data
     .map(
-     (item) =>
-      `<div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-2"><h4 class="font-bold text-gray-800 text-sm mb-2">${item[displayFields[0].name]}</h4><div class="flex justify-end gap-2"><button onclick="editData('${item._id}')" class="text-blue-600"><i class="fas fa-pen"></i></button><button onclick="deleteData('${item._id}')" class="text-red-500"><i class="fas fa-trash"></i></button></div></div>`
+     (item, idx) => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group mb-3">
+                    <div class="flex justify-between items-start mb-3 border-b border-slate-50 pb-2">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded bg-slate-100 text-slate-500 font-bold text-xs flex items-center justify-center border border-slate-200">
+                                ${(AppState.currentPage - 1) * AppState.pageSize + (idx + 1)}
+                            </span>
+                            <h4 class="font-bold text-slate-800 text-sm line-clamp-1">${item[displayFields[0].name] || 'Item Data'}</h4>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="editData('${item._id}')" class="p-1.5 text-blue-600 bg-blue-50 rounded"><i class="fas fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteData('${item._id}')" class="p-1.5 text-red-500 bg-red-50 rounded"><i class="fas fa-trash text-[10px]"></i></button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${displayFields
+                         .slice(1, 6)
+                         .map((f) => {
+                          let val = item[f.name]
+                          if (f.type === 'currency')
+                           val = `Rp ${(Number(val) || 0).toLocaleString('id-ID')}`
+                          if ((f.type === 'date' || f.type === 'datetime') && val)
+                           val = new Date(val).toLocaleDateString('id-ID')
+                          if (f.type === 'relation' && typeof val === 'object' && val !== null)
+                           val = val[f.relation.display] || val[f.relation.key]
+                          if (f.type === 'select' && val)
+                           val = `<span class="font-bold text-slate-700">${val}</span>`
+                          return `
+                            <div class="flex justify-between items-center text-xs border-b border-slate-50 last:border-0 pb-1 last:pb-0">
+                                <span class="text-slate-400 font-medium truncate w-1/3">${f.label}</span>
+                                <span class="text-slate-700 font-medium text-right truncate w-2/3">${val || '-'}</span>
+                            </div>`
+                         })
+                         .join('')}
+                    </div>
+                </div>`
     )
     .join('')
+
    renderPaginationControls(result.totalPages, result.total, result.page)
   }
  } catch (err) {
   console.error(err)
+  desktopBody.innerHTML = `<tr><td colspan="100%" class="p-8 text-center text-red-500 text-sm">Gagal memuat data.</td></tr>`
  } finally {
-  if (loadingOverlay) loadingOverlay.classList.add('hidden')
-  loadingOverlay.classList.remove('flex')
+  if (loadingOverlay) {
+   loadingOverlay.classList.add('hidden')
+   loadingOverlay.classList.remove('flex')
+  }
  }
-}
-
-function renderPaginationControls(totalPages, totalItems, currentPage) {
- const container = document.getElementById('pagination-container')
- if (!container) return
- container.innerHTML =
-  totalItems === 0
-   ? ''
-   : `
-        <div class="text-xs font-bold text-gray-700">Halaman ${currentPage} / ${totalPages}</div>
-        <div class="flex gap-2">
-            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Prev</button>
-            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Next</button>
-        </div>`
 }
 
 export async function openCrudModal(existingData = null) {
@@ -349,22 +534,17 @@ export async function openCrudModal(existingData = null) {
    const labelHtml = `<label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>`
 
    if (field.type === 'date') {
-    // Parsing Value: 
-    // Format Database (ISO): 2023-12-31T14:30:00.000Z
-    // Format Input HTML5:    2023-12-31T14:30:00 (Tanpa Z dan milidetik)
-    let dateVal = val;
+    let dateVal = val
     if (val && typeof val === 'string') {
-        // Ambil 19 karakter pertama (YYYY-MM-DDTHH:mm:ss)
-        if (val.includes('T')) dateVal = val.slice(0, 19); 
+     if (val.includes('T')) dateVal = val.slice(0, 19)
     }
-    
-    // step="1" agar bisa input detik. Hapus step="1" jika tidak butuh detik.
+
     return `
     <div class="w-full ${field.width === '100' ? 'col-span-full' : ''}">
         ${labelHtml}
         <input type="datetime-local" step="1" name="${field.name}" value="${dateVal}" class="${baseClass}" ${isReadOnly}>
-    </div>`;
-}
+    </div>`
+   }
 
    if (field.type === 'relation') {
     const containerId = `dd_main_${field.name}`
@@ -432,227 +612,6 @@ export async function openCrudModal(existingData = null) {
  } catch (err) {
   console.error(err)
   form.innerHTML = `<div class="flex-1 flex items-center justify-center text-red-500 font-bold text-xs">Error loading form</div>`
- }
-}
-
-function calculateMath(operation, values) {
- if (!values || values.length === 0) return 0
-
- const nums = values.map((v) => parseFloat(v) || 0)
-
- switch (operation) {
-  case 'multiply':
-   return nums.reduce((a, b) => a * b, 1)
-
-  case 'add':
-  case 'sum':
-   return nums.reduce((a, b) => a + b, 0)
-
-  case 'subtract':
-   return nums.reduce((a, b, i) => (i === 0 ? a : a - b))
-
-  case 'divide':
-   return nums.reduce((a, b, i) => (i === 0 ? a : b !== 0 ? a / b : 0))
-
-  case 'avg':
-   const total = nums.reduce((a, b) => a + b, 0)
-   return nums.length > 0 ? total / nums.length : 0
-
-  case 'max':
-   return Math.max(...nums)
-
-  case 'min':
-   return Math.min(...nums)
-
-  case 'count':
-   return nums.length
-
-  default:
-   return 0
- }
-}
-
-window.renderRepeater = function (fieldName) {
- const tbody = document.getElementById(`repeater_${fieldName}_body`)
- const hiddenInput = document.querySelector(`input[name="${fieldName}"]`)
- const data = window.formDynamicState[fieldName] || []
- const schema = window.repeaterSchemas[fieldName] || []
-
- if (hiddenInput) hiddenInput.value = JSON.stringify(data)
-
- const subtotalCol = schema.find((c) => c.name === 'subtotal' || c.name === 'row_total')
- if (subtotalCol) {
-  const grandTotal = data.reduce((sum, item) => sum + (parseFloat(item[subtotalCol.name]) || 0), 0)
-  const grandTotalInput = document.querySelector('input[name="grand_total"]')
-  if (grandTotalInput) grandTotalInput.value = grandTotal
- }
-
- if (!tbody) return
- if (data.length === 0) {
-  tbody.innerHTML = `<tr><td colspan="${schema.length + 2}" class="p-6 text-center text-gray-400 italic text-xs">Belum ada data.</td></tr>`
-  return
- }
-
- tbody.innerHTML = data
-  .map(
-   (item, idx) => `
-        <tr class="border-b border-gray-50 text-xs hover:bg-blue-50/20 transition-colors group">
-            <td class="p-2 text-center text-gray-400 font-mono">${idx + 1}</td>
-            ${schema
-             .map((col) => {
-              const isReadOnly = col.ui?.readonly
-               ? 'disabled bg-gray-50 text-gray-500 cursor-not-allowed'
-               : 'bg-white'
-              const cellVal = item[col.name] !== undefined ? item[col.name] : ''
-
-              if (col.type === 'relation')
-               return `<td class="p-2 min-w-[200px]"><div id="dd_sub_${fieldName}_${idx}_${col.name}"></div></td>`
-
-              if (col.type === 'date') {
-    let dateVal = cellVal;
-    if (dateVal && typeof dateVal === 'string') {
-         // Ambil format YYYY-MM-DDTHH:mm:ss
-        if (dateVal.includes('T')) dateVal = dateVal.slice(0, 19);
-    }
-    
-    return `
-    <td class="p-2">
-        <input type="datetime-local" step="1" value="${dateVal}" 
-            onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" 
-            class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none text-xs" 
-            ${isReadOnly}>
-    </td>`;
-}
-
-              if (col.type === 'select') {
-               const opts = (col.options || [])
-                .map((o) => `<option value="${o}" ${cellVal === o ? 'selected' : ''}>${o}</option>`)
-                .join('')
-               return `<td class="p-2"><select onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5"><option>-</option>${opts}</select></td>`
-              }
-
-              const type = col.type === 'currency' || col.type === 'number' ? 'number' : 'text'
-              if (col.type === 'currency' && col.ui?.readonly)
-               return `<td class="p-2"><div class="px-2 py-1.5 bg-gray-50 border border-transparent rounded text-right font-mono text-gray-600">Rp ${(Number(cellVal) || 0).toLocaleString('id-ID')}</div></td>`
-              return `<td class="p-2"><input type="${type}" value="${cellVal}" onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none ${col.type === 'currency' ? 'text-right font-mono' : ''}" ${isReadOnly}></td>`
-             })
-             .join('')}
-            <td class="p-2 text-center align-middle">
-                <button type="button" onclick="window.removeRepeaterItem('${fieldName}', ${idx})" class="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><i class="fas fa-trash-alt text-[10px]"></i></button>
-            </td>
-        </tr>`
-  )
-  .join('')
-
- data.forEach((item, idx) => {
-  schema.forEach((col) => {
-   if (col.type === 'relation') {
-    const containerId = `dd_sub_${fieldName}_${idx}_${col.name}`
-    DropdownManager.init(containerId, {
-     collection: col.relation.collection,
-     keyField: col.relation.key || '_id',
-     displayField: col.relation.display || 'name',
-     initialValue: item[col.name],
-     onSelect: (val, fullItem) => {
-      window.formDynamicState[fieldName][idx][col.name] = val
-      if (col.relation.enable_auto_populate && col.relation.auto_populate && fullItem) {
-       Object.keys(col.relation.auto_populate).forEach((sourceKey) => {
-        const targetKey = col.relation.auto_populate[sourceKey]
-        window.formDynamicState[fieldName][idx][targetKey] = fullItem[sourceKey]
-       })
-       window.recalculateRow(window.formDynamicState[fieldName][idx], schema)
-       window.renderRepeater(fieldName)
-      }
-     },
-    })
-   }
-  })
- })
-}
-
-window.recalculateRow = function (rowItem, schema) {
- schema.forEach((col) => {
-  if (col.calculation?.is_enabled && col.calculation.operation && col.calculation.fields) {
-   const sourceFieldNames = col.calculation.fields
-
-   const values = sourceFieldNames.map((fieldName) => rowItem[fieldName])
-
-   const result = calculateMath(col.calculation.operation, values)
-
-   rowItem[col.name] = result
-  }
- })
-}
-
-window.recalculateMainFields = function () {
- const fields = AppState.currentModule.config.fields || []
-
- fields.forEach((field) => {
-  if (!field.calculation?.is_enabled || !field.calculation.operation) return
-
-  const op = field.calculation.operation
-  const sourceConfigs = field.calculation.fields || []
-  let collectedValues = []
-
-  if (['sum', 'avg', 'count', 'min', 'max'].includes(op)) {
-   const targetConfig = sourceConfigs[0] || ''
-
-   if (targetConfig.includes('.')) {
-    const [repeaterName, subFieldName] = targetConfig.split('.')
-
-    const rows = window.formDynamicState[repeaterName] || []
-
-    collectedValues = rows.map((r) => r[subFieldName])
-   }
-  } else {
-   collectedValues = sourceConfigs.map((fieldName) => {
-    const el = document.querySelector(`[name="${fieldName}"]`)
-    return el ? el.value : 0
-   })
-  }
-
-  const finalResult = calculateMath(op, collectedValues)
-
-  const targetInput = document.querySelector(`input[name="${field.name}"]`)
-  if (targetInput) {
-   targetInput.value = finalResult
-  }
- })
-}
-
-window.addRepeaterItem = function (fieldName) {
- const schema = window.repeaterSchemas[fieldName] || []
- const newItem = {}
- schema.forEach(
-  (col) => (newItem[col.name] = col.defaultValue !== undefined ? col.defaultValue : '')
- )
- if (!window.formDynamicState[fieldName]) window.formDynamicState[fieldName] = []
- window.formDynamicState[fieldName].push(newItem)
- window.renderRepeater(fieldName)
- window.recalculateMainFields()
-}
-
-window.removeRepeaterItem = function (fieldName, index) {
- if (window.formDynamicState[fieldName]) {
-  window.formDynamicState[fieldName].splice(index, 1)
-  window.renderRepeater(fieldName)
-  window.recalculateMainFields()
- }
-}
-
-window.handleRepeaterInputChange = function (el, fieldName, index, colName) {
- const schema = window.repeaterSchemas[fieldName] || []
- let val = el.value
- if (el.type === 'number') val = parseFloat(val) || 0
-
- if (window.formDynamicState[fieldName] && window.formDynamicState[fieldName][index]) {
-  window.formDynamicState[fieldName][index][colName] = val
-
-  window.recalculateRow(window.formDynamicState[fieldName][index], schema)
-
-  window.renderRepeater(fieldName)
-
-  window.recalculateMainFields()
  }
 }
 
@@ -806,17 +765,6 @@ export async function editData(id) {
  openCrudModal(json.data || json)
 }
 
-window.closeModal = function () {
- const m = document.getElementById('crud-modal')
- const p = document.getElementById('modal-panel')
- const b = document.getElementById('modal-backdrop')
- if (b) b.classList.add('opacity-0')
- if (p) p.classList.add('translate-y-full', 'md:translate-x-full')
- setTimeout(() => {
-  if (m) m.classList.add('hidden')
- }, 300)
-}
-
 export async function changePage(newPage) {
  if (newPage > 0) {
   AppState.currentPage = newPage
@@ -828,4 +776,433 @@ export async function doSearch(query) {
  AppState.searchQuery = query
  AppState.currentPage = 1
  fetchTableData()
+}
+
+function renderPaginationControls(totalPages, totalItems, currentPage) {
+ const container = document.getElementById('pagination-container')
+ if (!container) return
+ container.innerHTML =
+  totalItems === 0
+   ? ''
+   : `
+        <div class="text-xs font-bold text-gray-700">Halaman ${currentPage} / ${totalPages}</div>
+        <div class="flex gap-2">
+            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Prev</button>
+            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Next</button>
+        </div>`
+}
+
+function debounce(func, wait) {
+ let timeout
+ return function (...args) {
+  clearTimeout(timeout)
+  timeout = setTimeout(() => func.apply(this, args), wait)
+ }
+}
+
+function getDynamicBadgeColor(text) {
+ if (!text) return 'bg-slate-100 text-slate-500 border-slate-200'
+
+ let hash = 0
+ for (let i = 0; i < text.length; i++) {
+  hash = text.charCodeAt(i) + ((hash << 5) - hash)
+ }
+
+ const palettes = [
+  'bg-blue-50 text-blue-700 border-blue-100',
+  'bg-emerald-50 text-emerald-700 border-emerald-100',
+  'bg-purple-50 text-purple-700 border-purple-100',
+  'bg-amber-50 text-amber-700 border-amber-100',
+  'bg-rose-50 text-rose-700 border-rose-100',
+  'bg-indigo-50 text-indigo-700 border-indigo-100',
+  'bg-cyan-50 text-cyan-700 border-cyan-100',
+ ]
+
+ const index = Math.abs(hash) % palettes.length
+ return palettes[index]
+}
+
+function calculateMath(operation, values) {
+ if (!values || values.length === 0) return 0
+
+ const nums = values.map((v) => parseFloat(v) || 0)
+
+ switch (operation) {
+  case 'multiply':
+   return nums.reduce((a, b) => a * b, 1)
+
+  case 'add':
+  case 'sum':
+   return nums.reduce((a, b) => a + b, 0)
+
+  case 'subtract':
+   return nums.reduce((a, b, i) => (i === 0 ? a : a - b))
+
+  case 'divide':
+   return nums.reduce((a, b, i) => (i === 0 ? a : b !== 0 ? a / b : 0))
+
+  case 'avg':
+   const total = nums.reduce((a, b) => a + b, 0)
+   return nums.length > 0 ? total / nums.length : 0
+
+  case 'max':
+   return Math.max(...nums)
+
+  case 'min':
+   return Math.min(...nums)
+
+  case 'count':
+   return nums.length
+
+  default:
+   return 0
+ }
+}
+
+window.resetSearchFilter = function () {
+ AppState.searchFields = []
+
+ const dropdown = document.getElementById('search-filter-dropdown')
+ if (dropdown) {
+  const options = dropdown.querySelectorAll('.search-option-item')
+  options.forEach((el) => {
+   el.classList.remove('bg-blue-50/50', 'text-blue-700')
+   el.classList.add('text-slate-600')
+
+   const box = el.querySelector('.checkbox-box')
+   if (box) {
+    box.classList.remove('bg-blue-500', 'border-blue-500')
+    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+
+    const icon = box.querySelector('i')
+    if (icon) icon.classList.add('hidden')
+   }
+  })
+ }
+
+ const dot = document.getElementById('filter-active-dot')
+ if (dot) dot.classList.add('hidden')
+
+ fetchTableData()
+}
+
+window.renderSearchUI = function () {
+ const dot = document.getElementById('filter-active-dot')
+ if (dot) {
+  const isActive = AppState.searchFields && AppState.searchFields.length > 0
+  dot.classList.toggle('hidden', !isActive)
+ }
+
+ const dropdown = document.getElementById('search-filter-dropdown')
+ if (dropdown) {
+  const options = dropdown.querySelectorAll('.search-option-item')
+  options.forEach((el) => {
+   const fName = el.dataset.field
+   const isSelected = AppState.searchFields.includes(fName)
+   const box = el.querySelector('.checkbox-box')
+   const icon = box.querySelector('i')
+
+   if (isSelected) {
+    el.classList.add('bg-blue-50/50', 'text-blue-700')
+    box.classList.remove('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+    box.classList.add('bg-blue-500', 'border-blue-500')
+    icon.classList.remove('hidden')
+   } else {
+    el.classList.remove('bg-blue-50/50', 'text-blue-700')
+    box.classList.remove('bg-blue-500', 'border-blue-500')
+    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+    icon.classList.add('hidden')
+   }
+  })
+ }
+}
+
+window.toggleSearchFilter = function () {
+ const dropdown = document.getElementById('search-filter-dropdown')
+ if (dropdown) dropdown.classList.toggle('hidden')
+}
+
+window.toggleSearchField = function (fieldName) {
+ if (!AppState.searchFields) AppState.searchFields = []
+
+ const current = AppState.searchFields
+ const idx = current.indexOf(fieldName)
+
+ if (idx > -1) {
+  current.splice(idx, 1)
+ } else {
+  if (current.length >= 3) {
+   showToast('Maksimal 3 kolom pencarian', 'warning')
+   return
+  }
+  current.push(fieldName)
+ }
+
+ renderSearchUI()
+
+ if (AppState.searchQuery) {
+  fetchTableData()
+ }
+}
+
+window.renderSearchUI = function () {
+ const dot = document.getElementById('filter-active-dot')
+ if (dot) {
+  const count = (AppState.searchFields || []).length
+  if (count > 0) dot.classList.remove('hidden')
+  else dot.classList.add('hidden')
+ }
+
+ const dropdown = document.getElementById('search-filter-dropdown')
+ if (dropdown) {
+  const options = dropdown.querySelectorAll('.search-option-item')
+  options.forEach((el) => {
+   const fName = el.dataset.field
+
+   const isSelected = (AppState.searchFields || []).includes(fName)
+
+   const box = el.querySelector('.checkbox-box')
+   const icon = box.querySelector('i')
+
+   if (isSelected) {
+    el.classList.add('bg-blue-50/50', 'text-blue-700')
+    el.classList.remove('text-slate-600')
+
+    box.classList.remove('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+    box.classList.add('bg-blue-500', 'border-blue-500')
+
+    icon.classList.remove('hidden')
+   } else {
+    el.classList.remove('bg-blue-50/50', 'text-blue-700')
+    el.classList.add('text-slate-600')
+
+    box.classList.remove('bg-blue-500', 'border-blue-500')
+    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+
+    icon.classList.add('hidden')
+   }
+  })
+ }
+}
+
+window.document.addEventListener('click', (e) => {
+ const dropdown = document.getElementById('search-filter-dropdown')
+ const btn = document.getElementById('search-filter-btn')
+ if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+  dropdown.classList.add('hidden')
+ }
+})
+
+window.renderRepeater = function (fieldName) {
+ const tbody = document.getElementById(`repeater_${fieldName}_body`)
+ const hiddenInput = document.querySelector(`input[name="${fieldName}"]`)
+ const data = window.formDynamicState[fieldName] || []
+ const schema = window.repeaterSchemas[fieldName] || []
+
+ if (hiddenInput) hiddenInput.value = JSON.stringify(data)
+
+ const subtotalCol = schema.find((c) => c.name === 'subtotal' || c.name === 'row_total')
+ if (subtotalCol) {
+  const grandTotal = data.reduce((sum, item) => sum + (parseFloat(item[subtotalCol.name]) || 0), 0)
+  const grandTotalInput = document.querySelector('input[name="grand_total"]')
+  if (grandTotalInput) grandTotalInput.value = grandTotal
+ }
+
+ if (!tbody) return
+ if (data.length === 0) {
+  tbody.innerHTML = `<tr><td colspan="${schema.length + 2}" class="p-6 text-center text-gray-400 italic text-xs">Belum ada data.</td></tr>`
+  return
+ }
+
+ tbody.innerHTML = data
+  .map(
+   (item, idx) => `
+        <tr class="border-b border-gray-50 text-xs hover:bg-blue-50/20 transition-colors group">
+            <td class="p-2 text-center text-gray-400 font-mono">${idx + 1}</td>
+            ${schema
+             .map((col) => {
+              const isReadOnly = col.ui?.readonly
+               ? 'disabled bg-gray-50 text-gray-500 cursor-not-allowed'
+               : 'bg-white'
+              const cellVal = item[col.name] !== undefined ? item[col.name] : ''
+
+              if (col.type === 'relation')
+               return `<td class="p-2 min-w-[200px]"><div id="dd_sub_${fieldName}_${idx}_${col.name}"></div></td>`
+
+              if (col.type === 'date') {
+               let dateVal = cellVal
+               if (dateVal && typeof dateVal === 'string') {
+                if (dateVal.includes('T')) dateVal = dateVal.slice(0, 19)
+               }
+
+               return `
+    <td class="p-2">
+        <input type="datetime-local" step="1" value="${dateVal}" 
+            onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" 
+            class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none text-xs" 
+            ${isReadOnly}>
+    </td>`
+              }
+
+              if (col.type === 'select') {
+               const opts = (col.options || [])
+                .map((o) => `<option value="${o}" ${cellVal === o ? 'selected' : ''}>${o}</option>`)
+                .join('')
+               return `<td class="p-2"><select onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5"><option>-</option>${opts}</select></td>`
+              }
+
+              const type = col.type === 'currency' || col.type === 'number' ? 'number' : 'text'
+              if (col.type === 'currency' && col.ui?.readonly)
+               return `<td class="p-2"><div class="px-2 py-1.5 bg-gray-50 border border-transparent rounded text-right font-mono text-gray-600">Rp ${(Number(cellVal) || 0).toLocaleString('id-ID')}</div></td>`
+              return `<td class="p-2"><input type="${type}" value="${cellVal}" onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none ${col.type === 'currency' ? 'text-right font-mono' : ''}" ${isReadOnly}></td>`
+             })
+             .join('')}
+            <td class="p-2 text-center align-middle">
+                <button type="button" onclick="window.removeRepeaterItem('${fieldName}', ${idx})" class="w-7 h-7 flex items-center justify-center rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><i class="fas fa-trash-alt text-[10px]"></i></button>
+            </td>
+        </tr>`
+  )
+  .join('')
+
+ data.forEach((item, idx) => {
+  schema.forEach((col) => {
+   if (col.type === 'relation') {
+    const containerId = `dd_sub_${fieldName}_${idx}_${col.name}`
+    DropdownManager.init(containerId, {
+     collection: col.relation.collection,
+     keyField: col.relation.key || '_id',
+     displayField: col.relation.display || 'name',
+     initialValue: item[col.name],
+     onSelect: (val, fullItem) => {
+      window.formDynamicState[fieldName][idx][col.name] = val
+      if (col.relation.enable_auto_populate && col.relation.auto_populate && fullItem) {
+       Object.keys(col.relation.auto_populate).forEach((sourceKey) => {
+        const targetKey = col.relation.auto_populate[sourceKey]
+        window.formDynamicState[fieldName][idx][targetKey] = fullItem[sourceKey]
+       })
+       window.recalculateRow(window.formDynamicState[fieldName][idx], schema)
+       window.renderRepeater(fieldName)
+      }
+     },
+    })
+   }
+  })
+ })
+}
+
+window.recalculateRow = function (rowItem, schema) {
+ schema.forEach((col) => {
+  if (col.calculation?.is_enabled && col.calculation.operation && col.calculation.fields) {
+   const sourceFieldNames = col.calculation.fields
+
+   const values = sourceFieldNames.map((fieldName) => rowItem[fieldName])
+
+   const result = calculateMath(col.calculation.operation, values)
+
+   rowItem[col.name] = result
+  }
+ })
+}
+
+window.recalculateMainFields = function () {
+ const fields = AppState.currentModule.config.fields || []
+
+ fields.forEach((field) => {
+  if (!field.calculation?.is_enabled || !field.calculation.operation) return
+
+  const op = field.calculation.operation
+  const sourceConfigs = field.calculation.fields || []
+  let collectedValues = []
+
+  if (['sum', 'avg', 'count', 'min', 'max'].includes(op)) {
+   const targetConfig = sourceConfigs[0] || ''
+
+   if (targetConfig.includes('.')) {
+    const [repeaterName, subFieldName] = targetConfig.split('.')
+
+    const rows = window.formDynamicState[repeaterName] || []
+
+    collectedValues = rows.map((r) => r[subFieldName])
+   }
+  } else {
+   collectedValues = sourceConfigs.map((fieldName) => {
+    const el = document.querySelector(`[name="${fieldName}"]`)
+    return el ? el.value : 0
+   })
+  }
+
+  const finalResult = calculateMath(op, collectedValues)
+
+  const targetInput = document.querySelector(`input[name="${field.name}"]`)
+  if (targetInput) {
+   targetInput.value = finalResult
+  }
+ })
+}
+
+window.addRepeaterItem = function (fieldName) {
+ const schema = window.repeaterSchemas[fieldName] || []
+ const newItem = {}
+ schema.forEach(
+  (col) => (newItem[col.name] = col.defaultValue !== undefined ? col.defaultValue : '')
+ )
+ if (!window.formDynamicState[fieldName]) window.formDynamicState[fieldName] = []
+ window.formDynamicState[fieldName].push(newItem)
+ window.renderRepeater(fieldName)
+ window.recalculateMainFields()
+}
+
+window.removeRepeaterItem = function (fieldName, index) {
+ if (window.formDynamicState[fieldName]) {
+  window.formDynamicState[fieldName].splice(index, 1)
+  window.renderRepeater(fieldName)
+  window.recalculateMainFields()
+ }
+}
+
+window.handleRepeaterInputChange = function (el, fieldName, index, colName) {
+ const schema = window.repeaterSchemas[fieldName] || []
+ let val = el.value
+ if (el.type === 'number') val = parseFloat(val) || 0
+
+ if (window.formDynamicState[fieldName] && window.formDynamicState[fieldName][index]) {
+  window.formDynamicState[fieldName][index][colName] = val
+
+  window.recalculateRow(window.formDynamicState[fieldName][index], schema)
+
+  window.renderRepeater(fieldName)
+
+  window.recalculateMainFields()
+ }
+}
+
+window.closeModal = function () {
+ const modal = document.getElementById('crud-modal')
+ const backdrop = document.getElementById('modal-backdrop')
+ const panel = document.getElementById('modal-panel')
+
+ if (!modal) return
+
+ if (backdrop) backdrop.classList.add('opacity-0')
+ if (panel) panel.classList.add('translate-y-full', 'md:translate-x-full')
+
+ setTimeout(() => {
+  modal.classList.add('hidden')
+
+  const form = document.getElementById('dynamic-form')
+  if (form) form.innerHTML = ''
+ }, 500)
+}
+
+window.refreshTable = async function () {
+ const icon = document.getElementById('refresh-icon')
+
+ if (icon) icon.classList.add('fa-spin')
+
+ await fetchTableData()
+
+ setTimeout(() => {
+  if (icon) icon.classList.remove('fa-spin')
+  showToast('Data berhasil diperbarui', 'success')
+ }, 500)
 }
