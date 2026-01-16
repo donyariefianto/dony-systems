@@ -183,7 +183,7 @@ window.getAllCollections = function () {
    }
   })
  }
- traverse(window.menuBuilderState.data) 
+ traverse(window.menuBuilderState.data)
  return collections
 }
 
@@ -464,20 +464,16 @@ function renderFieldCard(field, idx) {
  const totalFields = item?.config?.fields?.length || 0
  const isCollapsed = field._isCollapsed === true
 
- // Flag Tipe Data
  const isRepeater = field.type === 'repeater'
  const isRelation = field.type === 'relation'
  const isSelect = field.type === 'select'
  const isNumeric = ['number', 'currency'].includes(field.type)
 
- // Style Dinamis
  const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200'
  const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20'
 
- // Helper Select Options (Array -> String)
  const safeOptions = Array.isArray(field.options) ? field.options : []
 
- // Helper Collections untuk Relation
  const collections = window.getAllCollections()
  const autoPopStr = Object.entries(field.relation?.auto_populate || {})
   .map(([k, v]) => `${k}:${v}`)
@@ -1305,30 +1301,16 @@ window.copyJSON = function () {
  alert('Copied!')
 }
 
-// =================================================================
-// FIX: HELPER UPDATE MAIN FIELD OPTIONS
-// =================================================================
 window.updateFieldOptions = (idx, strValue) => {
- // 1. Ambil Item yang sedang diedit
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
  if (!item?.config?.fields?.[idx]) return
 
- // 2. Logic Parsing: String "A, B, C" -> Array ["A", "B", "C"]
- // - split(','): pecah berdasarkan koma
- // - map(trim): hilangkan spasi di depan/belakang
- // - filter: buang string kosong agar tidak ada opsi blank
  const optionsArray = strValue
   .split(',')
   .map((s) => s.trim())
   .filter((s) => s !== '')
 
- // 3. Simpan langsung ke state
  item.config.fields[idx].options = optionsArray
-
- // Catatan: Kita TIDAK memanggil refreshBuilderUI() di sini
- // agar kursor tidak lepas (blur) saat user masih mengetik/edit.
- // Data sudah tersimpan di memory state.
- console.log('Updated Main Options:', optionsArray) // Debugging
 }
 
 function cleanMenuData(items) {
