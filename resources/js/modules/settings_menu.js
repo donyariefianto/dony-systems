@@ -209,15 +209,23 @@ export function renderSideMenuTab(settings) {
                         Menu Builder
                     </h2>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="window.resetMenuBuilder()" class="w-9 h-9 lg:w-auto lg:px-3 lg:h-auto flex items-center justify-center text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
-                        <i class="fas fa-undo lg:mr-1"></i> <span class="hidden lg:inline">Reset</span>
+                <div class="flex items-center gap-2.5">
+                    <button onclick="window.resetMenuBuilder()" 
+                        class="group h-10 w-10 lg:w-auto lg:px-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-xl transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700 active:scale-95 shadow-sm">
+                        <i class="fas fa-undo transition-transform group-hover:-rotate-45"></i> 
+                        <span class="hidden lg:inline tracking-wide uppercase">Reset</span>
                     </button>
-                    <button onclick="window.exportMenuJSON()" class="w-9 h-9 lg:w-auto lg:px-3 lg:h-auto flex items-center justify-center text-xs bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors">
-                        <i class="fas fa-code lg:mr-1"></i> <span class="hidden lg:inline">JSON</span>
+
+                    <button onclick="window.exportMenuJSON()" 
+                        class="group h-10 w-10 lg:w-auto lg:px-4 flex items-center justify-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50/50 border border-emerald-100 rounded-xl transition-all duration-200 hover:bg-emerald-50 hover:border-emerald-200 active:scale-95 shadow-sm">
+                        <i class="fas fa-code transition-transform group-hover:scale-110"></i> 
+                        <span class="hidden lg:inline tracking-wide uppercase">JSON</span>
                     </button>
-                    <button onclick="saveMenuSettings()" class="w-9 h-9 lg:w-auto lg:px-3 lg:h-auto flex items-center justify-center text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors">
-                        <i class="fas fa-save lg:mr-1"></i> <span class="hidden lg:inline">Save</span>
+
+                    <button onclick="saveMenuSettings()" 
+                        class="group h-10 w-10 lg:w-auto lg:px-5 flex items-center justify-center gap-2 text-xs font-bold text-white bg-blue-600 rounded-xl transition-all duration-200 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 -translate-y-[1px] active:translate-y-0 active:scale-95 shadow-md shadow-blue-100">
+                        <i class="fas fa-save transition-transform group-hover:scale-110"></i> 
+                        <span class="hidden lg:inline tracking-wide uppercase">Save Changes</span>
                     </button>
                 </div>
             </div>
@@ -1096,8 +1104,16 @@ window.addRootItem = function () {
  window.addTemplateItem('group', 'New Folder', 'fas fa-folder')
 }
 
-window.deleteMenuItem = function (id) {
- if (!confirm('Delete this item?')) return
+window.deleteMenuItem = async function (id) {
+ const isConfirmed = await showConfirmDialog({
+  title: 'Remove Component?',
+  text: `Delete permanent ${id}`,
+  icon: 'warning',
+  confirmText: 'Yes',
+  cancelText: 'No',
+  dangerMode: true,
+ })
+ if (!isConfirmed) return
  function removeFromList(items, idToRemove) {
   const idx = items.findIndex((i) => i.id === idToRemove)
   if (idx > -1) {
@@ -1154,8 +1170,16 @@ window.addNewField = function () {
  }
 }
 
-window.removeField = function (index) {
- if (!confirm('Remove field?')) return
+window.removeField = async function (index) {
+ const isConfirmed = await showConfirmDialog({
+  title: 'Remove field?',
+  text: `Delete permanent field`,
+  icon: 'warning',
+  confirmText: 'Yes',
+  cancelText: 'No',
+  dangerMode: true,
+ })
+ if (!isConfirmed) return
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
  if (item && item.config && item.config.fields) {
   item.config.fields.splice(index, 1)
@@ -1278,8 +1302,16 @@ window.moveItemDown = function (id) {
  }
 }
 
-window.resetMenuBuilder = function () {
- if (confirm('Reset all changes?')) {
+window.resetMenuBuilder = async function () {
+ const isConfirmed = await showConfirmDialog({
+  title: 'Reset All Changes?',
+  text: `Reset all menu configuration`,
+  icon: 'warning',
+  confirmText: 'Yes',
+  cancelText: 'No',
+  dangerMode: true,
+ })
+ if (isConfirmed) {
   window.menuBuilderState.data = []
   window.menuBuilderState.selectedId = null
   window.refreshBuilderUI()
@@ -1298,7 +1330,7 @@ window.exportMenuJSON = function () {
 window.copyJSON = function () {
  document.getElementById('json-output-textarea').select()
  document.execCommand('copy')
- alert('Copied!')
+ showToast('Copied!')
 }
 
 window.updateFieldOptions = (idx, strValue) => {

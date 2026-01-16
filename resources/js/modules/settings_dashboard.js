@@ -3,6 +3,7 @@ import { AppState } from '../core/state.js'
 import { showToast, showConfirmDialog } from '../utils/helpers.js'
 import { WidgetRegistry } from '../config/WidgetRegistry.js'
 import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
+import Swal from 'sweetalert2/dist/sweetalert2.js'
 
 let activeMobileTab = 'editor'
 let dashboardListState = {
