@@ -1,6 +1,7 @@
 import { CONFIG } from '../config/constants.js'
-
+const appKey = import.meta.env.VITE_APP_KEY
 export const AppState = {
+ app_key: appKey,
  menuData: [],
  currentModule: null,
  currentPage: 1,

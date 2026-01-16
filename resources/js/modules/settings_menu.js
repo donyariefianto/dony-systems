@@ -1,5 +1,6 @@
 import { apiFetch } from '../core/api.js'
-import { showToast, showConfirmDialog } from '../utils/helpers.js'
+import { AppState } from '../core/state.js'
+import { showToast, showConfirmDialog, decryptDataRandom } from '../utils/helpers.js'
 
 const API_CONFIG = {
  URL_LOAD: 'api/list-menu',
@@ -1543,7 +1544,10 @@ window.initMenuBuilder = async function () {
    headers: API_CONFIG.headers,
   })
   if (!response.ok) throw new Error('Failed to load menu data')
-  const result = await response.json()
+  let result = await response.text()
+  result = await decryptDataRandom(result, AppState.app_key)
+  result = JSON.parse(result)
+
   const serverData = result.sidemenu || result.menu_structure || []
   window.menuBuilderState.data = serverData.filter(
    (item) => item.id !== 'fixed_dashboard' && item.id !== 'fixed_settings'

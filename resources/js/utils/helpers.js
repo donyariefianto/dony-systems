@@ -85,3 +85,32 @@ export async function showConfirmDialog({
 
  return result.isConfirmed
 }
+
+export async function decryptDataRandom(encryptedData, rawKeyString) {
+ try {
+  const [ivHex, cipherHex, tagHex] = encryptedData.split('.')
+
+  const iv = new Uint8Array(ivHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
+  const cipher = new Uint8Array(cipherHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
+  const tag = new Uint8Array(tagHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
+
+  const dataToDecrypt = new Uint8Array([...cipher, ...tag])
+
+  const encoder = new TextEncoder()
+  const keyHash = await window.crypto.subtle.digest('SHA-256', encoder.encode(rawKeyString))
+  const key = await window.crypto.subtle.importKey('raw', keyHash, { name: 'AES-GCM' }, false, [
+   'decrypt',
+  ])
+
+  const decrypted = await window.crypto.subtle.decrypt(
+   { name: 'AES-GCM', iv: iv },
+   key,
+   dataToDecrypt
+  )
+
+  return new TextDecoder().decode(decrypted)
+ } catch (e) {
+  console.error('Gagal dekripsi:', e)
+  return null
+ }
+}

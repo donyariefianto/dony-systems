@@ -1,6 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
-import { showToast, showConfirmDialog } from '../utils/helpers.js'
+import { showToast, showConfirmDialog, decryptDataRandom } from '../utils/helpers.js'
 
 window.formDynamicState = {}
 window.repeaterSchemas = {}
@@ -79,7 +79,12 @@ const DropdownManager = {
   try {
    const url = `api/collections/${state.collection}?page=${state.page}&limit=10&search=${state.search}`
    const res = await apiFetch(url)
-   const json = await res.json()
+
+   let data = await res.text()
+   data = await decryptDataRandom(data, AppState.app_key)
+   data = JSON.parse(data)
+
+   const json = data
    const newData = json.data || []
    state.data = reset ? newData : [...state.data, ...newData]
    state.hasMore = state.page < json.totalPages
@@ -353,8 +358,11 @@ export async function fetchTableData() {
   const response = await apiFetch(url)
   if (!response) return
 
-  const result = await response.json()
-  const data = result.data || []
+  let data = await response.text()
+  data = await decryptDataRandom(data, AppState.app_key)
+  data = JSON.parse(data)
+  let result = data
+  data = data.data || []
 
   desktopBody.innerHTML = ''
   mobileBody.innerHTML = ''
@@ -367,76 +375,71 @@ export async function fetchTableData() {
    desktopBody.innerHTML = data
     .map(
      (item, idx) => `
-                <tr class="group hover:bg-blue-50/30 transition-colors border-b border-slate-100 last:border-0">
-                    <td class="p-4 text-center text-xs font-mono text-slate-400 group-hover:text-blue-500">
-                        ${(AppState.currentPage - 1) * AppState.pageSize + (idx + 1)}
-                    </td>
-                    
-                    ${displayFields
-                     .map((f) => {
-                      let rawData = item[f.name]
-                      let cellContent = rawData
-                      const alignClass = ['number', 'currency'].includes(f.type)
-                       ? 'text-right'
-                       : 'text-left'
+        <tr class="group hover:bg-blue-50/30 transition-colors border-b border-slate-100 last:border-0">
+            <td class="p-4 text-center text-xs font-mono text-slate-400 group-hover:text-blue-500">
+                ${(AppState.currentPage - 1) * AppState.pageSize + (idx + 1)}
+            </td>
+            
+            ${displayFields
+             .map((f) => {
+              let rawData = item[f.name]
+              let cellContent = rawData
+              const alignClass = ['number', 'currency'].includes(f.type)
+               ? 'text-right'
+               : 'text-left'
 
-                      if (
-                       f.type === 'relation' &&
-                       typeof rawData === 'object' &&
-                       rawData !== null
-                      ) {
-                       const displayKey = f.relation?.display || 'name'
-                       cellContent =
-                        rawData[displayKey] || '<span class="text-slate-300 italic">-</span>'
-                      } else if (f.type === 'currency') {
-                       cellContent = `<span class="font-mono text-slate-700 tracking-tight">Rp ${(Number(rawData) || 0).toLocaleString('id-ID')}</span>`
-                      } else if (f.type === 'date' || f.type === 'datetime') {
-                       if (rawData) {
-                        const d = new Date(rawData)
-                        const dateStr = !isNaN(d)
-                         ? d.toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                           })
-                         : '-'
-                        const timeStr = !isNaN(d)
-                         ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                         : ''
-                        cellContent = `<div class="flex flex-col"><span class="font-bold text-slate-700 text-xs">${dateStr}</span><span class="text-[10px] text-slate-400 font-mono">${timeStr}</span></div>`
-                       } else {
-                        cellContent = '<span class="text-slate-300">-</span>'
-                       }
-                      } else if (f.type === 'boolean') {
-                       cellContent = rawData
-                        ? '<span class="text-emerald-600 font-bold text-[10px] uppercase"><i class="fas fa-check-circle mr-1"></i> Yes</span>'
-                        : '<span class="text-slate-400 font-bold text-[10px] uppercase"><i class="fas fa-times-circle mr-1"></i> No</span>'
-                      } else if (f.type === 'select') {
-                       if (rawData) {
-                        const badgeColor = getDynamicBadgeColor(String(rawData))
-                        cellContent = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${badgeColor}">${rawData}</span>`
-                       } else {
-                        cellContent = '<span class="text-slate-300">-</span>'
-                       }
-                      } else {
-                       if (typeof rawData === 'string' && rawData.length > 40) {
-                        cellContent = `<div class="truncate max-w-[200px]" title="${rawData}">${rawData}</div>`
-                       } else {
-                        cellContent = rawData || '<span class="text-slate-300">-</span>'
-                       }
-                      }
+              if (f.type === 'relation' && typeof rawData === 'object' && rawData !== null) {
+               const displayKey = f.relation?.display || 'name'
+               cellContent = rawData[displayKey] || '<span class="text-slate-300 italic">-</span>'
+              } else if (f.type === 'currency') {
+               cellContent = `<span class="font-mono text-slate-700 tracking-tight">Rp ${(Number(rawData) || 0).toLocaleString('id-ID')}</span>`
+              } else if (f.type === 'date' || f.type === 'datetime') {
+               if (rawData) {
+                const d = new Date(rawData)
+                const dateStr = !isNaN(d)
+                 ? d.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                   })
+                 : '-'
+                const timeStr = !isNaN(d)
+                 ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                 : ''
+                cellContent = `<div class="flex flex-col"><span class="font-bold text-slate-700 text-xs">${dateStr}</span><span class="text-[10px] text-slate-400 font-mono">${timeStr}</span></div>`
+               } else {
+                cellContent = '<span class="text-slate-300">-</span>'
+               }
+              } else if (f.type === 'boolean') {
+               cellContent = rawData
+                ? '<span class="text-emerald-600 font-bold text-[10px] uppercase"><i class="fas fa-check-circle mr-1"></i> Yes</span>'
+                : '<span class="text-slate-400 font-bold text-[10px] uppercase"><i class="fas fa-times-circle mr-1"></i> No</span>'
+              } else if (f.type === 'select') {
+               if (rawData) {
+                const badgeColor = getDynamicBadgeColor(String(rawData))
+                cellContent = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${badgeColor}">${rawData}</span>`
+               } else {
+                cellContent = '<span class="text-slate-300">-</span>'
+               }
+              } else {
+               if (typeof rawData === 'string' && rawData.length > 40) {
+                cellContent = `<div class="truncate max-w-[200px]" title="${rawData}">${rawData}</div>`
+               } else {
+                cellContent = rawData || '<span class="text-slate-300">-</span>'
+               }
+              }
 
-                      return `<td class="p-4 whitespace-nowrap text-slate-600 text-sm ${alignClass}">${cellContent}</td>`
-                     })
-                     .join('')}
+              return `<td class="p-4 whitespace-nowrap text-slate-600 text-sm ${alignClass}">${cellContent}</td>`
+             })
+             .join('')}
 
-                    <td class="p-3 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-blue-50/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.03)] border-b border-slate-100 z-10">
-                        <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all"><i class="fas fa-pen text-xs"></i></button>
-                            <button onclick="deleteData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all"><i class="fas fa-trash-alt text-xs"></i></button>
-                        </div>
-                    </td>
-                </tr>`
+            <td class="p-3 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-blue-50/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.03)] border-b border-slate-100 z-10">
+                <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onclick="editData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all"><i class="fas fa-pen text-xs"></i></button>
+                    <button onclick="deleteData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all"><i class="fas fa-trash-alt text-xs"></i></button>
+                </div>
+            </td>
+        </tr>`
     )
     .join('')
 

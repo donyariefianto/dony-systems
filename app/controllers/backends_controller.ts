@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { database } from '#services/mongodb_service'
 import { ObjectId } from 'mongodb'
 import fs from 'fs'
+import { EncryptionService } from '#services/encryption_service'
 
 export default class BackendsController {
  async patchMenu({ response, request }: HttpContext) {
@@ -155,7 +156,7 @@ export default class BackendsController {
     sidemenu: [FIXED_DASHBOARD, FIXED_SETTINGS],
    }
   }
-  return response.json(result)
+  return response.json(EncryptionService.encryptForBrowser(JSON.stringify(result)))
  }
  async dashboardSnapshots({ response }: HttpContext) {
   return response.send({})
@@ -202,7 +203,8 @@ export default class BackendsController {
 
   let data = await collections?.find(query).skip(skip).limit(Number(limit)).sort(sort).toArray()
   const total = await collections?.countDocuments(query)
-  return response.send({ data, total, page: Number(page), totalPages: Math.ceil(total / limit) })
+  let response_data = { data, total, page: Number(page), totalPages: Math.ceil(total / limit) }
+  return response.send(EncryptionService.encryptForBrowser(JSON.stringify(response_data)))
  }
  async getCollectionDataDetail({ params, response }: HttpContext) {
   const colName = params.col

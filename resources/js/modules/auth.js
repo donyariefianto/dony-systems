@@ -1,7 +1,7 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { navigate } from '../core/router.js'
-import { logout } from '../utils/helpers.js'
+import { logout, decryptDataRandom } from '../utils/helpers.js'
 
 export async function initApp() {
  const token = localStorage.getItem('auth_token')
@@ -21,10 +21,11 @@ export async function initApp() {
   try {
    const response = await apiFetch('api/list-menu')
    if (!response) return
+   let data = await response.text()
+   data = await decryptDataRandom(data, AppState.app_key)
+   data = JSON.parse(data)
 
-   const data = await response.json()
    AppState.menuData = data.sidemenu
-
    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}')
    const nameEl = document.querySelector('.text-xs.font-bold.text-gray-800')
    if (nameEl && userInfo.name) nameEl.innerText = userInfo.name
