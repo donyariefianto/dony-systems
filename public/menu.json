@@ -27,6 +27,161 @@
    "icon": "fas fa-home",
    "daftar_sub_sidemenu": [
     {
+     "id": "demo_sales",
+     "name": "Transaksi Penjualan",
+     "icon": "fas fa-shopping-cart",
+     "type": "tableview",
+     "path": "sales/orders",
+     "permissions": ["admin", "user"],
+     "config": {
+      "endpoint": "/api/collections/sales_orders",
+      "collectionName": "sales_orders",
+      "fields": [
+       {
+        "name": "transaction_code",
+        "label": "No. Transaksi",
+        "type": "text",
+        "required": true,
+        "width": "50",
+        "ui": {
+         "readonly": true
+        },
+        "defaultValue": "INV-AUTO-001"
+       },
+       {
+        "name": "transaction_date",
+        "label": "Tanggal Transaksi",
+        "type": "date",
+        "required": true,
+        "width": "50"
+       },
+       {
+        "name": "customer_id",
+        "label": "Pilih Pelanggan",
+        "type": "relation",
+        "required": true,
+        "width": "100",
+        "relation": {
+         "collection": "customers",
+         "key": "_id",
+         "display": "fullname",
+         "auto_populate": {
+          "email": "cust_email",
+          "address": "shipping_address"
+         }
+        }
+       },
+       {
+        "name": "cust_email",
+        "label": "Email Pelanggan",
+        "type": "text",
+        "width": "50",
+        "ui": {
+         "readonly": true
+        }
+       },
+       {
+        "name": "shipping_address",
+        "label": "Alamat Pengiriman",
+        "type": "textarea",
+        "width": "100",
+        "ui": {
+         "readonly": false
+        }
+       },
+       {
+        "name": "status",
+        "label": "Status Pesanan",
+        "type": "select",
+        "options": ["Draft", "Pending Payment", "Processing", "Shipped", "Completed", "Cancelled"],
+        "width": "50",
+        "defaultValue": "Draft"
+       },
+       {
+        "name": "payment_method",
+        "label": "Metode Pembayaran",
+        "type": "select",
+        "options": ["Transfer Bank", "Kartu Kredit", "Tunai", "E-Wallet"],
+        "width": "50"
+       },
+       {
+        "name": "items",
+        "label": "Daftar Barang Belanjaan",
+        "type": "repeater",
+        "width": "100",
+        "sub_fields": [
+         {
+          "name": "product_id",
+          "label": "Produk",
+          "type": "relation",
+          "relation": {
+           "collection": "products",
+           "key": "_id",
+           "display": "product_name",
+           "auto_populate": {
+            "price": "unit_price"
+           }
+          }
+         },
+         {
+          "name": "qty",
+          "label": "Qty",
+          "type": "number",
+          "defaultValue": 1
+         },
+         {
+          "name": "unit_price",
+          "label": "Harga Satuan",
+          "type": "currency",
+          "ui": {
+           "readonly": true
+          }
+         },
+         {
+          "name": "subtotal",
+          "label": "Subtotal",
+          "type": "currency",
+          "ui": {
+           "readonly": true
+          },
+          "calculation": {
+           "operation": "multiply",
+           "fields": ["qty", "unit_price"]
+          }
+         }
+        ]
+       },
+       {
+        "name": "grand_total",
+        "label": "Total Tagihan",
+        "type": "currency",
+        "width": "100",
+        "ui": {
+         "readonly": true
+        }
+       },
+       {
+        "name": "notes",
+        "label": "Catatan Tambahan",
+        "type": "textarea",
+        "width": "100"
+       },
+       {
+        "name": "is_paid",
+        "label": "Sudah Lunas?",
+        "type": "boolean",
+        "width": "50"
+       },
+       {
+        "name": "proof_image",
+        "label": "Bukti Transfer",
+        "type": "image",
+        "width": "50"
+       }
+      ]
+     }
+    },
+    {
      "id": "library_loans",
      "name": "Peminjaman Buku",
      "icon": "fas fa-book-reader",
@@ -382,6 +537,271 @@
         "type": "select",
         "options": ["Cash", "QRIS", "Debit Card", "Credit Card"],
         "width": "50"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "folder_master",
+   "name": "Master Data",
+   "icon": "fas fa-database",
+   "type": "group",
+   "daftar_sub_sidemenu": [
+    {
+     "id": "master_kategori",
+     "name": "Kategori Produk",
+     "icon": "fas fa-tags",
+     "type": "tableview",
+     "path": "master/categories",
+     "config": {
+      "endpoint": "/api/collections/categories",
+      "collectionName": "categories",
+      "fields": [
+       {
+        "name": "name",
+        "label": "Nama Kategori",
+        "type": "text",
+        "required": true,
+        "width": "100"
+       },
+       {
+        "name": "code",
+        "label": "Kode Kategori",
+        "type": "text",
+        "required": true,
+        "width": "50"
+       }
+      ]
+     }
+    },
+    {
+     "id": "master_produk",
+     "name": "Data Produk",
+     "icon": "fas fa-box",
+     "type": "tableview",
+     "path": "master/products",
+     "config": {
+      "endpoint": "/api/collections/products",
+      "collectionName": "products",
+      "fields": [
+       {
+        "name": "sku",
+        "label": "Kode SKU",
+        "type": "text",
+        "required": true,
+        "width": "50"
+       },
+       {
+        "name": "product_name",
+        "label": "Nama Produk",
+        "type": "text",
+        "required": true,
+        "width": "50"
+       },
+       {
+        "name": "category_id",
+        "label": "Kategori",
+        "type": "relation",
+        "required": true,
+        "width": "50",
+        "relation": {
+         "collection": "categories",
+         "key": "_id",
+         "display": "name"
+        }
+       },
+       {
+        "name": "price",
+        "label": "Harga Jual (Rp)",
+        "type": "currency",
+        "required": true,
+        "width": "50"
+       },
+       {
+        "name": "stock",
+        "label": "Stok Saat Ini",
+        "type": "number",
+        "defaultValue": 0,
+        "width": "50"
+       },
+       {
+        "name": "is_active",
+        "label": "Aktif Dijual?",
+        "type": "boolean",
+        "width": "50",
+        "defaultValue": true
+       }
+      ]
+     }
+    },
+    {
+     "id": "master_pelanggan",
+     "name": "Data Pelanggan",
+     "icon": "fas fa-users",
+     "type": "tableview",
+     "path": "master/customers",
+     "config": {
+      "endpoint": "/api/collections/customers",
+      "collectionName": "customers",
+      "fields": [
+       {
+        "name": "fullname",
+        "label": "Nama Lengkap",
+        "type": "text",
+        "required": true,
+        "width": "50"
+       },
+       {
+        "name": "email",
+        "label": "Email",
+        "type": "text",
+        "width": "50"
+       },
+       {
+        "name": "phone",
+        "label": "No. WhatsApp",
+        "type": "text",
+        "required": true,
+        "width": "50"
+       },
+       {
+        "name": "full_address",
+        "label": "Alamat Lengkap",
+        "type": "textarea",
+        "width": "100"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "folder_transaksi",
+   "name": "Transaksi",
+   "icon": "fas fa-shopping-cart",
+   "type": "group",
+   "daftar_sub_sidemenu": [
+    {
+     "id": "trx_penjualan",
+     "name": "Sales Order (Kasir)",
+     "icon": "fas fa-cash-register",
+     "type": "tableview",
+     "path": "transactions/sales",
+     "config": {
+      "endpoint": "/api/collections/sales_orders",
+      "collectionName": "sales_orders",
+      "fields": [
+       {
+        "name": "invoice_no",
+        "label": "No. Invoice",
+        "type": "text",
+        "width": "50",
+        "defaultValue": "INV-AUTO",
+        "ui": { "readonly": true }
+       },
+       {
+        "name": "trx_date",
+        "label": "Tanggal",
+        "type": "date",
+        "width": "50",
+        "required": true
+       },
+       {
+        "name": "customer_link",
+        "label": "Pilih Pelanggan",
+        "type": "relation",
+        "width": "100",
+        "required": true,
+        "relation": {
+         "collection": "customers",
+         "key": "_id",
+         "display": "fullname",
+         "auto_populate": {
+          "full_address": "shipping_address",
+          "phone": "shipping_phone"
+         }
+        }
+       },
+       {
+        "name": "shipping_address",
+        "label": "Alamat Kirim (Auto)",
+        "type": "textarea",
+        "width": "66",
+        "ui": { "readonly": false }
+       },
+       {
+        "name": "shipping_phone",
+        "label": "No. HP (Auto)",
+        "type": "text",
+        "width": "33",
+        "ui": { "readonly": true }
+       },
+       {
+        "name": "cart_items",
+        "label": "Keranjang Belanja",
+        "type": "repeater",
+        "width": "100",
+        "sub_fields": [
+         {
+          "name": "product_link",
+          "label": "Produk",
+          "type": "relation",
+          "relation": {
+           "collection": "products",
+           "key": "_id",
+           "display": "product_name",
+           "auto_populate": {
+            "price": "unit_price",
+            "sku": "item_sku"
+           }
+          }
+         },
+         {
+          "name": "item_sku",
+          "label": "SKU",
+          "type": "text",
+          "ui": { "readonly": true }
+         },
+         {
+          "name": "qty",
+          "label": "Qty",
+          "type": "number",
+          "defaultValue": 1
+         },
+         {
+          "name": "unit_price",
+          "label": "Harga (@)",
+          "type": "currency",
+          "ui": { "readonly": true }
+         },
+         {
+          "name": "row_total",
+          "label": "Subtotal",
+          "type": "currency",
+          "ui": { "readonly": true },
+          "calculation": {
+           "operation": "multiply",
+           "fields": ["qty", "unit_price"]
+          }
+         }
+        ]
+       },
+       {
+        "name": "grand_total",
+        "label": "Total Tagihan",
+        "type": "currency",
+        "width": "50",
+        "ui": { "readonly": true }
+       },
+       {
+        "name": "payment_status",
+        "label": "Status Pembayaran",
+        "type": "select",
+        "width": "50",
+        "options": ["Unpaid", "Paid", "Cancelled"],
+        "defaultValue": "Unpaid"
        }
       ]
      }

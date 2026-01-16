@@ -2,11 +2,7 @@ import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { showToast, closeModal, logout, showConfirmDialog } from '../utils/helpers.js'
 
-// =================================================================
-// 1. RENDER TABLE VIEW
-// =================================================================
 export function renderTableView(config, container) {
- // Pastikan fields ada, jika tidak ambil dari config default
  const fields = config.config.fields || []
 
  container.innerHTML = `
@@ -91,9 +87,6 @@ export function renderTableView(config, container) {
     </div>`
 }
 
-// =================================================================
-// 2. FETCH DATA & PAGINATION
-// =================================================================
 export async function fetchTableData() {
  const desktopBody = document.getElementById('table-data-body-desktop')
  const mobileBody = document.getElementById('table-data-body-mobile')
@@ -131,7 +124,6 @@ export async function fetchTableData() {
    desktopBody.innerHTML = `<tr><td colspan="100%">${emptyHtml}</td></tr>`
    renderPaginationControls(0, 0, 0)
   } else {
-   // RENDER DESKTOP
    desktopBody.innerHTML = data
     .map(
      (item) => `
@@ -139,11 +131,11 @@ export async function fetchTableData() {
             ${displayFields
              .map((f) => {
               let cellData = item[f.name]
-              // Handle Relation Display
+
               if (f.type === 'relation' && typeof cellData === 'object' && cellData !== null) {
                cellData = cellData[f.relation.display] || cellData[f.relation.key] || '-'
               }
-              // Handle Currency
+
               if (f.type === 'currency') {
                cellData = `Rp ${(Number(cellData) || 0).toLocaleString('id-ID')}`
               }
@@ -163,7 +155,6 @@ export async function fetchTableData() {
     )
     .join('')
 
-   // RENDER MOBILE
    mobileBody.innerHTML = data
     .map(
      (item, idx) => `
@@ -242,9 +233,6 @@ function renderPaginationControls(totalPages, totalItems, currentPage) {
     </div>`
 }
 
-// =================================================================
-// 3. CRUD OPERATIONS
-// =================================================================
 export async function deleteData(id) {
  const isConfirmed = await showConfirmDialog({
   title: 'Hapus Data?',
@@ -286,7 +274,6 @@ export async function handleFormSubmit(e) {
   const formData = new FormData(e.target)
   const payload = Object.fromEntries(formData.entries())
 
-  // INJECT REPEATER DATA
   Object.keys(window.formDynamicState).forEach((key) => {
    payload[key] = window.formDynamicState[key]
   })
@@ -316,16 +303,13 @@ export async function editData(id) {
   )
   if (response) {
    const json = await response.json()
-   openCrudModal(json.data || json) // Handle structure variations
+   openCrudModal(json.data || json)
   }
  } catch (err) {
   showToast('Gagal memuat detail', 'error')
  }
 }
 
-// =================================================================
-// 4. DYNAMIC FORM ENGINE (FIXED FOR MENU.JSON STRUCTURE)
-// =================================================================
 export async function openCrudModal(existingData = null) {
  const modal = document.getElementById('crud-modal')
  const panel = document.getElementById('modal-panel')
@@ -336,7 +320,7 @@ export async function openCrudModal(existingData = null) {
  delete form.dataset.editingId
  form.reset()
  window.formDynamicState = {}
- window.relationCache = {} // Reset cache per open
+ window.relationCache = {}
 
  if (existingData) {
   form.dataset.editingId = existingData._id
@@ -359,13 +343,11 @@ export async function openCrudModal(existingData = null) {
  try {
   const fields = AppState.currentModule.config.fields || []
 
-  // --- STEP 1: PRELOAD RELATION DATA (Including inside Repeaters) ---
   const relationsToLoad = new Set()
 
-  // Find relations in main fields
   fields.forEach((f) => {
    if (f.type === 'relation') relationsToLoad.add(f.relation.collection)
-   // Find relations in repeaters
+
    if (f.type === 'repeater' && f.sub_fields) {
     f.sub_fields.forEach((sf) => {
      if (sf.type === 'relation') relationsToLoad.add(sf.relation.collection)
@@ -373,7 +355,6 @@ export async function openCrudModal(existingData = null) {
    }
   })
 
-  // Fetch all needed collections
   for (const col of relationsToLoad) {
    if (!window.relationCache[col]) {
     try {
@@ -386,7 +367,6 @@ export async function openCrudModal(existingData = null) {
    }
   }
 
-  // --- STEP 2: RENDER FIELDS ---
   const renderedFields = fields.map((field) => {
    let val = existingData ? existingData[field.name] : field.defaultValue || ''
    const isReadOnly = field.ui?.readonly ? 'readonly' : ''
@@ -395,17 +375,15 @@ export async function openCrudModal(existingData = null) {
    const baseClass = `w-full px-4 py-3 bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400 disabled:bg-gray-100 disabled:text-gray-500 ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`
    const labelHtml = `<label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>`
 
-   // 1. REPEATER (Nested Table)
    if (field.type === 'repeater') {
     const subFields = field.sub_fields || []
-    // Initialize State
+
     let initialData = []
     if (val) {
      initialData = typeof val === 'string' ? JSON.parse(val) : val
     }
     window.formDynamicState[field.name] = initialData
 
-    // Trigger render after DOM update
     setTimeout(() => window.renderRepeater(field.name, subFields), 0)
 
     return `
@@ -434,13 +412,12 @@ export async function openCrudModal(existingData = null) {
         </div>`
    }
 
-   // 2. RELATION (Dropdown)
    if (field.type === 'relation') {
     const opts = (window.relationCache[field.relation.collection] || [])
      .map((item) => {
       const k = field.relation.key
       const d = field.relation.display
-      // Handle if value is object (populated) or ID
+
       const currentId = val && typeof val === 'object' ? val[k] : val
       return `<option value="${item[k]}" ${String(currentId) === String(item[k]) ? 'selected' : ''}>${item[d]}</option>`
      })
@@ -459,7 +436,6 @@ export async function openCrudModal(existingData = null) {
         </div>`
    }
 
-   // 3. SELECT / ENUM
    if (field.type === 'select') {
     const opts = (field.options || [])
      .map((opt) => `<option value="${opt}" ${val === opt ? 'selected' : ''}>${opt}</option>`)
@@ -477,7 +453,6 @@ export async function openCrudModal(existingData = null) {
         </div>`
    }
 
-   // 4. CURRENCY
    if (field.type === 'currency') {
     return `
         <div class="w-full ${field.width === '100' ? 'col-span-full' : ''}">
@@ -489,7 +464,6 @@ export async function openCrudModal(existingData = null) {
         </div>`
    }
 
-   // 5. TEXTAREA
    if (field.type === 'textarea') {
     return `
         <div class="col-span-full">
@@ -498,7 +472,6 @@ export async function openCrudModal(existingData = null) {
         </div>`
    }
 
-   // DEFAULT INPUT
    return `
     <div class="w-full ${field.width === '100' ? 'col-span-full' : ''}">
         ${labelHtml}
@@ -506,7 +479,6 @@ export async function openCrudModal(existingData = null) {
     </div>`
   })
 
-  // STEP 3: FINAL RENDER
   form.innerHTML = `
     <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-gray-50/30">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -525,18 +497,13 @@ export async function openCrudModal(existingData = null) {
  }
 }
 
-// =================================================================
-// 5. GLOBAL LOGIC: REPEATER, CALCULATION & AUTO POPULATE
-// =================================================================
 window.formDynamicState = {}
 window.relationCache = {}
 
-// Add Item ke Repeater
 window.addRepeaterItem = function (fieldName) {
  const btn = document.getElementById(`btn-add-${fieldName}`)
  const schema = JSON.parse(btn.dataset.schema || '[]')
 
- // Default Empty Object based on schema
  const newItem = {}
  schema.forEach((col) => {
   newItem[col.name] = col.defaultValue !== undefined ? col.defaultValue : ''
@@ -547,7 +514,6 @@ window.addRepeaterItem = function (fieldName) {
  window.renderRepeater(fieldName, schema)
 }
 
-// Remove Item
 window.removeRepeaterItem = function (fieldName, index) {
  const btn = document.getElementById(`btn-add-${fieldName}`)
  const schema = JSON.parse(btn.dataset.schema || '[]')
@@ -556,54 +522,46 @@ window.removeRepeaterItem = function (fieldName, index) {
  window.renderRepeater(fieldName, schema)
 }
 
-// Handle Change pada Relation (Auto Populate)
 window.handleRepeaterRelationChange = function (selectEl, fieldName, index, colName) {
  const btn = document.getElementById(`btn-add-${fieldName}`)
  const schema = JSON.parse(btn.dataset.schema || '[]')
  const colConfig = schema.find((c) => c.name === colName)
  const val = selectEl.value
 
- // Update Value
  window.formDynamicState[fieldName][index][colName] = val
 
- // Logic Auto Populate
  if (colConfig && colConfig.relation && colConfig.relation.auto_populate && val) {
   const sourceItem = window.relationCache[colConfig.relation.collection].find(
    (d) => String(d[colConfig.relation.key]) === String(val)
   )
 
   if (sourceItem) {
-   const map = colConfig.relation.auto_populate // e.g., { "price": "unit_price", "sku": "code" }
+   const map = colConfig.relation.auto_populate
    Object.keys(map).forEach((sourceKey) => {
     const targetKey = map[sourceKey]
-    // Isi target field di baris yang sama dengan data dari sumber
+
     window.formDynamicState[fieldName][index][targetKey] = sourceItem[sourceKey]
    })
   }
  }
 
- // Trigger Recalculate Row
  window.recalculateRow(window.formDynamicState[fieldName][index], schema)
  window.renderRepeater(fieldName, schema)
 }
 
-// Handle Change pada Input Biasa (Text/Number/Currency)
 window.handleRepeaterInputChange = function (inputEl, fieldName, index, colName) {
  const btn = document.getElementById(`btn-add-${fieldName}`)
  const schema = JSON.parse(btn.dataset.schema || '[]')
  let val = inputEl.value
 
- // Konversi tipe jika perlu
  if (inputEl.type === 'number') val = parseFloat(val) || 0
 
  window.formDynamicState[fieldName][index][colName] = val
 
- // Trigger Recalculate Row
  window.recalculateRow(window.formDynamicState[fieldName][index], schema)
  window.renderRepeater(fieldName, schema)
 }
 
-// Logic Hitung Baris (Qty * Harga = Subtotal)
 window.recalculateRow = function (rowItem, schema) {
  schema.forEach((col) => {
   if (col.calculation && col.calculation.operation && col.calculation.fields) {
@@ -624,7 +582,6 @@ window.recalculateRow = function (rowItem, schema) {
  })
 }
 
-// Render Ulang Tabel Repeater
 window.renderRepeater = function (fieldName, schema) {
  const tbody = document.getElementById(`repeater_${fieldName}_body`)
  const hiddenInput = document.querySelector(`input[name="${fieldName}"]`)
@@ -632,8 +589,6 @@ window.renderRepeater = function (fieldName, schema) {
 
  if (hiddenInput) hiddenInput.value = JSON.stringify(data)
 
- // Calculate Grand Total (Jika ada field grand_total di main form)
- // Mencari kolom subtotal di repeater
  const subtotalCol = schema.find((c) => c.name === 'subtotal')
  if (subtotalCol) {
   const grandTotal = data.reduce((sum, item) => sum + (parseFloat(item.subtotal) || 0), 0)
@@ -655,7 +610,6 @@ window.renderRepeater = function (fieldName, schema) {
              .map((col) => {
               const isReadOnly = col.ui?.readonly ? 'disabled bg-gray-50 text-gray-500' : 'bg-white'
 
-              // CELL: RELATION
               if (col.type === 'relation') {
                const opts = (window.relationCache[col.relation.collection] || [])
                 .map(
@@ -666,17 +620,14 @@ window.renderRepeater = function (fieldName, schema) {
                return `<td class="p-2"><select onchange="window.handleRepeaterRelationChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none ${isReadOnly}" ${isReadOnly ? 'disabled' : ''}><option value="">-</option>${opts}</select></td>`
               }
 
-              // CELL: CURRENCY / NUMBER READONLY
               if (col.type === 'currency' && col.ui?.readonly) {
                return `<td class="p-2 text-right font-mono text-gray-600 bg-gray-50 rounded border border-transparent">Rp ${(item[col.name] || 0).toLocaleString('id-ID')}</td>`
               }
 
-              // CELL: CURRENCY INPUT
               if (col.type === 'currency') {
                return `<td class="p-2"><input type="number" value="${item[col.name] || 0}" onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 text-right font-mono" ${isReadOnly}></td>`
               }
 
-              // CELL: SELECT
               if (col.type === 'select') {
                const opts = (col.options || [])
                 .map(
@@ -687,7 +638,6 @@ window.renderRepeater = function (fieldName, schema) {
                return `<td class="p-2"><select onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5"><option>-</option>${opts}</select></td>`
               }
 
-              // CELL: DEFAULT
               return `<td class="p-2"><input type="${col.type === 'number' ? 'number' : 'text'}" value="${item[col.name] || ''}" onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none ${isReadOnly}" ${isReadOnly}></td>`
              })
              .join('')}
