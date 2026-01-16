@@ -1,3 +1,4 @@
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { initApp } from './modules/auth.js'
 import { navigate } from './core/router.js'
 import { AppState } from './core/state.js'
