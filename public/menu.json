@@ -1,11 +1,11 @@
 {
  "name": "struktur_menu",
- "daftar_sidemenu": [
+ "sidemenu": [
   {
    "id": "fixed_dashboard",
    "name": "Dashboard",
    "icon": "fas fa-home",
-   "daftar_sub_sidemenu": [
+   "sub_sidemenu": [
     {
      "id": "1.1",
      "name": "Dashboard",
@@ -25,7 +25,7 @@
    "id": "example",
    "name": "Example",
    "icon": "fas fa-home",
-   "daftar_sub_sidemenu": [
+   "sub_sidemenu": [
     {
      "id": "demo_sales",
      "name": "Transaksi Penjualan",
@@ -548,7 +548,7 @@
    "name": "Master Data",
    "icon": "fas fa-database",
    "type": "group",
-   "daftar_sub_sidemenu": [
+   "sub_sidemenu": [
     {
      "id": "master_kategori",
      "name": "Kategori Produk",
@@ -682,7 +682,7 @@
    "name": "Transaksi",
    "icon": "fas fa-shopping-cart",
    "type": "group",
-   "daftar_sub_sidemenu": [
+   "sub_sidemenu": [
     {
      "id": "trx_penjualan",
      "name": "Sales Order (Kasir)",
@@ -690,118 +690,78 @@
      "type": "tableview",
      "path": "transactions/sales",
      "config": {
-      "endpoint": "/api/collections/sales_orders",
-      "collectionName": "sales_orders",
+      "endpoint": "/api/resource",
+      "collectionName": "trx",
       "fields": [
        {
-        "name": "invoice_no",
-        "label": "No. Invoice",
-        "type": "text",
-        "width": "50",
-        "defaultValue": "INV-AUTO",
-        "ui": { "readonly": true }
-       },
-       {
-        "name": "trx_date",
-        "label": "Tanggal",
+        "name": "name",
+        "label": "waktu",
         "type": "date",
-        "width": "50",
         "required": true
        },
        {
-        "name": "customer_link",
-        "label": "Pilih Pelanggan",
-        "type": "relation",
-        "width": "100",
-        "required": true,
-        "relation": {
-         "collection": "customers",
-         "key": "_id",
-         "display": "fullname",
-         "auto_populate": {
-          "full_address": "shipping_address",
-          "phone": "shipping_phone"
-         }
-        }
-       },
-       {
-        "name": "shipping_address",
-        "label": "Alamat Kirim (Auto)",
-        "type": "textarea",
-        "width": "66",
-        "ui": { "readonly": false }
-       },
-       {
-        "name": "shipping_phone",
-        "label": "No. HP (Auto)",
-        "type": "text",
-        "width": "33",
-        "ui": { "readonly": true }
-       },
-       {
-        "name": "cart_items",
-        "label": "Keranjang Belanja",
+        "name": "items",
+        "label": "item",
         "type": "repeater",
-        "width": "100",
+        "required": true,
+        "_isOpen": true,
         "sub_fields": [
          {
-          "name": "product_link",
+          "name": "produk",
           "label": "Produk",
           "type": "relation",
+          "width": "auto",
           "relation": {
            "collection": "products",
-           "key": "_id",
            "display": "product_name",
+           "enable_auto_populate": true,
            "auto_populate": {
-            "price": "unit_price",
-            "sku": "item_sku"
+            "price": "price"
            }
           }
          },
          {
-          "name": "item_sku",
-          "label": "SKU",
-          "type": "text",
-          "ui": { "readonly": true }
-         },
-         {
           "name": "qty",
-          "label": "Qty",
+          "label": "QTY",
           "type": "number",
-          "defaultValue": 1
+          "width": "auto"
          },
          {
-          "name": "unit_price",
-          "label": "Harga (@)",
-          "type": "currency",
-          "ui": { "readonly": true }
-         },
-         {
-          "name": "row_total",
-          "label": "Subtotal",
-          "type": "currency",
-          "ui": { "readonly": true },
+          "name": "sub_total",
+          "label": "Sub Total",
+          "type": "number",
+          "width": "auto",
           "calculation": {
+           "is_enabled": true,
            "operation": "multiply",
-           "fields": ["qty", "unit_price"]
+           "fields": ["price", "qty"]
+          }
+         },
+         {
+          "name": "price",
+          "label": "Harga",
+          "type": "number",
+          "width": "auto",
+          "ui": {
+           "readonly": true
           }
          }
         ]
        },
        {
-        "name": "grand_total",
-        "label": "Total Tagihan",
-        "type": "currency",
-        "width": "50",
-        "ui": { "readonly": true }
-       },
-       {
-        "name": "payment_status",
-        "label": "Status Pembayaran",
-        "type": "select",
-        "width": "50",
-        "options": ["Unpaid", "Paid", "Cancelled"],
-        "defaultValue": "Unpaid"
+        "name": "total",
+        "label": "total",
+        "type": "number",
+        "required": false,
+        "_isOpen": true,
+        "calculation": {
+         "is_enabled": true,
+         "operation": "sum",
+         "fields": ["items.sub_total"]
+        },
+        "ui": {
+         "readonly": true
+        }
        }
       ]
      }
@@ -813,7 +773,7 @@
    "name": "Settings",
    "icon": "fas fa-cogs",
    "permissions": ["admin"],
-   "daftar_sub_sidemenu": [
+   "sub_sidemenu": [
     {
      "id": "8.1",
      "name": "User Management",

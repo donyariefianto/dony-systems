@@ -19,11 +19,11 @@ export async function initApp() {
 
  if (token) {
   try {
-   const response = await apiFetch('api/menu')
+   const response = await apiFetch('api/list-menu')
    if (!response) return
 
    const data = await response.json()
-   AppState.menuData = data.daftar_sidemenu
+   AppState.menuData = data.sidemenu
 
    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}')
    const nameEl = document.querySelector('.text-xs.font-bold.text-gray-800')
@@ -43,12 +43,12 @@ function renderSidebar(menus) {
 
  container.innerHTML = menus
   .map((menu) => {
-   if (menu.daftar_sub_sidemenu) {
+   if (menu.sub_sidemenu) {
     return `
         <div class="mb-4">
             <p class="px-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">${menu.name}</p>
             <div class="space-y-1">
-                ${menu.daftar_sub_sidemenu
+                ${menu.sub_sidemenu
                  .map(
                   (sub) => `
                     <button onclick="navigate('${sub.path}')" data-path="${sub.path}" 
@@ -78,6 +78,6 @@ function handleInitialRouting() {
   navigate(hash)
  } else if (AppState.menuData.length > 0) {
   const first = AppState.menuData[0]
-  navigate(first.daftar_sub_sidemenu ? first.daftar_sub_sidemenu[0].path : first.path)
+  navigate(first.sub_sidemenu ? first.sub_sidemenu[0].path : first.path)
  }
 }

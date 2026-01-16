@@ -1,6 +1,9 @@
+import { apiFetch } from '../core/api.js'
+import { showToast, showConfirmDialog } from '../utils/helpers.js'
+
 const API_CONFIG = {
- URL_LOAD: '/api/menu',
- URL_SAVE: '/api/settings/menu/update',
+ URL_LOAD: 'api/list-menu',
+ URL_SAVE: 'api/patch-menu',
  headers: {
   'Content-Type': 'application/json',
   'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -19,7 +22,7 @@ const FIXED_DASHBOARD = {
  id: 'fixed_dashboard',
  name: 'Dashboard',
  icon: 'fas fa-home',
- daftar_sub_sidemenu: [
+ sub_sidemenu: [
   {
    id: '1.1',
    name: 'Dashboard',
@@ -44,7 +47,7 @@ const FIXED_SETTINGS = {
  path: 'settings',
  locked: true,
  permissions: ['admin'],
- daftar_sub_sidemenu: [
+ sub_sidemenu: [
   {
    id: '8.1',
    name: 'User Management',
@@ -137,8 +140,8 @@ const FIXED_SETTINGS = {
 window.findItemById = function (items, id) {
  for (let item of items) {
   if (item.id === id) return item
-  if (item.daftar_sub_sidemenu) {
-   const found = window.findItemById(item.daftar_sub_sidemenu, id)
+  if (item.sub_sidemenu) {
+   const found = window.findItemById(item.sub_sidemenu, id)
    if (found) return found
   }
  }
@@ -152,8 +155,8 @@ window.findParentArray = function (items, id) {
  }
 
  for (let item of items) {
-  if (item.daftar_sub_sidemenu && item.daftar_sub_sidemenu.length > 0) {
-   const found = window.findParentArray(item.daftar_sub_sidemenu, id)
+  if (item.sub_sidemenu && item.sub_sidemenu.length > 0) {
+   const found = window.findParentArray(item.sub_sidemenu, id)
    if (found) return found
   }
  }
@@ -175,8 +178,8 @@ window.getAllCollections = function () {
      endpoint: item.config.endpoint,
     })
    }
-   if (item.daftar_sub_sidemenu && item.daftar_sub_sidemenu.length > 0) {
-    traverse(item.daftar_sub_sidemenu)
+   if (item.sub_sidemenu && item.sub_sidemenu.length > 0) {
+    traverse(item.sub_sidemenu)
    }
   })
  }
@@ -457,113 +460,159 @@ function renderTableConfigOverlay(item) {
 }
 
 function renderFieldCard(field, idx) {
- const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
- const totalFields = item?.config?.fields?.length || 0
+    const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId);
+    const totalFields = item?.config?.fields?.length || 0;
+    const isCollapsed = field._isCollapsed === true;
+    
+    // Flag Tipe Data
+    const isRepeater = field.type === 'repeater';
+    const isRelation = field.type === 'relation';
+    const isSelect = field.type === 'select';
+    const isNumeric = ['number', 'currency'].includes(field.type);
+    
+    // Style Dinamis
+    const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200';
+    const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20';
 
- const isCollapsed = field._isCollapsed === true
+    // Helper Select Options (Array -> String)
+    const safeOptions = Array.isArray(field.options) ? field.options : [];
 
- const isRepeater = field.type === 'repeater'
- const isRelation = field.type === 'relation'
- const isSelect = field.type === 'select'
- const isNumeric = ['number', 'currency'].includes(field.type)
+    // Helper Collections untuk Relation
+    const collections = window.getAllCollections();
+    const autoPopStr = Object.entries(field.relation?.auto_populate || {}).map(([k,v]) => `${k}:${v}`).join(', ');
+    const isAutoPopEnabled = field.relation?.enable_auto_populate === true;
 
- const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200'
- const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20'
-
- const chevronRotation = isCollapsed ? '-rotate-90' : 'rotate-0'
-
- return `
-    <div class="bg-white border ${cardBorderColor} rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col group relative overflow-hidden mb-3 focus-within:ring-4 ${activeRing}">
+    return `
+    <div class="bg-white border ${cardBorderColor} rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col group relative overflow-hidden mb-3 focus-within:ring-4 ${activeRing} animate-in fade-in slide-in-from-bottom-2 duration-300">
         
         <div class="flex items-center gap-2 p-2 bg-gray-50/80 border-b ${cardBorderColor} select-none">
-            
             <button onclick="window.toggleFieldCollapse(${idx})" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all active:scale-90">
-                <i class="fas fa-chevron-down transition-transform duration-300 ${chevronRotation}"></i>
+                <i class="fas fa-chevron-down transition-transform duration-300 ${isCollapsed ? '-rotate-90' : 'rotate-0'}"></i>
             </button>
-
-            <div class="w-6 h-6 bg-gray-200 rounded text-[10px] font-bold flex items-center justify-center text-gray-600 shrink-0">
+            
+            <div class="w-6 h-6 bg-gray-200 rounded text-[10px] font-bold flex items-center justify-center text-gray-600 shrink-0 shadow-inner">
                 ${idx + 1}
             </div>
-
+            
             <div class="flex-1 min-w-0">
                 <input type="text" value="${field.label || ''}" 
                     oninput="window.updateField(${idx}, 'label', this.value)" 
-                    class="bg-transparent font-bold text-xs md:text-sm text-gray-800 w-full outline-none focus:text-blue-600 placeholder-gray-400 truncate" 
-                    placeholder="Label Field">
+                    class="bg-transparent font-bold text-xs md:text-sm text-gray-800 w-full outline-none focus:text-blue-600 placeholder-gray-400 truncate transition-colors" 
+                    placeholder="Label Field (Contoh: Nama Produk)">
             </div>
-
+            
             <div class="flex items-center gap-1">
-                <button onclick="window.moveField(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 transition-all active:scale-90"'} title="Geser Naik">
-                    <i class="fas fa-arrow-up text-[10px]"></i>
-                </button>
-                
-                <button onclick="window.moveField(${idx}, 1)" ${idx === totalFields - 1 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 transition-all active:scale-90"'} title="Geser Turun">
-                    <i class="fas fa-arrow-down text-[10px]"></i>
-                </button>
-
+                <button onclick="window.moveField(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 active:scale-90 transition-all"'} title="Naik"><i class="fas fa-arrow-up text-[10px]"></i></button>
+                <button onclick="window.moveField(${idx}, 1)" ${idx === totalFields - 1 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 active:scale-90 transition-all"'} title="Turun"><i class="fas fa-arrow-down text-[10px]"></i></button>
                 <div class="w-px h-4 bg-gray-300 mx-1"></div>
-
-                <button onclick="window.duplicateField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 hover:text-blue-600 text-gray-400 transition-all" title="Duplicate">
-                    <i class="fas fa-copy text-[10px]"></i>
-                </button>
-
-                <button onclick="window.removeField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 hover:text-red-600 text-gray-400 transition-all" title="Hapus">
-                    <i class="fas fa-trash text-[10px]"></i>
-                </button>
+                <button onclick="window.duplicateField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 hover:text-blue-600 text-gray-400 transition-colors" title="Duplikat"><i class="fas fa-copy text-[10px]"></i></button>
+                <button onclick="window.removeField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 hover:text-red-600 text-gray-400 transition-colors" title="Hapus"><i class="fas fa-trash text-[10px]"></i></button>
             </div>
         </div>
 
-        <div class="${isCollapsed ? 'hidden' : 'block'} p-4 bg-white animate-in slide-in-from-top-2 duration-200">
+        <div class="${isCollapsed ? 'hidden' : 'block'} p-4 bg-white">
             
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
                 <div class="md:col-span-7">
                     <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
                     <div class="relative">
-                        <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:bg-white focus:border-blue-500 outline-none appearance-none transition-colors">
-                            <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text</option>
-                            <option value="number" ${field.type === 'number' ? 'selected' : ''}>Number</option>
-                            <option value="currency" ${field.type === 'currency' ? 'selected' : ''}>Currency (Rp)</option>
-                            <option value="date" ${field.type === 'date' ? 'selected' : ''}>Date</option>
+                        <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:bg-white focus:border-blue-500 outline-none appearance-none font-medium text-gray-700 transition-colors shadow-sm">
+                            <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text (Singkat)</option>
+                            <option value="number" ${field.type === 'number' ? 'selected' : ''}>Number (Angka)</option>
+                            <option value="currency" ${field.type === 'currency' ? 'selected' : ''}>Currency (Uang)</option>
+                            <option value="date" ${field.type === 'date' ? 'selected' : ''}>Datetime (Tgl & Jam)</option>
                             <option value="select" ${field.type === 'select' ? 'selected' : ''}>Select (Dropdown)</option>
                             <option value="relation" ${field.type === 'relation' ? 'selected' : ''}>Relation (Lookup)</option>
                             <option value="repeater" ${field.type === 'repeater' ? 'selected' : ''}>Repeater (Tabel)</option>
-                            <option value="textarea" ${field.type === 'textarea' ? 'selected' : ''}>Textarea</option>
-                            <option value="image" ${field.type === 'image' ? 'selected' : ''}>Image</option>
+                            <option value="textarea" ${field.type === 'textarea' ? 'selected' : ''}>Textarea (Paragraf)</option>
+                            <option value="image" ${field.type === 'image' ? 'selected' : ''}>Image (Upload)</option>
+                            <option value="boolean" ${field.type === 'boolean' ? 'selected' : ''}>Boolean (Switch)</option>
                         </select>
                         <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down text-[10px]"></i></div>
                     </div>
                 </div>
                 <div class="md:col-span-5">
                     <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Database Key</label>
-                    <input type="text" value="${field.name || ''}" oninput="window.updateField(${idx}, 'name', this.value)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs font-mono bg-yellow-50 focus:bg-white focus:border-yellow-400 outline-none" placeholder="field_name">
+                    <input type="text" value="${field.name || ''}" oninput="window.updateField(${idx}, 'name', this.value)" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs font-mono bg-yellow-50 focus:bg-white focus:border-yellow-400 outline-none transition-colors shadow-sm" placeholder="db_column_name">
                 </div>
             </div>
 
-            ${isSelect ? renderSelectConfig(field, idx) : ''}
-            ${isRelation ? renderRelationConfig(field, idx) : ''}
+            ${isSelect ? `
+            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 space-y-2 animate-in slide-in-from-top-1">
+                <div class="flex justify-between items-center">
+                    <label class="text-[10px] font-bold text-blue-600 uppercase"><i class="fas fa-list-ul mr-1"></i> Static Options</label>
+                    <span class="text-[9px] text-blue-400 bg-white px-1.5 rounded border border-blue-100">Pisahkan koma</span>
+                </div>
+                <textarea rows="2" onchange="window.updateFieldOptions(${idx}, this.value)" class="w-full px-3 py-2 border border-blue-200 rounded-lg text-xs font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none placeholder-blue-300" placeholder="Pcs, Box, Pack">${safeOptions.join(', ')}</textarea>
+            </div>` : ''}
+            
+            ${isRelation ? `
+            <div class="bg-indigo-50/60 p-3 rounded-lg border border-indigo-100 space-y-3 animate-in slide-in-from-top-1">
+                <div class="flex items-center gap-2 text-indigo-800 border-b border-indigo-200/50 pb-2">
+                    <i class="fas fa-link"></i> <span class="text-xs font-bold uppercase">Konfigurasi Relasi</span>
+                </div>
+                <select onchange="window.updateDeepField(${idx}, 'relation.collection', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white outline-none">
+                    <option value="">-- Pilih Collection --</option>
+                    ${collections.map(c => `<option value="${c.collection}" ${field.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+                <div class="grid grid-cols-2 gap-3">
+                    <input value="${field.relation?.key || '_id'}" oninput="window.updateDeepField(${idx}, 'relation.key', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="Key (_id)">
+                    <input value="${field.relation?.display || 'name'}" oninput="window.updateDeepField(${idx}, 'relation.display', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="Display Label">
+                </div>
+                
+                <div class="pt-1">
+                     <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" ${isAutoPopEnabled ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'relation.enable_auto_populate', this.checked); window.refreshBuilderUI()" class="rounded text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 border-indigo-300">
+                        <span class="text-[9px] font-bold text-indigo-600 uppercase">Aktifkan Auto Fill</span>
+                    </label>
+                    ${isAutoPopEnabled ? `
+                    <div class="mt-2 animate-in slide-in-from-top-1">
+                        <input value="${autoPopStr}" onchange="window.updateAutoPopulate(${idx}, this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs font-mono bg-white" placeholder="field_sumber:field_target, ...">
+                    </div>` : ''}
+                </div>
+            </div>` : ''}
+
             ${isNumeric ? renderCalculationConfig(field, idx) : ''}
-            ${isRepeater ? renderRepeaterConfig(field, idx) : ''}
+
+            ${isRepeater ? `
+            <div class="bg-white border-2 border-dashed border-purple-200 rounded-xl overflow-hidden animate-in slide-in-from-top-1">
+                <div class="flex justify-between items-center p-3 bg-purple-50 border-b border-purple-100">
+                    <div class="flex items-center gap-2 text-purple-700">
+                        <i class="fas fa-table"></i><span class="text-xs font-bold uppercase">Kolom Tabel (Sub-Fields)</span>
+                    </div>
+                    <button onclick="window.addSubField(${idx})" class="text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg shadow-sm font-bold flex items-center gap-1 transition-all">
+                        <i class="fas fa-plus"></i> Add Col
+                    </button>
+                </div>
+                <div class="p-3 bg-gray-50/50 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+                    ${(field.sub_fields || []).map((sf, sIdx) => renderSubFieldItem(sf, idx, sIdx)).join('')}
+                    ${(!field.sub_fields || field.sub_fields.length === 0) ? '<p class="text-center text-gray-400 text-[10px] italic py-4">Belum ada kolom. Klik "Add Col".</p>' : ''}
+                </div>
+            </div>` : ''}
 
             <div class="flex flex-wrap items-center gap-4 pt-4 mt-2 border-t border-gray-100">
-                <label class="flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase">Wajib</span>
+                <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
+                    <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 border-gray-300">
+                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-blue-600 uppercase transition-colors">Wajib Diisi</span>
                 </label>
-                <label class="flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox" ${field.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'ui.readonly', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase">ReadOnly</span>
+                
+                <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
+                    <input type="checkbox" ${field.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'ui.readonly', this.checked)" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 border-gray-300">
+                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-blue-600 uppercase transition-colors">Read Only</span>
                 </label>
+
                 <div class="ml-auto flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Width:</span>
-                    <select onchange="window.updateField(${idx}, 'width', this.value)" class="text-[10px] font-bold border border-gray-200 rounded px-2 py-1 bg-white">
-                        <option value="50">50%</option>
-                        <option value="100" ${field.width === '100' ? 'selected' : ''}>100%</option>
-                        <option value="33" ${field.width === '33' ? 'selected' : ''}>33%</option>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Lebar:</span>
+                    <select onchange="window.updateField(${idx}, 'width', this.value)" class="text-[10px] font-bold border border-gray-200 rounded-lg px-2 py-1 bg-white outline-none focus:border-blue-500 transition-colors">
+                        <option value="50">50% (Setengah)</option>
+                        <option value="100" ${field.width === '100' ? 'selected' : ''}>100% (Penuh)</option>
+                        <option value="33" ${field.width === '33' ? 'selected' : ''}>33% (Sepertiga)</option>
+                        <option value="66" ${field.width === '66' ? 'selected' : ''}>66% (Dua pertiga)</option>
                     </select>
                 </div>
             </div>
         </div>
-    </div>`
+    </div>`;
 }
 
 function renderSelectConfig(field, idx) {
@@ -613,17 +662,69 @@ function renderRelationConfig(field, idx) {
 }
 
 function renderCalculationConfig(field, idx) {
+ const calc = field.calculation || { is_enabled: false, operation: '', fields: [] }
+ const isEnabled = calc.is_enabled === true
+ const currentOp = calc.operation || ''
+
+ let placeholderTxt = 'field1, field2'
+ let hintTxt = 'Masukkan key field dipisah koma.'
+
+ if (['sum', 'avg', 'min', 'max'].includes(currentOp)) {
+  placeholderTxt = 'cart_items.subtotal'
+  hintTxt = 'Format: <b>nama_repeater.nama_kolom</b>'
+ } else if (['subtract', 'divide', 'add', 'multiply'].includes(currentOp)) {
+  placeholderTxt = 'grand_total, discount'
+  hintTxt = 'Urutan berpengaruh (Field1 - Field2)'
+ }
+
  return `
-    <div class="bg-green-50 p-2 rounded border border-green-100 space-y-2">
-        <label class="text-[9px] font-bold text-green-700 uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Auto Calc</label>
-        <div class="flex gap-2">
-            <select onchange="window.updateDeepField(${idx}, 'calculation.operation', this.value)" class="w-1/3 px-2 py-1 border border-green-200 rounded text-[10px] bg-white">
-                <option value="">None</option>
-                <option value="multiply">(*)</option>
-                <option value="add">(+)</option>
-            </select>
-            <input value="${(field.calculation?.fields || []).join(',')}" onchange="window.updateCalculationFields(${idx}, this.value)" class="w-2/3 px-2 py-1 border border-green-200 rounded text-[10px] font-mono" placeholder="field1, field2">
+    <div class="bg-green-50 p-3 rounded-lg border border-green-100 space-y-2 mt-2">
+        <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-green-700">
+                <input type="checkbox" ${isEnabled ? 'checked' : ''} 
+                    onchange="window.updateDeepField(${idx}, 'calculation.is_enabled', this.checked); window.refreshBuilderUI()" 
+                    class="rounded text-green-600 focus:ring-green-500 w-3.5 h-3.5 border-green-300">
+                <span class="text-[10px] font-bold uppercase flex items-center gap-1">
+                    <i class="fas fa-calculator"></i> Auto Calc
+                </span>
+            </label>
         </div>
+
+        ${
+         isEnabled
+          ? `
+        <div class="animate-in slide-in-from-top-1 duration-200 space-y-2 pt-1">
+            <div class="flex flex-col gap-2">
+                <select onchange="window.updateDeepField(${idx}, 'calculation.operation', this.value); window.refreshBuilderUI()" 
+                    class="w-full text-[10px] border border-green-200 rounded px-2 py-1.5 bg-white focus:border-green-500 outline-none font-bold text-gray-700">
+                    <option value="">-- Pilih Operasi --</option>
+                    
+                    <optgroup label="Matematika (Field Utama)">
+                        <option value="subtract" ${currentOp === 'subtract' ? 'selected' : ''}>Pengurangan ( - )</option>
+                        <option value="add" ${currentOp === 'add' ? 'selected' : ''}>Penjumlahan ( + )</option>
+                        <option value="multiply" ${currentOp === 'multiply' ? 'selected' : ''}>Perkalian ( x )</option>
+                        <option value="divide" ${currentOp === 'divide' ? 'selected' : ''}>Pembagian ( / )</option>
+                    </optgroup>
+
+                    <optgroup label="Aggregasi (Ambil dari Repeater)">
+                        <option value="sum" ${currentOp === 'sum' ? 'selected' : ''}>SUM (Total)</option>
+                        <option value="avg" ${currentOp === 'avg' ? 'selected' : ''}>AVG (Rata-rata)</option>
+                        <option value="count" ${currentOp === 'count' ? 'selected' : ''}>COUNT (Jumlah Data)</option>
+                        <option value="max" ${currentOp === 'max' ? 'selected' : ''}>MAX (Nilai Tertinggi)</option>
+                        <option value="min" ${currentOp === 'min' ? 'selected' : ''}>MIN (Nilai Terendah)</option>
+                    </optgroup>
+                </select>
+                
+                <input value="${(calc.fields || []).join(', ')}" 
+                    onchange="window.updateCalculationFields(${idx}, this.value)" 
+                    class="w-full text-[10px] border border-green-200 rounded px-2 py-1.5 font-mono bg-white focus:border-green-500 outline-none" 
+                    placeholder="${placeholderTxt}">
+            </div>
+            
+            <p class="text-[9px] text-green-600 italic leading-tight opacity-80">${hintTxt}</p>
+        </div>`
+          : ''
+        }
     </div>`
 }
 
@@ -658,52 +759,161 @@ function renderRepeaterConfig(field, idx) {
 function renderSubFieldItem(sf, fIdx, sIdx) {
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
  const totalSubs = item?.config?.fields?.[fIdx]?.sub_fields?.length || 0
-
  let extraConfig = ''
- const collections = window.getAllCollections()
 
  if (sf.type === 'relation') {
-  const autoPopStr = Object.entries(sf.relation?.auto_populate || {})
-   .map(([k, v]) => `${k}:${v}`)
-   .join(', ')
-  extraConfig = `
-        <div class="mt-2 pt-2 border-t border-dashed border-purple-200 grid grid-cols-1 gap-2 bg-purple-50/50 p-2 rounded">
-             <select onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.collection', this.value)" class="w-full text-[10px] border border-purple-200 rounded px-2 py-1 bg-white"><option value="">- Collection -</option>${collections.map((c) => `<option value="${c.collection}" ${sf.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
-             <div class="flex gap-2"><input value="${sf.relation?.key || '_id'}" oninput="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.key', this.value)" class="w-1/2 text-[10px] border rounded px-2 py-1" placeholder="Key"><input value="${sf.relation?.display || 'name'}" oninput="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.display', this.value)" class="w-1/2 text-[10px] border rounded px-2 py-1" placeholder="Display"></div>
-             <input value="${autoPopStr}" onchange="window.updateSubAutoPopulate(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border rounded px-2 py-1 font-mono" placeholder="AutoPop: price:unit_price">
-        </div>`
+  extraConfig = renderSubRelationConfig(sf, fIdx, sIdx)
+ } else if (['number', 'currency'].includes(sf.type)) {
+  extraConfig = renderSubCalculationConfig(sf, fIdx, sIdx)
  } else if (sf.type === 'select') {
-  extraConfig = `<div class="mt-2"><input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border rounded px-2 py-1" placeholder="Options: A, B, C"></div>`
+  extraConfig = `
+        <div class="mt-2 pt-2 border-t border-dashed border-gray-200">
+            <label class="text-[9px] font-bold text-gray-400 uppercase">Opsi Pilihan (Pisahkan Koma)</label>
+            <input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 focus:border-blue-500 outline-none" placeholder="Contoh: Pcs, Box, Kg">
+        </div>`
  }
 
  return `
-    <div class="bg-white border border-gray-200 rounded-lg p-2 shadow-sm relative group hover:border-purple-300 transition-colors mb-2">
-        <div class="flex flex-col gap-2">
+    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative group hover:border-blue-400 transition-all mb-3">
+        <div class="flex flex-col gap-3">
             <div class="flex items-center gap-2">
-                <div class="w-5 h-5 bg-gray-100 rounded text-[9px] font-bold flex items-center justify-center text-gray-500">${sIdx + 1}</div>
+                <div class="w-6 h-6 bg-gray-100 rounded text-[10px] font-bold flex items-center justify-center text-gray-500 select-none">${sIdx + 1}</div>
                 
-                <input value="${sf.label || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'label', this.value)" class="flex-1 text-xs font-bold border-b border-transparent hover:border-gray-300 focus:border-purple-500 outline-none bg-transparent placeholder-gray-300" placeholder="Label Kolom">
+                <div class="flex-1">
+                    <input value="${sf.label || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'label', this.value)" 
+                        class="w-full text-xs font-bold border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none bg-transparent placeholder-gray-300 transition-colors" 
+                        placeholder="Label Kolom (Misal: Qty)">
+                </div>
                 
-                <div class="flex items-center bg-gray-50 rounded p-0.5">
-                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled class="opacity-30"' : ''} class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-purple-600 hover:bg-white rounded"><i class="fas fa-chevron-up text-[8px]"></i></button>
-                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, 1)" ${sIdx === totalSubs - 1 ? 'disabled class="opacity-30"' : ''} class="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-purple-600 hover:bg-white rounded"><i class="fas fa-chevron-down text-[8px]"></i></button>
+                <div class="flex items-center bg-gray-50 rounded p-0.5 border border-gray-100">
+                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled class="opacity-30"' : ''} class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-white rounded transition-all"><i class="fas fa-chevron-up text-[9px]"></i></button>
+                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, 1)" ${sIdx === totalSubs - 1 ? 'disabled class="opacity-30"' : ''} class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-white rounded transition-all"><i class="fas fa-chevron-down text-[9px]"></i></button>
                 </div>
 
-                <button onclick="window.removeSubField(${fIdx}, ${sIdx})" class="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"><i class="fas fa-times"></i></button>
+                <button onclick="window.removeSubField(${fIdx}, ${sIdx})" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Kolom"><i class="fas fa-times"></i></button>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <input value="${sf.name || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'name', this.value)" class="w-full text-[10px] font-mono border border-gray-200 rounded px-2 py-1 bg-gray-50 focus:bg-white" placeholder="db_key">
-                <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'type', this.value)" class="w-full text-[10px] border border-gray-200 rounded px-1 py-1 bg-white focus:border-purple-500">
-                    <option value="text" ${sf.type === 'text' ? 'selected' : ''}>Text</option>
-                    <option value="number" ${sf.type === 'number' ? 'selected' : ''}>Number</option>
-                    <option value="currency" ${sf.type === 'currency' ? 'selected' : ''}>Currency</option>
-                    <option value="relation" ${sf.type === 'relation' ? 'selected' : ''}>Relation</option>
-                    <option value="select" ${sf.type === 'select' ? 'selected' : ''}>Select</option>
-                </select>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">DB Key</label>
+                    <input value="${sf.name || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'name', this.value)" class="w-full text-[10px] font-mono border border-gray-300 rounded px-2 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-500 outline-none" placeholder="field_name">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
+                    <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'type', this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 bg-white focus:border-blue-500 outline-none">
+                        <option value="text" ${sf.type === 'text' ? 'selected' : ''}>Text</option>
+                        <option value="date" ${sf.type === 'date' ? 'selected' : ''}>Datetime</option>
+                        <option value="number" ${sf.type === 'number' ? 'selected' : ''}>Number</option>
+                        <option value="currency" ${sf.type === 'currency' ? 'selected' : ''}>Currency</option>
+                        <option value="relation" ${sf.type === 'relation' ? 'selected' : ''}>Relation</option>
+                        <option value="select" ${sf.type === 'select' ? 'selected' : ''}>Select</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 border-t border-dashed border-gray-100 pt-2">
+                 <label class="flex items-center gap-1.5 cursor-pointer select-none">
+                    <input type="checkbox" ${sf.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'ui.readonly', this.checked)" class="rounded text-blue-600 focus:ring-0 w-3.5 h-3.5 border-gray-300">
+                    <span class="text-[9px] font-bold text-gray-500 uppercase">ReadOnly</span>
+                </label>
+                <div class="ml-auto flex items-center gap-1">
+                     <span class="text-[9px] font-bold text-gray-400 uppercase">Lebar:</span>
+                     <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'width', this.value)" class="text-[9px] border border-gray-200 rounded px-1 py-0.5 bg-gray-50">
+                        <option value="">Auto</option>
+                        <option value="100px">Kecil</option>
+                        <option value="200px">Sedang</option>
+                        <option value="300px">Lebar</option>
+                     </select>
+                </div>
             </div>
         </div>
+        
         ${extraConfig}
+    </div>`
+}
+
+function renderSubRelationConfig(sf, fIdx, sIdx) {
+ const collections = window.getAllCollections()
+ const autoPopStr = Object.entries(sf.relation?.auto_populate || {})
+  .map(([k, v]) => `${k}:${v}`)
+  .join(', ')
+ const isAutoPopEnabled = sf.relation?.enable_auto_populate === true
+
+ return `
+    <div class="mt-3 pt-3 border-t border-purple-100 bg-purple-50/40 -mx-3 px-3 pb-3 rounded-b-lg space-y-2">
+        <div class="flex items-center gap-2 text-purple-700 mb-1">
+            <i class="fas fa-link text-[10px]"></i> <span class="text-[9px] font-bold uppercase">Setup Relasi</span>
+        </div>
+        
+        <select onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.collection', this.value)" class="w-full text-[10px] border border-purple-200 rounded px-2 py-1.5 bg-white focus:border-purple-500 outline-none shadow-sm">
+            <option value="">-- Pilih Sumber Data (Collection) --</option>
+            ${collections.map((c) => `<option value="${c.collection}" ${sf.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
+        </select>
+        
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <input value="${sf.relation?.key || '_id'}" oninput="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.key', this.value)" class="w-full text-[10px] border border-purple-200 rounded px-2 py-1.5 focus:border-purple-500 outline-none" placeholder="Key (_id)">
+            </div>
+            <div>
+                <input value="${sf.relation?.display || 'name'}" oninput="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.display', this.value)" class="w-full text-[10px] border border-purple-200 rounded px-2 py-1.5 focus:border-purple-500 outline-none" placeholder="Label Tampil">
+            </div>
+        </div>
+
+        <div class="pt-1">
+            <label class="flex items-center gap-2 cursor-pointer select-none mb-1">
+                <input type="checkbox" ${isAutoPopEnabled ? 'checked' : ''} onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.enable_auto_populate', this.checked); window.refreshBuilderUI()" class="rounded text-purple-600 focus:ring-purple-500 w-3.5 h-3.5 border-purple-300">
+                <span class="text-[9px] font-bold text-purple-600 uppercase">Aktifkan Auto Fill</span>
+            </label>
+            
+            ${
+             isAutoPopEnabled
+              ? `
+            <div class="animate-in slide-in-from-top-1 duration-200">
+                <input value="${autoPopStr}" onchange="window.updateSubAutoPopulate(${fIdx}, ${sIdx}, this.value)" 
+                    class="w-full text-[10px] border border-purple-300 bg-purple-50 rounded px-2 py-1.5 font-mono text-purple-800 placeholder-purple-300 focus:bg-white focus:border-purple-500 outline-none" 
+                    placeholder="Format: field_sumber:field_target, ...">
+                <p class="text-[8px] text-purple-400 mt-0.5">Contoh: <code>price:unit_price, code:item_code</code></p>
+            </div>`
+              : ''
+            }
+        </div>
+    </div>`
+}
+
+function renderSubCalculationConfig(sf, fIdx, sIdx) {
+ const isCalcEnabled = sf.calculation?.is_enabled === true
+
+ return `
+    <div class="mt-3 pt-3 border-t border-green-100 bg-green-50/40 -mx-3 px-3 pb-3 rounded-b-lg space-y-2">
+        <label class="flex items-center gap-2 cursor-pointer select-none text-green-700">
+            <input type="checkbox" ${isCalcEnabled ? 'checked' : ''} onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'calculation.is_enabled', this.checked); window.refreshBuilderUI()" class="rounded text-green-600 focus:ring-green-500 w-3.5 h-3.5 border-green-300">
+            <span class="text-[9px] font-bold uppercase flex items-center gap-1"><i class="fas fa-calculator"></i> Kalkulasi Baris</span>
+        </label>
+
+        ${
+         isCalcEnabled
+          ? `
+        <div class="animate-in slide-in-from-top-1 duration-200 space-y-2">
+            <div class="flex gap-2">
+                <select onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'calculation.operation', this.value)" class="w-1/3 text-[10px] border border-green-200 rounded px-2 py-1.5 bg-white focus:border-green-500 outline-none font-bold text-gray-600">
+                    <option value="">- Operasi -</option>
+                    <option value="multiply" ${sf.calculation?.operation === 'multiply' ? 'selected' : ''}>Perkalian ( x )</option>
+                    <option value="add" ${sf.calculation?.operation === 'add' ? 'selected' : ''}>Penjumlahan ( + )</option>
+                    <option value="subtract" ${sf.calculation?.operation === 'subtract' ? 'selected' : ''}>Pengurangan ( - )</option>
+                    <option value="divide" ${sf.calculation?.operation === 'divide' ? 'selected' : ''}>Pembagian ( / )</option>
+                </select>
+                
+                <input value="${(sf.calculation?.fields || []).join(',')}" onchange="window.updateSubCalculation(${fIdx}, ${sIdx}, this.value)" 
+                    class="w-2/3 text-[10px] border border-green-200 rounded px-2 py-1.5 font-mono bg-white focus:border-green-500 outline-none" 
+                    placeholder="qty, price">
+            </div>
+            
+            <p class="text-[8px] text-green-500 italic">
+                Hanya berlaku untuk field dalam satu baris ini.
+            </p>
+        </div>`
+          : ''
+        }
     </div>`
 }
 
@@ -738,7 +948,7 @@ function renderTree(items, level = 0, parentId = null) {
             ${items
              .map((item) => {
               const isSelected = window.menuBuilderState.selectedId === item.id
-              const hasChildren = item.daftar_sub_sidemenu && item.daftar_sub_sidemenu.length > 0
+              const hasChildren = item.sub_sidemenu && item.sub_sidemenu.length > 0
 
               return `
                 <li class="relative">
@@ -775,7 +985,7 @@ function renderTree(items, level = 0, parentId = null) {
                              </button>
                         </div>
                     </div>
-                    ${hasChildren ? renderTree(item.daftar_sub_sidemenu, level + 1, item.id) : ''}
+                    ${hasChildren ? renderTree(item.sub_sidemenu, level + 1, item.id) : ''}
                 </li>
                 `
              })
@@ -835,7 +1045,7 @@ window.selectMenuItem = function (id) {
 
 window.addTemplateItem = function (type, label, icon) {
  const newId = Date.now().toString()
- const newItem = { id: newId, name: label, icon: icon, type: type, daftar_sub_sidemenu: [] }
+ const newItem = { id: newId, name: label, icon: icon, type: type, sub_sidemenu: [] }
  if (type === 'tableview') {
   newItem.config = {
    endpoint: '/api/resource',
@@ -850,8 +1060,8 @@ window.addTemplateItem = function (type, label, icon) {
    window.menuBuilderState.selectedId
   )
   if (parent && (parent.type === 'group' || !parent.type)) {
-   if (!parent.daftar_sub_sidemenu) parent.daftar_sub_sidemenu = []
-   parent.daftar_sub_sidemenu.push(newItem)
+   if (!parent.sub_sidemenu) parent.sub_sidemenu = []
+   parent.sub_sidemenu.push(newItem)
   } else {
    window.menuBuilderState.data.push(newItem)
   }
@@ -881,8 +1091,8 @@ window.deleteMenuItem = function (id) {
    return true
   }
   for (let item of items) {
-   if (item.daftar_sub_sidemenu) {
-    if (removeFromList(item.daftar_sub_sidemenu, idToRemove)) return true
+   if (item.sub_sidemenu) {
+    if (removeFromList(item.sub_sidemenu, idToRemove)) return true
    }
   }
   return false
@@ -1065,7 +1275,7 @@ window.resetMenuBuilder = function () {
 window.exportMenuJSON = function () {
  const final = {
   name: 'menu',
-  daftar_sidemenu: [FIXED_DASHBOARD, ...window.menuBuilderState.data, FIXED_SETTINGS],
+  sidemenu: [FIXED_DASHBOARD, ...window.menuBuilderState.data, FIXED_SETTINGS],
  }
  document.getElementById('json-output-textarea').value = JSON.stringify(final, null, 2)
  document.getElementById('json-output-modal').classList.remove('hidden')
@@ -1077,36 +1287,103 @@ window.copyJSON = function () {
  alert('Copied!')
 }
 
-window.saveMenuSettings = async function () {
- const btn = document.getElementById('btn-save-menu')
- const originalText = btn.innerHTML
+// =================================================================
+// FIX: HELPER UPDATE MAIN FIELD OPTIONS
+// =================================================================
+window.updateFieldOptions = (idx, strValue) => {
+    // 1. Ambil Item yang sedang diedit
+    const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId);
+    if (!item?.config?.fields?.[idx]) return;
 
- btn.disabled = true
- btn.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-1"></i> Saving...`
+    // 2. Logic Parsing: String "A, B, C" -> Array ["A", "B", "C"]
+    // - split(','): pecah berdasarkan koma
+    // - map(trim): hilangkan spasi di depan/belakang
+    // - filter: buang string kosong agar tidak ada opsi blank
+    const optionsArray = strValue.split(',').map(s => s.trim()).filter(s => s !== '');
+
+    // 3. Simpan langsung ke state
+    item.config.fields[idx].options = optionsArray;
+
+    // Catatan: Kita TIDAK memanggil refreshBuilderUI() di sini 
+    // agar kursor tidak lepas (blur) saat user masih mengetik/edit.
+    // Data sudah tersimpan di memory state.
+    console.log("Updated Main Options:", optionsArray); // Debugging
+};
+
+function cleanMenuData(items) {
+ return items
+  .filter((item) => !['fixed_dashboard', 'fixed_settings'].includes(item.id))
+  .map((item) => {
+   const cleanItem = { ...item }
+
+   cleanItem.path = item.path || ''
+   cleanItem.icon = item.icon || ''
+   cleanItem.permissions = item.permissions || []
+
+   delete cleanItem._isCollapsed
+
+   if (cleanItem.type === 'group') {
+    delete cleanItem.config
+   }
+
+   if (cleanItem.sub_sidemenu && cleanItem.sub_sidemenu.length > 0) {
+    cleanItem.sub_sidemenu = cleanMenuData(cleanItem.sub_sidemenu)
+   } else {
+    delete cleanItem.sub_sidemenu
+   }
+
+   return cleanItem
+  })
+}
+
+window.saveMenuSettings = async () => {
+ const isConfirmed = await showConfirmDialog({
+  title: 'Simpan Perubahan?',
+  text: 'Struktur menu akan diperbarui untuk seluruh user.',
+  icon: 'warning',
+  confirmText: 'Ya, Simpan',
+  cancelText: 'Batal',
+ })
+
+ if (!isConfirmed) return
+
+ const btn = document.querySelector('button[onclick="window.saveMenuSettings()"]')
+ const originalContent = btn ? btn.innerHTML : 'Save'
+
+ if (btn) {
+  btn.disabled = true
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Saving...'
+ }
 
  try {
+  const dirtyData = window.menuBuilderState.data || []
+  const cleanData = cleanMenuData(dirtyData)
+
   const payload = {
-   menu_structure: [FIXED_DASHBOARD, ...window.menuBuilderState.data, FIXED_SETTINGS],
+   id: 'fixed_menu',
+   sidemenu: cleanData,
   }
 
-  const response = await fetch(API_CONFIG.URL_SAVE, {
-   method: 'POST',
+  const response = await apiFetch(API_CONFIG.URL_SAVE, {
+   method: 'PATCH',
    headers: API_CONFIG.headers,
    body: JSON.stringify(payload),
   })
 
-  const result = await response.json()
+  if (!response.ok) {
+   const errJson = await response.json().catch(() => ({}))
+   throw new Error(errJson.message || 'Gagal menyimpan konfigurasi.')
+  }
 
-  if (!response.ok) throw new Error(result.message || 'Failed to save menu')
-
-  alert('Menu successfully saved!')
-  console.log('Server Response:', result)
+  showToast('Menu berhasil disimpan!', 'success')
  } catch (error) {
   console.error('Save Error:', error)
-  alert('Error saving menu: ' + error.message)
+  showToast(error.message, 'error')
  } finally {
-  btn.disabled = false
-  btn.innerHTML = originalText
+  if (btn) {
+   btn.disabled = false
+   btn.innerHTML = originalContent
+  }
  }
 }
 
@@ -1172,12 +1449,16 @@ window.updateSubAutoPopulate = (fIdx, sIdx, str) => {
  try {
   const map = {}
   str.split(',').forEach((s) => {
-   const [k, v] = s.split(':')
-   if (k && v) map[k.trim()] = v.trim()
+   const parts = s.split(':')
+   if (parts.length === 2) {
+    const k = parts[0].trim()
+    const v = parts[1].trim()
+    if (k && v) map[k] = v
+   }
   })
   window.updateDeepSubField(fIdx, sIdx, 'relation.auto_populate', map)
  } catch (e) {
-  console.error(e)
+  console.error('Auto Populate Parse Error', e)
  }
 }
 
@@ -1222,17 +1503,13 @@ window.initMenuBuilder = async function () {
  }
 
  try {
-  const response = await fetch(API_CONFIG.URL_LOAD, {
+  const response = await apiFetch(API_CONFIG.URL_LOAD, {
    method: 'GET',
    headers: API_CONFIG.headers,
   })
-
   if (!response.ok) throw new Error('Failed to load menu data')
-
   const result = await response.json()
-
-  const serverData = result.daftar_sidemenu || result.menu_structure || []
-
+  const serverData = result.sidemenu || result.menu_structure || []
   window.menuBuilderState.data = serverData.filter(
    (item) => item.id !== 'fixed_dashboard' && item.id !== 'fixed_settings'
   )
@@ -1315,4 +1592,44 @@ window.toggleFieldCollapse = (idx) => {
   item.config.fields[idx]._isCollapsed = !item.config.fields[idx]._isCollapsed
   window.refreshBuilderUI()
  }
+}
+
+window.updateCalculationFields = (idx, strValue) => {
+ const fieldsArray = strValue
+  .split(',')
+  .map((s) => s.trim())
+  .filter((s) => s !== '')
+
+ window.updateDeepField(idx, 'calculation.fields', fieldsArray)
+}
+
+window.updateDeepField = (idx, path, value) => {
+ const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
+ if (!item?.config?.fields?.[idx]) return
+
+ const parts = path.split('.')
+ let obj = item.config.fields[idx]
+
+ for (let i = 0; i < parts.length - 1; i++) {
+  const key = parts[i]
+
+  if (!obj[key]) {
+   obj[key] = {}
+  }
+  obj = obj[key]
+ }
+
+ obj[parts[parts.length - 1]] = value
+
+ if (path.includes('operation')) {
+  window.refreshBuilderUI(true)
+ }
+}
+
+window.updateSubCalculation = (fIdx, sIdx, strValue) => {
+ const arr = strValue
+  .split(',')
+  .map((s) => s.trim())
+  .filter((s) => s)
+ window.updateDeepSubField(fIdx, sIdx, 'calculation.fields', arr)
 }

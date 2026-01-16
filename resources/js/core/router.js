@@ -43,8 +43,8 @@ function findMenuByPath(path, menus) {
  if (!menus) return null
  for (const m of menus) {
   if (m.path === path) return m
-  if (m.daftar_sub_sidemenu) {
-   const found = findMenuByPath(path, m.daftar_sub_sidemenu)
+  if (m.sub_sidemenu) {
+   const found = findMenuByPath(path, m.sub_sidemenu)
    if (found) return found
   }
  }

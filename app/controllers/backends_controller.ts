@@ -4,878 +4,158 @@ import { ObjectId } from 'mongodb'
 import fs from 'fs'
 
 export default class BackendsController {
- async menu() {
-  return {
-   name: 'struktur_menu',
-   daftar_sidemenu: [
-    {
-     id: 'fixed_dashboard',
-     name: 'Dashboard',
-     icon: 'fas fa-home',
-     daftar_sub_sidemenu: [
-      {
-       id: '1.1',
-       name: 'Dashboard',
-       icon: 'fas fa-chart-line',
-       type: 'chartview',
-       path: 'dashboard',
-       permissions: ['admin', 'user'],
-       config: {
-        endpoint: '/api/dashboard/stats',
-        charts: ['overview', 'performance'],
-        refreshInterval: 30000,
-       },
-      },
-     ],
-    },
-    {
-     id: '2',
-     name: 'Stock BBU',
-     icon: 'fas fa-boxes',
-     permissions: ['admin', 'warehouse'],
-     daftar_sub_sidemenu: [
-      {
-       id: '2.1',
-       name: 'Tobbacco',
-       icon: 'fas fa-leaf',
-       type: 'tableview',
-       path: 'tobacco',
-       permissions: ['admin', 'warehouse'],
-       config: {
-        endpoint: '/api/collections/tobacco',
-        collectionName: 'tobacco',
-        fields: [
-         {
-          name: 'name',
-          label: 'Nama Tembakau',
-          type: 'select',
-          required: true,
-          minLength: 3,
-          maxLength: 100,
-          placeholder: 'Masukkan nama tembakau',
-          searchable: true,
-          options: ['A', 'B', 'C'],
-          default: 'A',
-         },
-         {
-          name: 'grade',
-          label: 'Grade',
-          type: 'select',
-          required: true,
-          options: ['A', 'B', 'C', 'Special'],
-          default: 'A',
-         },
-         {
-          name: 'stock',
-          label: 'Stok (kg)',
-          type: 'number',
-          required: true,
-          min: 0,
-          step: 0.5,
-          validation: 'positive',
-         },
-         {
-          name: 'price_per_kg',
-          label: 'Harga per Kg (Rp)',
-          type: 'number',
-          required: true,
-          min: 0,
-          format: 'currency',
-         },
-         {
-          name: 'supplier',
-          label: 'Supplier',
-          type: 'text',
-          required: false,
-          searchable: true,
-         },
-         {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: ['In', 'Out', 'Pending'],
-          default: 'Pending',
-         },
-         {
-          name: 'notes',
-          label: 'Catatan',
-          type: 'textarea',
-          required: false,
-          rows: 3,
-         },
-        ],
-        tableConfig: {
-         defaultSort: { field: 'createdAt', order: 'desc' },
-         pageSize: 20,
-         exportable: true,
-        },
-        operations: {
-         create: true,
-         read: true,
-         update: true,
-         delete: true,
-         import: true,
-         export: true,
-        },
-       },
-      },
-      {
-       id: '2.2',
-       name: 'Clove',
-       icon: 'fas fa-seedling',
-       type: 'tableview',
-       path: 'clove',
-       config: {
-        endpoint: '/api/collections/clove',
-        collectionName: 'clove',
-        fields: [
-         {
-          name: 'name',
-          label: 'Nama Cengkeh',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'quantity',
-          label: 'Kuantitas (kg)',
-          type: 'number',
-          required: true,
-         },
-         {
-          name: 'origin',
-          label: 'Asal',
-          type: 'select',
-          options: ['Bali', 'Sulawesi', 'Sumatera', 'Jawa'],
-          required: true,
-         },
-        ],
-        operations: {
-         create: true,
-         read: true,
-         update: true,
-         delete: false,
-        },
-       },
-      },
-      {
-       id: '2.3',
-       name: 'Casing',
-       icon: 'fas fa-flask',
-       type: 'tableview',
-       path: 'casing',
-       config: {
-        endpoint: '/api/collections/casing',
-        collectionName: 'casing',
-        fields: [
-         {
-          name: 'name',
-          label: 'Nama Casing',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'volume',
-          label: 'Volume (L)',
-          type: 'number',
-          required: true,
-         },
-        ],
-       },
-      },
-      {
-       id: '2.4',
-       name: 'Flavour',
-       icon: 'fas fa-wine-bottle',
-       type: 'tableview',
-       path: 'flavour',
-       config: {
-        endpoint: '/api/collections/flavour',
-        collectionName: 'flavour',
-        fields: [
-         {
-          name: 'name',
-          label: 'Nama Flavour',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'type',
-          label: 'Jenis',
-          type: 'select',
-          options: ['Natural', 'Artificial', 'Mixed'],
-         },
-        ],
-       },
-      },
-     ],
-    },
-    {
-     id: '3',
-     name: 'Stock BBP',
-     icon: 'fas fa-pallet',
-     daftar_sub_sidemenu: [
-      {
-       id: '3.1',
-       name: 'NTM',
-       icon: 'fas fa-cubes',
-       type: 'tableview',
-       path: 'ntm',
-       config: {
-        endpoint: '/api/collections/ntm',
-        collectionName: 'ntm',
-        fields: [
-         {
-          name: 'code',
-          label: 'Kode NTM',
-          type: 'text',
-          required: true,
-          unique: true,
-         },
-         {
-          name: 'description',
-          label: 'Deskripsi',
-          type: 'textarea',
-         },
-        ],
-       },
-      },
-      {
-       id: '3.2',
-       name: 'Stock',
-       icon: 'fas fa-boxes-stacked',
-       type: 'cardview',
-       path: 'bbp-stock',
-       config: {
-        endpoint: '/api/collections/bbp-stock',
-        collectionName: 'bbp_stock',
-        viewType: 'card',
-        cardsPerRow: 3,
-       },
-      },
-     ],
-    },
-    {
-     id: '4',
-     name: 'Payroll',
-     icon: 'fas fa-money-bill-wave',
-     daftar_sub_sidemenu: [
-      {
-       id: '4.1',
-       name: 'Employee',
-       icon: 'fas fa-users',
-       type: 'tableview',
-       path: 'employees',
-       config: {
-        endpoint: '/api/collections/employees',
-        collectionName: 'employees',
-        fields: [
-         {
-          name: 'employee_id',
-          label: 'ID Karyawan',
-          type: 'text',
-          required: true,
-          unique: true,
-         },
-         {
-          name: 'name',
-          label: 'Nama Lengkap',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'position',
-          label: 'Jabatan',
-          type: 'select',
-          options: ['Staff', 'Supervisor', 'Manager', 'Director'],
-          required: true,
-         },
-         {
-          name: 'department',
-          label: 'Departemen',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'salary',
-          label: 'Gaji Pokok',
-          type: 'number',
-          required: true,
-          format: 'currency',
-         },
-        ],
-       },
-      },
-      {
-       id: '4.2',
-       name: 'Salary',
-       icon: 'fas fa-money-check',
-       type: 'tableview',
-       path: 'salaries',
-       config: {
-        endpoint: '/api/collections/salaries',
-        collectionName: 'salaries',
-        fields: [
-         {
-          name: 'employee_id',
-          label: 'ID Karyawan',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'month',
-          label: 'Bulan',
-          type: 'month',
-          required: true,
-         },
-         {
-          name: 'total_salary',
-          label: 'Total Gaji',
-          type: 'number',
-          required: true,
-         },
-        ],
-       },
-      },
-     ],
-    },
-    {
-     id: '5',
-     name: 'Task',
-     icon: 'fas fa-tasks',
-     daftar_sub_sidemenu: [
-      {
-       id: '5.1',
-       name: 'Task List',
-       icon: 'fas fa-list-check',
-       type: 'tableview',
-       path: 'tasks',
-       config: {
-        endpoint: '/api/collections/tasks',
-        collectionName: 'tasks',
-        fields: [
-         {
-          name: 'title',
-          label: 'Judul Task',
-          type: 'select',
-          options: ['Gunting', 'Giling'],
-          required: true,
-         },
-         {
-          name: 'description',
-          label: 'Deskripsi',
-          type: 'textarea',
-         },
-         {
-          name: 'priority',
-          label: 'Prioritas',
-          type: 'select',
-          options: ['Low', 'Medium', 'High', 'Urgent'],
-          default: 'Medium',
-         },
-         {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
-          default: 'Pending',
-         },
-         {
-          name: 'due_date',
-          label: 'Tanggal Jatuh Tempo',
-          type: 'date',
-         },
-        ],
-       },
-      },
-      {
-       id: '5.2',
-       name: 'Reject Task',
-       icon: 'fas fa-ban',
-       type: 'tableview',
-       path: 'rejected-tasks',
-       config: {
-        endpoint: '/api/collections/rejected-tasks',
-        collectionName: 'rejected_tasks',
-       },
-      },
-      {
-       id: '5.3',
-       name: 'Daily Report',
-       icon: 'fas fa-chart-column',
-       type: 'chartview',
-       path: 'task-reports',
-       config: {
-        endpoint: '/api/dashboard/task-reports',
-        charts: ['completion_rate', 'task_distribution'],
-       },
-      },
-     ],
-    },
-    {
-     id: '6',
-     name: 'Assets',
-     icon: 'fas fa-building',
-     daftar_sub_sidemenu: [
-      {
-       id: '6.1',
-       name: 'Assets',
-       icon: 'fas fa-server',
-       type: 'tableview',
-       path: 'assets',
-       config: {
-        endpoint: '/api/collections/assets',
-        collectionName: 'assets',
-        fields: [
-         {
-          name: 'asset_code',
-          label: 'Kode Asset',
-          type: 'text',
-          required: true,
-          unique: true,
-         },
-         {
-          name: 'name',
-          label: 'Nama Asset',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'category',
-          label: 'Kategori',
-          type: 'select',
-          options: ['Hardware', 'Software', 'Furniture', 'Vehicle'],
-         },
-        ],
-       },
-      },
-     ],
-    },
-    {
-     id: '7',
-     name: 'Penjualan',
-     icon: 'fas fa-chart-line',
-     daftar_sub_sidemenu: [
-      {
-       id: '7.1',
-       name: 'Product',
-       icon: 'fas fa-box-open',
-       type: 'tableview',
-       path: 'products',
-       config: {
-        endpoint: '/api/collections/products',
-        collectionName: 'products',
-        fields: [
-         {
-          name: 'product_code',
-          label: 'Kode Produk',
-          type: 'text',
-          required: true,
-          unique: true,
-         },
-         {
-          name: 'name',
-          label: 'Nama Produk',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'price',
-          label: 'Harga',
-          type: 'number',
-          required: true,
-         },
-         {
-          name: 'stock',
-          label: 'Stok',
-          type: 'number',
-          required: true,
-         },
-        ],
-       },
-      },
-      {
-       id: '7.2',
-       name: 'Transaksi Baru',
-       icon: 'fas fa-cash-register', // Icon mesin kasir
-       type: 'tableview',
-       path: 'sales/transactions',
-       config: {
-        endpoint: '/api/collections/transactions',
-        collectionName: 'transactions', // Nama tabel di database untuk menyimpan transaksi
-        fields: [
-         // --- SECTION 1: INFO PRIBADI ---
-         {
-          name: 'full_name',
-          label: 'Nama Lengkap',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'photo',
-          label: 'Foto Profil',
-          type: 'image', // Ada preview
-         },
-         {
-          name: 'gender',
-          label: 'Jenis Kelamin',
-          type: 'radio', // Pilihan bulat
-          options: [
-           { value: 'M', label: 'Laki-laki' },
-           { value: 'F', label: 'Perempuan' },
-          ],
-         },
-
-         // --- SECTION 2: PEKERJAAN (RELASI & LOGIKA) ---
-         {
-          name: 'department_id',
-          label: 'Departemen',
-          type: 'relation', // Ambil dari tabel lain
-          required: true,
-          relation: {
-           collection: 'departments',
-           key: '_id',
-           display: 'dept_name',
-          },
-         },
-         {
-          name: 'is_active',
-          label: 'Status Karyawan Aktif',
-          type: 'boolean', // Toggle Switch
-          defaultValue: true,
-         },
-         {
-          name: 'salary',
-          label: 'Gaji Pokok',
-          type: 'currency', // Format Rupiah
-          required: true,
-         },
-         {
-          name: 'join_date',
-          label: 'Tanggal Bergabung',
-          type: 'date',
-         },
-
-         // --- SECTION 3: DATA KOMPLEKS (REPEATER) ---
-         {
-          name: 'education_history',
-          label: 'Riwayat Pendidikan',
-          type: 'repeater', // Tabel input dinamis
-          sub_fields: [
-           { name: 'degree', label: 'Jenjang', type: 'select', options: ['SMA', 'S1', 'S2', 'S3'] },
-           { name: 'school', label: 'Nama Sekolah/Kampus', type: 'text' },
-           { name: 'year', label: 'Tahun Lulus', type: 'number' },
-          ],
-         },
-         {
-          name: 'documents',
-          label: 'Berkas Pendukung',
-          type: 'repeater', // Repeater untuk upload banyak file
-          sub_fields: [
-           { name: 'doc_name', label: 'Nama Dokumen', type: 'text' },
-           { name: 'file_attachment', label: 'File Upload', type: 'file' },
-          ],
-         },
-        ],
-       },
-      },
-      {
-       id: 'trx_pembelian_001',
-       name: 'Transaksi Pembelian',
-       icon: 'fas fa-shopping-cart',
-       type: 'tableview',
-       path: 'transactions/purchase',
-       permissions: ['admin', 'staff'],
-       config: {
-        endpoint: '/api/collections/purchases',
-        collectionName: 'purchases',
-        fields: [
-         {
-          name: 'items',
-          type: 'repeater',
-          sub_fields: [
-           {
-            name: 'product_id',
-            type: 'relation',
-            relation: {
-             collection: 'products',
-             key: '_id',
-             display: 'name',
-             auto_populate: {
-              price: 'unit_price',
-              stock: 'qty_available',
-             },
-            },
-           },
-           { name: 'unit_price', type: 'currency', ui: { readonly: true } },
-           { name: 'qty', type: 'number', defaultValue: 1 },
-           {
-            name: 'subtotal',
-            type: 'currency',
-            ui: { readonly: true },
-            calculation: { operation: 'multiply', fields: ['qty', 'unit_price'] },
-           },
-          ],
-         },
-         {
-          name: 'invoice_no',
-          label: 'Nomor Faktur',
-          type: 'text',
-          required: true,
-          unique: true,
-          placeholder: 'INV/2024/XXX',
-          width: '50',
-         },
-         {
-          name: 'trx_date',
-          label: 'Tanggal Transaksi',
-          type: 'date',
-          required: true,
-          width: '50',
-         },
-         {
-          name: 'supplier_id',
-          label: 'Supplier',
-          type: 'relation',
-          required: true,
-          width: '100',
-          relation: {
-           collection: 'suppliers',
-           key: '_id',
-           display: 'company_name',
-          },
-         },
-         {
-          name: 'items_detail',
-          label: 'Keranjang Belanja',
-          type: 'repeater',
-          width: '100',
-          required: true,
-          sub_fields: [
-           {
-            name: 'product_name',
-            label: 'Nama Produk',
-            type: 'text',
-           },
-           {
-            name: 'qty',
-            label: 'Jumlah (Qty)',
-            type: 'number',
-           },
-           {
-            name: 'unit_price',
-            label: 'Harga Satuan',
-            type: 'currency',
-           },
-           {
-            name: 'subtotal',
-            label: 'Subtotal',
-            type: 'currency',
-           },
-          ],
-         },
-         {
-          name: 'grand_total',
-          label: 'Total Akhir',
-          type: 'currency',
-          required: true,
-          width: '50',
-         },
-         {
-          name: 'payment_status',
-          label: 'Status Pembayaran',
-          type: 'select',
-          options: ['Unpaid', 'Down Payment', 'Paid', 'Refunded'],
-          width: '50',
-         },
-         {
-          name: 'proof_of_payment',
-          label: 'Bukti Transfer',
-          type: 'image',
-          width: '100',
-         },
-         {
-          name: 'notes',
-          label: 'Catatan Tambahan',
-          type: 'textarea',
-          required: false,
-          width: '100',
-         },
-        ],
-       },
-      },
-     ],
-    },
-    {
-     id: 'fixed_settings',
-     name: 'Settings',
-     icon: 'fas fa-cogs',
-     permissions: ['admin'],
-     daftar_sub_sidemenu: [
-      {
-       id: '8.1',
-       name: 'User Management',
-       icon: 'fas fa-users-cog',
-       type: 'tableview',
-       path: 'settings/users',
-       config: {
-        endpoint: '/api/collections/users',
-        collectionName: 'users',
-        fields: [
-         {
-          name: 'username',
-          label: 'Username',
-          type: 'text',
-          required: true,
-          unique: true,
-         },
-         {
-          name: 'email',
-          label: 'Email',
-          type: 'email',
-          required: true,
-          unique: true,
-         },
-         {
-          name: 'role',
-          label: 'Role',
-          type: 'select',
-          options: ['admin', 'warehouse', 'finance', 'user'],
-          required: true,
-         },
-         {
-          name: 'status',
-          label: 'Status Akun',
-          type: 'select',
-          options: ['Active', 'Inactive', 'Suspended'],
-          default: 'Active',
-         },
-         {
-          name: 'last_login',
-          label: 'Terakhir Login',
-          type: 'datetime',
-          readonly: true,
-         },
-        ],
-        operations: {
-         create: true,
-         read: true,
-         update: true,
-         delete: true,
-         reset_password: true,
-        },
-       },
-      },
-      {
-       id: '8.2',
-       name: 'Role & Permissions',
-       icon: 'fas fa-user-shield',
-       type: 'tableview',
-       path: 'settings/roles',
-       config: {
-        endpoint: '/api/collections/roles',
-        collectionName: 'roles',
-        fields: [
-         {
-          name: 'role_name',
-          label: 'Nama Role',
-          type: 'text',
-          required: true,
-         },
-         {
-          name: 'access_level',
-          label: 'Level Akses',
-          type: 'number',
-          required: true,
-         },
-         {
-          name: 'permissions',
-          label: 'Izin Akses',
-          type: 'multiselect',
-          options: ['read_dashboard', 'write_stock', 'manage_users', 'view_reports'],
-         },
-        ],
-       },
-      },
-      {
-       id: '8.3',
-       name: 'App Config',
-       icon: 'fas fa-sliders-h',
-       type: 'settings',
-       path: 'settings/config',
-       config: {
-        endpoint: '/api/settings/general',
-        collectionName: 'app_config',
-        fields: [
-         {
-          name: 'app_name',
-          label: 'Nama Aplikasi',
-          type: 'text',
-          default: 'TB Sahabat System',
-         },
-         {
-          name: 'maintenance_mode',
-          label: 'Mode Maintenance',
-          type: 'boolean',
-          default: false,
-         },
-         {
-          name: 'timezone',
-          label: 'Zona Waktu Default',
-          type: 'select',
-          options: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'],
-          default: 'Asia/Jakarta',
-         },
-        ],
-       },
-      },
-      {
-       id: '8.4',
-       name: 'Audit Logs',
-       icon: 'fas fa-history',
-       type: 'tableview',
-       path: 'settings/logs',
-       config: {
-        endpoint: '/api/logs/system',
-        collectionName: 'system_logs',
-        fields: [
-         {
-          name: 'timestamp',
-          label: 'Waktu',
-          type: 'datetime',
-         },
-         {
-          name: 'user',
-          label: 'User',
-          type: 'text',
-         },
-         {
-          name: 'action',
-          label: 'Aktivitas',
-          type: 'text',
-         },
-         {
-          name: 'ip_address',
-          label: 'IP Address',
-          type: 'text',
-         },
-        ],
-        operations: {
-         create: false,
-         read: true,
-         update: false,
-         delete: false,
-         export: true,
-        },
-       },
-      },
-     ],
-    },
-   ],
+ async patchMenu({ response, request }: HttpContext) {
+  let body = request.all()
+  const collections = database.data?.collection('menu_systems')
+  const existingDoc = await collections?.findOne({ id: 'fixed_menu' })
+  let data
+  if (existingDoc) {
+    body.created_at = existingDoc.created_at
+   body.updated_at = new Date()
+   
+   data = await collections?.replaceOne({ id: 'fixed_menu' }, body, { upsert: false })
+  } else {
+      body.created_at = new Date()
+      body.updated_at = new Date()
+   data = await collections?.replaceOne({ id: 'fixed_menu' }, body, { upsert: true })
   }
- }
- async menu_example({ response }: HttpContext) {
-  let data = fs.readFileSync('public/menu.json', { encoding: 'utf-8' })
   return response.send(data)
+ }
+ async listMenu({ response, request }: HttpContext) {
+  let { example } = request.all()
+  if (example === 'true') {
+   let data = fs.readFileSync('public/menu.json', { encoding: 'utf-8' })
+   return response.send(data)
+  }
+  const collections = database.data?.collection('menu_systems')
+  let data = await collections?.findOne({})
+  let result = {},
+   FIXED_DASHBOARD = {
+    id: 'fixed_dashboard',
+    name: 'Dashboard',
+    icon: 'fas fa-home',
+    sub_sidemenu: [
+     {
+      id: '1.1',
+      name: 'Dashboard',
+      icon: 'fas fa-chart-line',
+      type: 'chartview',
+      path: 'dashboard',
+      permissions: ['admin', 'user'],
+      config: {
+       endpoint: '/api/dashboard/stats',
+       charts: ['overview', 'performance'],
+       refreshInterval: 30000,
+      },
+     },
+    ],
+   },
+   FIXED_SETTINGS = {
+    id: 'fixed_settings',
+    name: 'Settings',
+    icon: 'fas fa-cogs',
+    permissions: ['admin'],
+    sub_sidemenu: [
+     {
+      id: '8.1',
+      name: 'User Management',
+      icon: 'fas fa-users-cog',
+      type: 'tableview',
+      path: 'settings/users',
+      config: {
+       endpoint: '/api/collections/users',
+       collectionName: 'users',
+       fields: [
+        {
+         name: 'username',
+         label: 'Username',
+         type: 'text',
+         required: true,
+         unique: true,
+        },
+        {
+         name: 'email',
+         label: 'Email',
+         type: 'email',
+         required: true,
+         unique: true,
+        },
+        {
+         name: 'role',
+         label: 'Role',
+         type: 'select',
+         options: ['admin', 'warehouse', 'finance', 'user'],
+         required: true,
+        },
+        {
+         name: 'status',
+         label: 'Status Akun',
+         type: 'select',
+         options: ['Active', 'Inactive', 'Suspended'],
+         default: 'Active',
+        },
+        {
+         name: 'last_login',
+         label: 'Terakhir Login',
+         type: 'datetime',
+         readonly: true,
+        },
+       ],
+       operations: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true,
+        reset_password: true,
+       },
+      },
+     },
+     {
+      id: '8.2',
+      name: 'App Config',
+      icon: 'fas fa-sliders-h',
+      type: 'settings',
+      path: 'settings/config',
+      config: {
+       endpoint: '/api/settings/general',
+       collectionName: 'app_config',
+       fields: [
+        {
+         name: 'app_name',
+         label: 'Nama Aplikasi',
+         type: 'text',
+         default: 'TB Sahabat System',
+        },
+        {
+         name: 'maintenance_mode',
+         label: 'Mode Maintenance',
+         type: 'boolean',
+         default: false,
+        },
+        {
+         name: 'timezone',
+         label: 'Zona Waktu Default',
+         type: 'select',
+         options: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'],
+         default: 'Asia/Jakarta',
+        },
+       ],
+      },
+     },
+    ],
+   }
+  if (data) {
+   result = {
+    name: 'menu',
+    sidemenu: [FIXED_DASHBOARD, ...data.sidemenu, FIXED_SETTINGS],
+   }
+  } else {
+   result = {
+    name: 'menu',
+    sidemenu: [FIXED_DASHBOARD, FIXED_SETTINGS],
+   }
+  }
+  return response.json(result)
  }
  async dashboardSnapshots({ response }: HttpContext) {
   return response.send({})
