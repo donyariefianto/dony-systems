@@ -1,5 +1,28 @@
 import Swal from 'sweetalert2/dist/sweetalert2.js'
+import { xchacha20poly1305 } from '@noble/ciphers/chacha.js'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils.js'
+import { hexToBytes } from '@noble/hashes/utils.js'
+import { AppState } from '../core/state'
 
+function getKey() {
+ const secret_key = String(AppState.app_key)
+ return sha256(utf8ToBytes(secret_key))
+}
+
+export function decryptData(nonceHex, ciphertextHex) {
+ try {
+  const key = getKey()
+  const nonce = hexToBytes(nonceHex)
+  const ciphertext = hexToBytes(ciphertextHex)
+  const cipher = xchacha20poly1305(key, nonce)
+  const decryptedBytes = cipher.decrypt(ciphertext)
+  return bytesToUtf8(decryptedBytes)
+ } catch (error) {
+  console.error('❌ Gagal Dekripsi (Cek Key atau Data Rusak):', error)
+  return null
+ }
+}
 export function logout() {
  localStorage.clear()
  window.location.href = '/login'
@@ -84,33 +107,4 @@ export async function showConfirmDialog({
  })
 
  return result.isConfirmed
-}
-
-export async function decryptDataRandom(encryptedData, rawKeyString) {
- try {
-  const [ivHex, cipherHex, tagHex] = encryptedData.split('.')
-
-  const iv = new Uint8Array(ivHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
-  const cipher = new Uint8Array(cipherHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
-  const tag = new Uint8Array(tagHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
-
-  const dataToDecrypt = new Uint8Array([...cipher, ...tag])
-
-  const encoder = new TextEncoder()
-  const keyHash = await window.crypto.subtle.digest('SHA-256', encoder.encode(rawKeyString))
-  const key = await window.crypto.subtle.importKey('raw', keyHash, { name: 'AES-GCM' }, false, [
-   'decrypt',
-  ])
-
-  const decrypted = await window.crypto.subtle.decrypt(
-   { name: 'AES-GCM', iv: iv },
-   key,
-   dataToDecrypt
-  )
-
-  return new TextDecoder().decode(decrypted)
- } catch (e) {
-  console.error('Gagal dekripsi:', e)
-  return null
- }
 }

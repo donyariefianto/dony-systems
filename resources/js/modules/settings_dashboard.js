@@ -1,6 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
-import { showToast, showConfirmDialog } from '../utils/helpers.js'
+import { showToast, showConfirmDialog, decryptData } from '../utils/helpers.js'
 import { WidgetRegistry } from '../config/WidgetRegistry.js'
 import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
 import Swal from 'sweetalert2/dist/sweetalert2.js'
@@ -909,7 +909,9 @@ export async function fetchDashboardsFromDB() {
  try {
   const response = await apiFetch('api/collections/dashboard_settings')
   if (response) {
-   AppState.dbDashboards = await response.json()
+   let data = await response.json()
+   data = decryptData(data.nonce, data.ciphertext)
+   AppState.dbDashboards = JSON.parse(data)
    renderSavedDashboardsList()
   }
  } catch (e) {

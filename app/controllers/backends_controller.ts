@@ -28,135 +28,145 @@ export default class BackendsController {
    let data = fs.readFileSync('public/menu.json', { encoding: 'utf-8' })
    return response.send(data)
   }
-  const collections = database.data?.collection('menu_systems')
-  let data = await collections?.findOne({})
-  let result = {},
-   FIXED_DASHBOARD = {
-    id: 'fixed_dashboard',
-    name: 'Dashboard',
-    icon: 'fas fa-home',
-    sub_sidemenu: [
-     {
-      id: '1.1',
-      name: 'Dashboard',
-      icon: 'fas fa-chart-line',
-      type: 'chartview',
-      path: 'dashboard',
-      permissions: ['admin', 'user'],
-      config: {
-       endpoint: '/api/dashboard/stats',
-       charts: ['overview', 'performance'],
-       refreshInterval: 30000,
-      },
-     },
-    ],
-   },
-   FIXED_SETTINGS = {
-    id: 'fixed_settings',
-    name: 'Settings',
-    icon: 'fas fa-cogs',
-    permissions: ['admin'],
-    sub_sidemenu: [
-     {
-      id: '8.1',
-      name: 'User Management',
-      icon: 'fas fa-users-cog',
-      type: 'tableview',
-      path: 'settings/users',
-      config: {
-       endpoint: '/api/collections/users',
-       collectionName: 'users',
-       fields: [
-        {
-         name: 'username',
-         label: 'Username',
-         type: 'text',
-         required: true,
-         unique: true,
-        },
-        {
-         name: 'email',
-         label: 'Email',
-         type: 'email',
-         required: true,
-         unique: true,
-        },
-        {
-         name: 'role',
-         label: 'Role',
-         type: 'select',
-         options: ['admin', 'warehouse', 'finance', 'user'],
-         required: true,
-        },
-        {
-         name: 'status',
-         label: 'Status Akun',
-         type: 'select',
-         options: ['Active', 'Inactive', 'Suspended'],
-         default: 'Active',
-        },
-        {
-         name: 'last_login',
-         label: 'Terakhir Login',
-         type: 'datetime',
-         readonly: true,
-        },
-       ],
-       operations: {
-        create: true,
-        read: true,
-        update: true,
-        delete: true,
-        reset_password: true,
+  try {
+   const collections = database.data?.collection('menu_systems')
+   let data = await collections?.findOne({})
+   let result = {},
+    FIXED_DASHBOARD = {
+     id: 'fixed_dashboard',
+     name: 'Dashboard',
+     icon: 'fas fa-home',
+     sub_sidemenu: [
+      {
+       id: '1.1',
+       name: 'Dashboard',
+       icon: 'fas fa-chart-line',
+       type: 'chartview',
+       path: 'dashboard',
+       permissions: ['admin', 'user'],
+       config: {
+        endpoint: '/api/dashboard/stats',
+        charts: ['overview', 'performance'],
+        refreshInterval: 30000,
        },
       },
-     },
-     {
-      id: '8.2',
-      name: 'App Config',
-      icon: 'fas fa-sliders-h',
-      type: 'settings',
-      path: 'settings/config',
-      config: {
-       endpoint: '/api/settings/general',
-       collectionName: 'app_config',
-       fields: [
-        {
-         name: 'app_name',
-         label: 'Nama Aplikasi',
-         type: 'text',
-         default: 'TB Sahabat System',
+     ],
+    },
+    FIXED_SETTINGS = {
+     id: 'fixed_settings',
+     name: 'Settings',
+     icon: 'fas fa-cogs',
+     permissions: ['admin'],
+     sub_sidemenu: [
+      {
+       id: '8.1',
+       name: 'User Management',
+       icon: 'fas fa-users-cog',
+       type: 'tableview',
+       path: 'settings/users',
+       config: {
+        endpoint: '/api/collections/users',
+        collectionName: 'users',
+        fields: [
+         {
+          name: 'username',
+          label: 'Username',
+          type: 'text',
+          required: true,
+          unique: true,
+         },
+         {
+          name: 'email',
+          label: 'Email',
+          type: 'email',
+          required: true,
+          unique: true,
+         },
+         {
+          name: 'role',
+          label: 'Role',
+          type: 'select',
+          options: ['admin', 'warehouse', 'finance', 'user'],
+          required: true,
+         },
+         {
+          name: 'status',
+          label: 'Status Akun',
+          type: 'select',
+          options: ['Active', 'Inactive', 'Suspended'],
+          default: 'Active',
+         },
+         {
+          name: 'last_login',
+          label: 'Terakhir Login',
+          type: 'datetime',
+          readonly: true,
+         },
+        ],
+        operations: {
+         create: true,
+         read: true,
+         update: true,
+         delete: true,
+         reset_password: true,
         },
-        {
-         name: 'maintenance_mode',
-         label: 'Mode Maintenance',
-         type: 'boolean',
-         default: false,
-        },
-        {
-         name: 'timezone',
-         label: 'Zona Waktu Default',
-         type: 'select',
-         options: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'],
-         default: 'Asia/Jakarta',
-        },
-       ],
+       },
       },
-     },
-    ],
+      {
+       id: '8.2',
+       name: 'App Config',
+       icon: 'fas fa-sliders-h',
+       type: 'settings',
+       path: 'settings/config',
+       config: {
+        endpoint: '/api/settings/general',
+        collectionName: 'app_config',
+        fields: [
+         {
+          name: 'app_name',
+          label: 'Nama Aplikasi',
+          type: 'text',
+          default: 'TB Sahabat System',
+         },
+         {
+          name: 'maintenance_mode',
+          label: 'Mode Maintenance',
+          type: 'boolean',
+          default: false,
+         },
+         {
+          name: 'timezone',
+          label: 'Zona Waktu Default',
+          type: 'select',
+          options: ['Asia/Jakarta', 'Asia/Makassar', 'Asia/Jayapura'],
+          default: 'Asia/Jakarta',
+         },
+        ],
+       },
+      },
+     ],
+    }
+   if (data) {
+    result = {
+     name: 'menu',
+     sidemenu: [FIXED_DASHBOARD, ...data.sidemenu, FIXED_SETTINGS],
+    }
+   } else {
+    result = {
+     name: 'menu',
+     sidemenu: [FIXED_DASHBOARD, FIXED_SETTINGS],
+    }
    }
-  if (data) {
-   result = {
-    name: 'menu',
-    sidemenu: [FIXED_DASHBOARD, ...data.sidemenu, FIXED_SETTINGS],
-   }
-  } else {
-   result = {
-    name: 'menu',
-    sidemenu: [FIXED_DASHBOARD, FIXED_SETTINGS],
-   }
+   let data_encrypt = EncryptionService.encrypt(JSON.stringify(result))
+   return response.json(data_encrypt)
+  } catch (error) {
+   console.log(error)
+
+   return response.internalServerError({
+    message: error.message,
+    status: false,
+   })
   }
-  return response.json(EncryptionService.encryptForBrowser(JSON.stringify(result)))
  }
  async dashboardSnapshots({ response }: HttpContext) {
   return response.send({})
@@ -204,7 +214,8 @@ export default class BackendsController {
   let data = await collections?.find(query).skip(skip).limit(Number(limit)).sort(sort).toArray()
   const total = await collections?.countDocuments(query)
   let response_data = { data, total, page: Number(page), totalPages: Math.ceil(total / limit) }
-  return response.send(EncryptionService.encryptForBrowser(JSON.stringify(response_data)))
+  let data_encrypt = EncryptionService.encrypt(JSON.stringify(response_data))
+  return response.send(data_encrypt)
  }
  async getCollectionDataDetail({ params, response }: HttpContext) {
   const colName = params.col

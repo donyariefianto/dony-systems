@@ -1,6 +1,5 @@
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'sweetalert2/dist/sweetalert2.min.css'
-
 import { initApp } from './modules/auth.js'
 import { navigate } from './core/router.js'
 import { AppState } from './core/state.js'

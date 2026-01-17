@@ -1,6 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
-import { showToast, showConfirmDialog, decryptDataRandom } from '../utils/helpers.js'
+import { showToast, showConfirmDialog, decryptData } from '../utils/helpers.js'
 
 window.formDynamicState = {}
 window.repeaterSchemas = {}
@@ -80,8 +80,9 @@ const DropdownManager = {
    const url = `api/collections/${state.collection}?page=${state.page}&limit=10&search=${state.search}`
    const res = await apiFetch(url)
 
-   let data = await res.text()
-   data = await decryptDataRandom(data, AppState.app_key)
+   let data = await res.json()
+   console.log(data)
+   data = decryptData(data.nonce, data.ciphertext)
    data = JSON.parse(data)
 
    const json = data
@@ -358,11 +359,12 @@ export async function fetchTableData() {
   const response = await apiFetch(url)
   if (!response) return
 
-  let data = await response.text()
-  data = await decryptDataRandom(data, AppState.app_key)
-  data = JSON.parse(data)
-  let result = data
-  data = data.data || []
+  let data = await response.json()
+
+  data = decryptData(data.nonce, data.ciphertext)
+  let result = JSON.parse(data)
+
+  data = result.data || []
 
   desktopBody.innerHTML = ''
   mobileBody.innerHTML = ''

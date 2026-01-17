@@ -1,16 +1,23 @@
-import crypto from 'node:crypto'
+import { sha256 } from '@noble/hashes/sha2.js'
+import { randomBytes, bytesToHex, utf8ToBytes } from '@noble/ciphers/utils.js'
+import { xchacha20poly1305 } from '@noble/ciphers/chacha.js'
 import env from '#start/env'
 
 export class EncryptionService {
- private static readonly KEY = crypto.createHash('sha256').update(env.get('APP_KEY')).digest()
- private static readonly ALGO = 'aes-256-gcm'
+ private static SECRET_PASSPHRASE = env.get('APP_KEY')
+ private static getKey(): Uint8Array {
+  return sha256(utf8ToBytes(this.SECRET_PASSPHRASE))
+ }
 
- static encryptForBrowser(text: string) {
-  const iv = crypto.randomBytes(12)
-  const cipher = crypto.createCipheriv(this.ALGO, this.KEY, iv)
-  let encrypted = cipher.update(text, 'utf8', 'hex')
-  encrypted += cipher.final('hex')
-  const tag = cipher.getAuthTag().toString('hex')
-  return `${iv.toString('hex')}.${encrypted}.${tag}`
+ static encrypt(text: string) {
+  const key = this.getKey()
+  const nonce = randomBytes(24)
+  const cipher = xchacha20poly1305(key, nonce)
+  const dataBytes = utf8ToBytes(text)
+  const encryptedData = cipher.encrypt(dataBytes)
+  return {
+   nonce: bytesToHex(nonce),
+   ciphertext: bytesToHex(encryptedData),
+  }
  }
 }
