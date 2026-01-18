@@ -81,7 +81,6 @@ const DropdownManager = {
    const res = await apiFetch(url)
 
    let data = await res.json()
-   console.log(data)
    data = decryptData(data.nonce, data.ciphertext)
    data = JSON.parse(data)
 
@@ -302,8 +301,7 @@ export function renderTableView(config, container) {
                 </button>
             </div>
             
-            <form id="dynamic-form" class="flex-1 flex flex-col overflow-hidden bg-slate-50/50 relative" onsubmit="handleFormSubmit(event)">
-                </form>
+            <form id="dynamic-form" class="flex-1 flex flex-col overflow-hidden bg-slate-50/50 relative"></form>
         </div>
     </div>`
 
@@ -766,8 +764,11 @@ export async function deleteData(id) {
 
 export async function editData(id) {
  const res = await apiFetch(`api/collections/${AppState.currentModule.config.collectionName}/${id}`)
- const json = await res.json()
- openCrudModal(json.data || json)
+ let data = await res.json()
+ data = decryptData(data.nonce, data.ciphertext)
+ data = JSON.parse(data)
+
+ openCrudModal(data.data || data)
 }
 
 export async function changePage(newPage) {

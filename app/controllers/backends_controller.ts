@@ -225,7 +225,8 @@ export default class BackendsController {
   }
   const collections = database.data?.collection(colName)
   const result = await collections?.findOne({ _id: new ObjectId(id) })
-  return response.send(result)
+  let data_encrypt = EncryptionService.encrypt(JSON.stringify(result))
+  return response.send(data_encrypt)
  }
  async createCollectionData({ params, request, response }: HttpContext) {
   const colName = params.col

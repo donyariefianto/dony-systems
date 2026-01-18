@@ -3,9 +3,10 @@ import { showToast } from '../utils/helpers.js'
 import { renderDashboardGenerator, initDashboardGenerator } from './settings_dashboard.js'
 import { renderGeneralTab } from './settings_general.js'
 import { renderSideMenuTab } from './settings_menu.js'
-import { renderOptionsMenuTab } from './settings_options.js'
+import { getSPEView, initSPEController } from './settings_SPE.js'
 
 let currentActiveTab = 'general'
+let isSPEInitialized = false
 
 export async function renderSettingsView(config, container) {
  container.className =
@@ -47,9 +48,9 @@ export async function renderSettingsView(config, container) {
                     <i class="fas fa-bars text-[9px]"></i> <span>Menu</span>
                 </button>
                 
-                <button onclick="window.switchSettingsTab('options_sidemenu')" id="tab-btn-options_sidemenu" 
+                <button onclick="window.switchSettingsTab('smart_projection_engine')" id="tab-btn-smart_projection_engine" 
                         class="desktop-tab-btn relative z-10 flex-1 h-full text-[10px] font-bold uppercase tracking-wide text-gray-500 transition-colors duration-200 flex items-center justify-center gap-1.5 outline-none hover:text-gray-800">
-                    <i class="fas fa-ellipsis-v text-[9px]"></i> <span>Options</span>
+                    <i class="fas fa-layer-group text-[9px]"></i> <span>SPE</span>
                 </button>
             </div>
         </div>
@@ -59,8 +60,8 @@ export async function renderSettingsView(config, container) {
                 ${renderSideMenuTab(settings)}
             </div>
 
-            <div id="tab-content-options_sidemenu" class="hidden h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6 pb-20">
-                ${renderOptionsMenuTab(settings)}
+            <div id="tab-content-smart_projection_engine" class="hidden h-full w-full overflow-hidden">
+                ${getSPEView()}
             </div>
             
             <div id="tab-content-general" class="hidden h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6 pb-20">
@@ -73,32 +74,23 @@ export async function renderSettingsView(config, container) {
         </div>
 
         <div id="settings-mobile-nav" class="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]" style="padding-bottom: env(safe-area-inset-bottom);">
-            
             <div id="mobile-nav-glider" class="absolute top-0 left-0 h-[2px] bg-blue-600 shadow-[0_1px_6px_rgba(37,99,235,0.4)] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] rounded-full"></div>
-
             <div class="grid grid-cols-4 h-12">
-                <button onclick="window.switchSettingsTab('general')" id="mobile-btn-general"
-                        class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
+                <button onclick="window.switchSettingsTab('general')" id="mobile-btn-general" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
                     <i class="fas fa-sliders-h text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
                     <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">General</span>
                 </button>
-                
-                <button onclick="window.switchSettingsTab('generator')" id="mobile-btn-generator"
-                        class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
+                <button onclick="window.switchSettingsTab('generator')" id="mobile-btn-generator" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
                     <i class="fas fa-chart-pie text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
                     <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">Dash</span>
                 </button>
-                
-                <button onclick="window.switchSettingsTab('sidemenu')" id="mobile-btn-sidemenu"
-                        class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
+                <button onclick="window.switchSettingsTab('sidemenu')" id="mobile-btn-sidemenu" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
                     <i class="fas fa-bars text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
                     <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">Menu</span>
                 </button>
-                
-                <button onclick="window.switchSettingsTab('options_sidemenu')" id="mobile-btn-options"
-                        class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
-                    <i class="fas fa-ellipsis-v text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
-                    <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">Options</span>
+                <button onclick="window.switchSettingsTab('smart_projection_engine')" id="mobile-btn-options" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
+                    <i class="fas fa-layer-group text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
+                    <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">SPE</span>
                 </button>
             </div>
         </div>
@@ -109,8 +101,17 @@ export async function renderSettingsView(config, container) {
   setTimeout(async () => {
    try {
     switchSettingsTab(currentActiveTab, true)
+
+    // Init Generator jika tab awal generator
     if (currentActiveTab === 'generator') {
-     await initDashboardGenerator()
+     initDashboardGenerator()
+    }
+
+    isSPEInitialized = false
+    // Init SPE jika tab awal smart_projection_engine
+    if (currentActiveTab === 'smart_projection_engine' && !isSPEInitialized) {
+     initSPEController({ apiUrl: 'api/collections/smart_projection_engine' })
+     isSPEInitialized = true
     }
    } catch (error) {
     console.error('Failed to initialize:', error)
@@ -125,6 +126,7 @@ export async function renderSettingsView(config, container) {
 export function switchSettingsTab(tab, initialLoad = false) {
  currentActiveTab = tab
 
+ // --- Logic UI Tab (Glider & Active State) ---
  const desktopBtn = document.getElementById(`tab-btn-${tab}`)
  const desktopGlider = document.getElementById('desktop-nav-glider')
 
@@ -133,17 +135,15 @@ export function switchSettingsTab(tab, initialLoad = false) {
    btn.classList.remove('text-gray-900')
    btn.classList.add('text-gray-500')
   })
-
   desktopBtn.classList.remove('text-gray-500')
   desktopBtn.classList.add('text-gray-900')
-
   desktopGlider.style.opacity = '1'
   desktopGlider.style.width = `${desktopBtn.offsetWidth}px`
   desktopGlider.style.transform = `translateX(${desktopBtn.offsetLeft}px)`
  }
 
  const mobileBtn = document.getElementById(
-  `mobile-btn-${tab === 'options_sidemenu' ? 'options' : tab}`
+  `mobile-btn-${tab === 'smart_projection_engine' ? 'options' : tab}`
  )
  const mobileGlider = document.getElementById('mobile-nav-glider')
 
@@ -154,24 +154,22 @@ export function switchSettingsTab(tab, initialLoad = false) {
    if (icon) icon.className = icon.className.replace('text-blue-600', 'text-gray-400')
    if (text) text.className = text.className.replace('text-blue-600', 'text-gray-400')
   })
-
   const activeIcon = mobileBtn.querySelector('i')
   const activeText = mobileBtn.querySelector('span')
-
   if (activeIcon)
    activeIcon.className = activeIcon.className.replace('text-gray-400', 'text-blue-600')
   if (activeText)
    activeText.className = activeText.className.replace('text-gray-400', 'text-blue-600')
-
   mobileGlider.style.width = `${mobileBtn.offsetWidth}px`
   mobileGlider.style.transform = `translateX(${mobileBtn.offsetLeft}px)`
  }
 
+ // --- Logic Hide/Show Content ---
  const tabContents = [
   'tab-content-general',
   'tab-content-generator',
   'tab-content-sidemenu',
-  'tab-content-options_sidemenu',
+  'tab-content-smart_projection_engine',
  ]
 
  tabContents.forEach((id) => {
@@ -191,16 +189,34 @@ export function switchSettingsTab(tab, initialLoad = false) {
   })
  }
 
+ // --- [UPDATE 5] Logic Init Modules per Tab ---
+
+ // 1. Generator Dashboard
  if (tab === 'generator' && !initialLoad) {
   if (typeof initDashboardGenerator === 'function') {
    setTimeout(async () => {
     try {
-     await initDashboardGenerator()
+     initDashboardGenerator()
     } catch (error) {
      console.error(error)
     }
    }, 100)
   }
+ }
+
+ // 2. Smart Projection Engine (SPE)
+ if (tab === 'smart_projection_engine' && !isSPEInitialized) {
+  // Jalankan init controller hanya sekali
+  setTimeout(() => {
+   try {
+    console.log('Initializing SPE Controller...')
+    // Pass config API url jika dibutuhkan
+    initSPEController({ apiUrl: 'api/spe' })
+    isSPEInitialized = true
+   } catch (error) {
+    console.error('SPE Init Error:', error)
+   }
+  }, 100)
  }
 }
 
@@ -209,7 +225,7 @@ export function getCurrentActiveTab() {
 }
 
 export function setActiveTab(tab) {
- if (['general', 'generator', 'sidemenu', 'options_sidemenu'].includes(tab)) {
+ if (['general', 'generator', 'sidemenu', 'smart_projection_engine'].includes(tab)) {
   switchSettingsTab(tab)
  }
 }

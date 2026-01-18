@@ -21,9 +21,7 @@ export function renderDashboardGenerator() {
         ${renderFilesPanel()}
         ${renderEditorPanel()}
         ${renderToolsPanel()}
-        
         ${renderMobileNavigation()}
-        
         ${renderWidgetConfigModal()}
     </div>
     `
@@ -553,44 +551,44 @@ export function renderBuilderWidgets() {
    }
 
    return `
-                <div class="${colSpan} bg-white rounded-lg ${accent} shadow-sm transition-all duration-300 group relative flex flex-col overflow-hidden hover:shadow-md animate-in fade-in zoom-in-95">
-                    <div class="p-3 flex-1">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center gap-2 overflow-hidden">
-                                <i class="fas ${w.icon || 'fa-cube'} ${iconColor} text-[10px]"></i>
-                                <div class="min-w-0">
-                                    <h3 class="text-[10px] font-bold text-gray-700 uppercase tracking-tight truncate w-full" title="${w.title}">${w.title || 'Untitled'}</h3>
-                                    <p class="text-[8px] text-gray-400 font-mono flex gap-1 mt-0.5">
-                                        <span class="bg-gray-50 px-1 rounded">${w.type}</span>
-                                        <span class="bg-gray-50 px-1 rounded">${w.subtype}</span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-[9px] text-gray-400 font-mono truncate border-t border-dashed border-gray-100 pt-1.5 mt-1.5">
-                            <i class="fas fa-database mr-1"></i> ${w.collection || 'No Collection'}
-                        </div>
+    <div class="${colSpan} bg-white rounded-lg ${accent} shadow-sm transition-all duration-300 group relative flex flex-col overflow-hidden hover:shadow-md animate-in fade-in zoom-in-95">
+        <div class="p-3 flex-1">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <i class="fas ${w.icon || 'fa-cube'} ${iconColor} text-[10px]"></i>
+                    <div class="min-w-0">
+                        <h3 class="text-[10px] font-bold text-gray-700 uppercase tracking-tight truncate w-full" title="${w.title}">${w.title || 'Untitled'}</h3>
+                        <p class="text-[8px] text-gray-400 font-mono flex gap-1 mt-0.5">
+                            <span class="bg-gray-50 px-1 rounded">${w.type}</span>
+                            <span class="bg-gray-50 px-1 rounded">${w.subtype}</span>
+                        </p>
                     </div>
-                    <div class="h-7 bg-gray-50 border-t border-gray-100 flex items-center divide-x divide-gray-200 opacity-80 hover:opacity-100 transition-opacity">
-                        <button onclick="resizeWidget(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-blue-600 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1">
-                            <i class="fas fa-expand-alt"></i> Size
-                        </button>
-                        <button onclick="editWidgetConfig(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-orange-500 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1">
-                            <i class="fas fa-cog"></i> Edit
-                        </button>
-                        <div class="flex w-14">
-                            <button onclick="moveWidget(${idx}, -1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === 0 ? 'opacity-30' : ''}" ${idx === 0 ? 'disabled' : ''}>
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button onclick="moveWidget(${idx}, 1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === totalWidgets - 1 ? 'opacity-30' : ''}" ${idx === totalWidgets - 1 ? 'disabled' : ''}>
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                        <button onclick="removeBuilderWidget(${idx})" class="w-7 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors h-full">
-                            <i class="fas fa-times text-[9px]"></i>
-                        </button>
-                    </div>
-                </div>`
+                </div>
+            </div>
+            <div class="text-[9px] text-gray-400 font-mono truncate border-t border-dashed border-gray-100 pt-1.5 mt-1.5">
+                <i class="fas fa-database mr-1"></i> ${w.collection || 'No Collection'}
+            </div>
+        </div>
+        <div class="h-7 bg-gray-50 border-t border-gray-100 flex items-center divide-x divide-gray-200 opacity-80 hover:opacity-100 transition-opacity">
+            <button onclick="resizeWidget(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-blue-600 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1">
+                <i class="fas fa-expand-alt"></i> Size
+            </button>
+            <button onclick="editWidgetConfig(${idx})" class="flex-1 hover:bg-white text-gray-500 hover:text-orange-500 text-[8px] font-bold transition-colors h-full flex items-center justify-center gap-1">
+                <i class="fas fa-cog"></i> Edit
+            </button>
+            <div class="flex w-14">
+                <button onclick="moveWidget(${idx}, -1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === 0 ? 'opacity-30' : ''}" ${idx === 0 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button onclick="moveWidget(${idx}, 1)" class="flex-1 hover:bg-white hover:text-gray-800 text-gray-400 text-[8px] h-full ${idx === totalWidgets - 1 ? 'opacity-30' : ''}" ${idx === totalWidgets - 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <button onclick="removeBuilderWidget(${idx})" class="w-7 hover:bg-red-50 hover:text-red-500 text-gray-400 transition-colors h-full">
+                <i class="fas fa-times text-[9px]"></i>
+            </button>
+        </div>
+    </div>`
   })
   .join('')
 }
@@ -928,7 +926,10 @@ export async function openWidgetEditor(id, name) {
    return
   }
 
-  const data = await response.json()
+  let data = await response.json()
+  data = decryptData(data.nonce, data.ciphertext)
+  data = JSON.parse(data)
+
   AppState.currentEditingDashboardId = id
   const rawWidgets = data.widgets || []
 

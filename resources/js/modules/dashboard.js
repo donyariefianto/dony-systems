@@ -1,6 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
-import { showToast } from '../utils/helpers.js'
+import { showToast, decryptData } from '../utils/helpers.js'
 let echartsPromise = null
 let glPromise = null
 
@@ -180,7 +180,9 @@ async function loadDashboardConfig(dashboardId) {
   const response = await apiFetch(`api/collections/dashboard_settings/${dashboardId}`)
   if (!response || !response.ok) throw new Error('Gagal memuat konfigurasi')
 
-  const result = await response.json()
+  let result = await response.json()
+  result = decryptData(result.nonce, result.ciphertext)
+  result = JSON.parse(result)
   if (titleEl) titleEl.innerText = result.name || 'Dashboard Overview'
 
   const widgetList = result.widgets || []
@@ -251,6 +253,8 @@ async function initWidgetDataFetcher(widget) {
   const response = await apiFetch(`api/collections/widgets?${queryParams.toString()}`)
   if (!response || !response.ok) throw new Error('Network Error')
   const result = await response.json()
+  result = decryptData(result.nonce, result.ciphertext)
+  result = JSON.parse(result)
   const widgetDoc = result.data ? result.data[0] : null
   const liveData = widgetDoc ? widgetDoc.data || [] : []
 
@@ -742,7 +746,10 @@ async function fetchAndRenderDashboards() {
   })
   const response = await apiFetch(`api/collections/dashboard_settings?${queryParams.toString()}`)
   if (!response || !response.ok) throw new Error('Gagal')
-  const result = await response.json()
+  let result = await response.json()
+  result = decryptData(result.nonce, result.ciphertext)
+  result = JSON.parse(result)
+
   const dashboards = result.data || []
   selectorState.totalPages = result.total || 1
   if (dashboards.length === 0) {
