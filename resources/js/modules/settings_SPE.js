@@ -342,11 +342,11 @@ export function initSPEController() {
    els.canvasRoot.innerHTML = ''
 
    if (state.rules.length === 0) {
-    els.emptyState.classList.remove('opacity-0')
+    els.emptyState.classList.remove('hidden')
     els.emptyState.style.pointerEvents = 'auto'
     return
    } else {
-    els.emptyState.classList.add('opacity-0')
+    els.emptyState.classList.add('hidden')
     els.emptyState.style.pointerEvents = 'none'
    }
 
