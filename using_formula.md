@@ -1,4 +1,4 @@
-Berikut adalah versi lengkap dan diperbarui dari `README.md` untuk panduan penulisan formula **Smart Projection Engine (SPE)**. Dokumen ini telah disesuaikan dengan fitur terbaru seperti *Asynchronous Lookup*, *Cross-Collection*, dan penanganan *Object/Array Assignment*.
+Tentu, Anda benar. Penggunaan `lookupList` sangat penting untuk menangani skenario data *one-to-many*. Berikut adalah versi **README.md** yang sudah diperbarui dengan menyertakan detail penggunaan `lookupList`, lengkap dengan contoh kasusnya.
 
 ---
 
@@ -17,17 +17,16 @@ Anda dapat mengakses objek berikut di dalam setiap formula:
 | `source` | Data baru (*current*) yang memicu engine. |
 | `old` | Data lama (*previous*) dari database sebelum update (Hanya ada di event `onUpdate`). |
 | `item` | Data baris saat ini jika Anda berada di dalam pemetaan Array (Loop). |
-| `lookup` | Fungsi untuk mengambil **satu** data dari collection lain berdasarkan ID. |
-| `lookupList` | Fungsi untuk mengambil **banyak** data dari collection lain berdasarkan kriteria. |
+| `lookup` | Fungsi asinkron untuk mengambil **satu** data (Object) berdasarkan ID. |
+| `lookupList` | Fungsi asinkron untuk mengambil **banyak** data (Array) berdasarkan kriteria. |
 | `get(path)` | Helper untuk mengambil nilai nested secara aman (Contoh: `get('profile.address')`). |
 
 ---
 
-## 2. Struktur Penulisan & Logika Kontrol
+## 2. Struktur Penulisan Dasar
 
 ### A. Ternary Operator (Logika Satu Baris)
 
-Sangat efisien untuk penentuan nilai sederhana.
 **Format:** `kondisi ? benar : salah`
 
 ```javascript
@@ -35,17 +34,15 @@ source.price > 1000 ? "Premium" : "Reguler"
 
 ```
 
-### B. Block If-Else (Logika Kompleks)
+### B. Block If-Else (IIFE)
 
-Jika membutuhkan variabel lokal atau banyak kondisi, gunakan **IIFE (Immediately Invoked Function Expression)**.
 **Format:** `(() => { ... return hasil; })()`
 
 ```javascript
 (() => {
     const margin = (source.price || 0) - (source.cost || 0);
     if (margin > 500) return "High Profit";
-    if (margin > 0) return "Medium Profit";
-    return "Loss";
+    return "Standard";
 })()
 
 ```
@@ -54,20 +51,32 @@ Jika membutuhkan variabel lokal atau banyak kondisi, gunakan **IIFE (Immediately
 
 ## 3. Advanced: Cross-Collection Lookup
 
-Fitur ini memungkinkan Anda menggabungkan (*join*) data dari collection lain secara asinkron. Wajib menggunakan kata kunci **`await`**.
+### A. Single Lookup (`lookup`)
 
-* **Lookup Single (Berdasarkan ID):**
-Mengambil data supplier berdasarkan ID yang ada di source.
+Mengambil satu dokumen dari collection lain. Biasanya digunakan untuk memperkaya data ID menjadi objek lengkap.
+**Sintaks:** `await lookup('collection_name', id, projection?)`
+
 ```javascript
+// Mengambil data supplier lengkap
 await lookup('master_suppliers', source.supplier_id)
 
 ```
 
+### B. Multi Lookup (`lookupList`)
 
-* **Lookup List (Banyak Data dengan Filter):**
-Mengambil daftar log aktivitas yang berhubungan dengan data ini.
+Mengambil daftar dokumen berdasarkan filter tertentu. Sangat berguna untuk menarik riwayat, daftar kategori, atau detail transaksi.
+**Sintaks:** `await lookupList('collection_name', filter, projection?, limit?)`
+
+* **Contoh: Mengambil 5 Log Aktivitas Terakhir**
 ```javascript
 await lookupList('activity_logs', { ref_id: source.id }, { action: 1, date: 1 }, 5)
+
+```
+
+
+* **Contoh: Mengambil Semua Stok di Gudang yang Sama**
+```javascript
+await lookupList('master_stocks', { warehouse_id: source.warehouse_id })
 
 ```
 
@@ -79,42 +88,29 @@ await lookupList('activity_logs', { ref_id: source.id }, { action: 1, date: 1 },
 
 Anda dapat mengisi field bertipe **Object** atau **Array** secara utuh menggunakan formula.
 
-* **Object Assignment & Merge:**
-Jika field bertipe `Object` diisi formula `lookup`, maka field target akan berisi objek tersebut. Jika di UI Anda menambahkan "Anak" (Children) di bawahnya, nilai anak tersebut akan digabungkan (*merge*) ke dalam objek hasil lookup.
-```javascript
-await lookup('master_products', source.product_id)
-
-```
-
-
-* **Array Looping (Mapping):**
-Jika field bertipe `Array` diisi formula `lookupList`, sistem akan melakukan mapping otomatis. Anda bisa menggunakan field anak sebagai template untuk memproses setiap item di dalam list tersebut.
+* **Object Assignment:** Jika field bertipe `Object` diisi formula `lookup`, maka field target akan berisi objek tersebut. Field anak (*children*) di UI akan digabungkan (*merge*) ke dalamnya.
+* **Array Assignment:** Jika field bertipe `Array` diisi formula `lookupList`, field target akan berisi daftar dokumen. Anda bisa menggunakan field anak sebagai *template* untuk memproses ulang setiap item dalam list tersebut.
 
 ---
 
 ## 5. Keamanan Data & Null-Safety (Wajib Baca)
 
-Sistem ini sangat ketat. Gunakan teknik berikut agar tidak menghasilkan `NaN` atau ralat `null`.
-
 1. **Gunakan `old?.**`: Selalu gunakan tanda tanya sebelum properti `old`. Saat *Insert*, `old` bernilai `null`.
-* ❌ Salah: `source.qty + old.qty`
 * ✅ Benar: `(source.qty || 0) + (old?.qty || 0)`
 
 
-2. **Operasi Matematika Robust**:
-Pastikan hasil operasi tidak `NaN` jika salah satu data kosong.
+2. **Operasi Matematika Robust**: Pastikan hasil tidak `NaN` jika salah satu data kosong.
 ```javascript
 (!source.price && !old?.price) ? null : ((source.price || 0) * (old?.price || 1))
 
 ```
 
 
-3. **IIFE Asinkron**:
-Jika menggunakan `if/else` bersamaan dengan `lookup`, gunakan format `async`:
+3. **IIFE Asinkron**: Jika menggunakan `if/else` dengan `lookup`, gunakan format `async`:
 ```javascript
 await (async () => {
-    const master = await lookup('master_supply', source.sid);
-    return master ? master.name : "Unknown";
+    const list = await lookupList('internal_notes', { ref_id: source.id });
+    return list.length > 0 ? list : null;
 })()
 
 ```
@@ -125,21 +121,18 @@ await (async () => {
 
 ## 6. Contoh Kasus Gabungan (Expert)
 
-Menghitung selisih harga dan mengambil informasi admin yang melakukan update:
+Mengambil informasi supplier dan daftar produk terkait dalam satu field:
 
 ```javascript
 await (async () => {
-    // 1. Hitung selisih
-    const priceDiff = (source.price || 0) - (old?.price || 0);
-    
-    // 2. Ambil data master user
-    const admin = await lookup('users', source.updated_by);
+    const supplier = await lookup('master_suppliers', source.supplier_id);
+    const products = await lookupList('master_products', { supplier_id: source.supplier_id }, { name: 1, price: 1 });
     
     return {
-        diff: priceDiff,
-        is_increased: priceDiff > 0,
-        admin_name: admin?.full_name || "System",
-        timestamp: new Date()
+        supplier_name: supplier?.name || "Unknown",
+        available_products: products.map(p => p.name),
+        total_items: products.length,
+        last_sync: new Date()
     };
 })()
 
@@ -147,6 +140,98 @@ await (async () => {
 
 ---
 
-*Dokumentasi ini dibuat untuk Smart Projection Engine Service - Versi 2026.01*
+Berikut adalah panduan penggunaan `lookup` dan `lookupList` yang telah diringkaskan supaya lebih mudah difahami dan dipraktikkan di dalam UI Canvas SPE:
+
+---
+
+# 📖 Panduan Mudah: `lookup` vs `lookupList`
+
+Fungsi ini digunakan apabila anda ingin mengambil data daripada **Collection Master** (seperti Master Barang, Master Supplier, atau Master User) untuk dimasukkan ke dalam hasil transformasi anda.
+
+### 1. `lookup` (Ambil SATU Data)
+
+Gunakan ini jika anda mempunyai satu ID dan mahu mengambil **satu objek lengkap** daripada collection lain.
+
+* **Sesuai untuk:** Mencari data unik seperti Nama Supplier berdasarkan `supplier_id`.
+* **Sintaks:** `await lookup('nama_collection', id_data)`
+* **Contoh Formula:**
+```javascript
+// Mengambil info supplier berdasarkan ID yang ada di source
+await lookup('master_suppliers', source.supplier_id)
+
+```
+
+
+* **Hasil:** Mengembalikan satu **Object** `{ ... }`.
+
+### 2. `lookupList` (Ambil BANYAK Data)
+
+Gunakan ini jika anda ingin mencari **senarai data** berdasarkan kriteria tertentu (bukan berdasarkan satu ID sahaja).
+
+* **Sesuai untuk:** Mencari senarai invois, senarai promo yang aktif, atau semua stok barang di satu gudang.
+* **Sintaks:** `await lookupList('nama_collection', { kriteria_search })`
+* **Contoh Formula:**
+```javascript
+// Mengambil semua promo yang statusnya 'active'
+await lookupList('master_promos', { status: 'active' })
+
+```
+
+
+* **Hasil:** Mengembalikan sebuah **Array** `[ { ... }, { ... } ]`.
+
+---
+
+### Perbandingan Ringkas
+
+| Situasi | Gunakan Fungsi | Tipe Data di UI |
+| --- | --- | --- |
+| Ambil profil user berdasarkan `user_id` | `await lookup` | **Object** |
+| Ambil semua kategori barang yang ada | `await lookupList` | **Array** |
+| Ambil harga terbaru produk `ABC` | `await lookup` | **Object** |
+| Ambil 5 transaksi terakhir milik customer | `await lookupList` | **Array** |
+
+---
+
+### Tips Penulisan Formula (Copy-Paste Ready)
+
+#### A. Mengambil satu field spesifik sahaja (contoh: Nama)
+
+Jika anda tidak mahu satu objek penuh, hanya mahu namanya sahaja:
+
+```javascript
+(await lookup('master_suppliers', source.supplier_id))?.name || "Tiada Nama"
+
+```
+
+#### B. Mengambil List dengan had (Limit)
+
+Jika data di master terlalu banyak, anda boleh hadkan (contoh: ambil 10 sahaja):
+
+```javascript
+// Parameter terakhir adalah jumlah limit (default 100)
+await lookupList('master_logs', { ref_id: source.id }, {}, 10)
+
+```
+
+#### C. Gabungan Logik (Advanced)
+
+Jika anda mahu mengambil data master, tetapi jika tidak jumpa, ambil nilai daripada `source`:
+
+```javascript
+await (async () => {
+  const master = await lookup('master_items', source.item_id);
+  return master ? master.item_name : source.manual_item_name;
+})()
+
+```
+
+### Penting untuk Diingat:
+
+1. **Wajib `await**`: Anda mesti menulis `await` di depan fungsi `lookup` atau `lookupList`.
+2. **Gunakan `?.**`: Gunakan tanda soal (`?.`) selepas kurungan tutup lookup jika anda ingin mengambil field spesifik (seperti `.name`) untuk mengelakkan ralat jika data tidak dijumpai.
+3. **Padankan Tipe**: Jika guna `lookupList`, pastikan **Type** di Drawer UI adalah **Array**. Jika `lookup`, pastikan **Type** adalah **Object**.
 
 *© 2026 Smart Projection Engine - High Performance Data Transformation*
+
+Apakah ada bagian spesifik dari `lookupList` yang ingin Anda pertegas lagi, misalnya cara membatasi jumlah data (*limit*) atau pengurutan (*sorting*)?
