@@ -257,8 +257,7 @@ async function initWidgetDataFetcher(widget) {
   result = decryptData(result.nonce, result.ciphertext)
   result = JSON.parse(result)
   const widgetDoc = result.data ? result.data[0] : null
-  const liveData = widgetDoc ? widgetDoc.data || [] : []
-
+  const liveData = widgetDoc ? widgetDoc || [] : []
   dashboardState.data[widget.id] = liveData
   renderWidgetContent(contentContainer, widget, liveData)
   if (widget.refresh_interval && widget.refresh_interval > 0) {

@@ -231,7 +231,7 @@ export function initSPEController() {
   },
   array: {
    label: 'Array',
-   icon: 'fa-brackets',
+   icon: 'fa-cubes',
    color: 'text-amber-600',
    bg: 'bg-amber-50',
    border: 'border-amber-300',
@@ -317,23 +317,27 @@ export function initSPEController() {
       const rawType = node.dataType || (node.meta_data && node.meta_data.data_type) || 'string'
       const dataType = rawType.toLowerCase()
 
-      // 2. Tentukan apakah ini Container (Object/Array) atau Leaf (String/Number/Bool)
       const isContainer = dataType === 'object' || dataType === 'array'
       const styles = DATA_TYPES[dataType] || DATA_TYPES.string
 
-      // Ambil nama key (jika format flat ambil element terakhir, jika nested ambil target_key)
-      const displayName =
+      const rawKey =
        node.target_key ||
        (Array.isArray(node.target) ? node.target[node.target.length - 1] : node.target)
+
+      const isIndex = !isNaN(rawKey)
+
+      const displayName = isIndex
+       ? `<span class="bg-slate-100 text-slate-500 border border-slate-200 px-1.5 rounded text-[10px] mr-1 font-mono">INDEX ${rawKey}</span>`
+       : `<span class="text-xs font-bold text-slate-800 truncate">${rawKey}</span>`
 
       let valuePreview = ''
       if (!isContainer) {
        if (node.type === 'direct') {
         valuePreview = `<span class="font-mono text-indigo-600 truncate max-w-[120px]" title="${node.logic}">
-                    <i class="fas fa-link text-[8px] mr-1"></i>${node.logic}
+                    <i class="fas fa-link text-[8px] mr-1"></i>${node.logic || '-'}
                 </span>`
        } else if (node.type === 'static') {
-        valuePreview = `<span class="font-bold text-slate-700">"${node.logic}"</span>`
+        valuePreview = `<span class="font-bold text-slate-700">"${node.logic || ''}"</span>`
        } else if (node.type === 'formula') {
         valuePreview = `<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[9px] font-mono">ƒ(x) Formula</span>`
        }
@@ -352,13 +356,13 @@ export function initSPEController() {
 
                     <div class="flex-1 px-3 py-2 flex flex-col justify-center min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-800 truncate">${displayName}</span>
+                            ${displayName}
                             
                             ${dataType === 'array' ? '<span class="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-bold uppercase">List</span>' : ''}
                             ${dataType === 'object' ? '<span class="text-[8px] px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded font-bold uppercase">Map</span>' : ''}
-                            
-                            ${node.encrypt ? '<i class="fas fa-lock text-[9px] text-amber-500"></i>' : ''}
+                            ${node.encrypt ? '<i class="fas fa-lock text-[9px] text-amber-500" title="Encrypted"></i>' : ''}
                         </div>
+                        
                         <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
                             <span class="uppercase font-medium tracking-tighter">${dataType}</span>
                             ${!isContainer ? `<i class="fas fa-long-arrow-alt-right text-[8px] opacity-50"></i> ${valuePreview}` : ''}
@@ -370,14 +374,14 @@ export function initSPEController() {
                          isContainer
                           ? `
                             <button class="w-9 h-full hover:bg-indigo-50 text-indigo-400 hover:text-indigo-600 transition-colors border-r border-slate-100" 
-                                title="Tambah Field di dalam ${displayName}" 
+                                title="Tambah Child" 
                                 onclick="event.stopPropagation(); document.dispatchEvent(new CustomEvent('spe:add-child', {detail: ${node.id}}))">
                                 <i class="fas fa-plus-circle"></i>
                             </button>`
                           : ''
                         }
                         
-                        <button class="w-9 h-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button class="w-9 h-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" title="Edit">
                             <i class="fas fa-cog"></i>
                         </button>
                     </div>
@@ -389,8 +393,8 @@ export function initSPEController() {
                     <div class="relative border-l-2 border-dashed border-slate-200 ml-5 my-1">
                         ${
                          node.children && node.children.length > 0
-                          ? renderNodes(node.children, level + 1) // <--- PANGGIL ULANG UNTUK ANAK
-                          : `<div class="py-2 pl-8 text-[10px] text-slate-300 italic">Belum ada field di dalam ${displayName}</div>`
+                          ? renderNodes(node.children, level + 1)
+                          : `<div class="py-2 pl-8 text-[10px] text-slate-300 italic">Kosong...</div>`
                         }
                     </div>
                 `
@@ -496,7 +500,9 @@ export function initSPEController() {
    const isNew = nodeId === null
    state.editingNodeId = nodeId
    state.parentIdForNew = parentId
+
    els.prop.key.value = ''
+   els.prop.key.disabled = false
    els.prop.typeVal.value = 'string'
    els.prop.modeVal.value = 'direct'
    els.prop.valDirect.value = ''
@@ -515,7 +521,33 @@ export function initSPEController() {
     b.classList.add('border-transparent')
    })
 
-   drawerUI.selectType('string')
+   if (isNew && parentId) {
+    const parent = state.rules.find((r) => r.id === parentId)
+
+    if (parent) {
+     const pType = (parent.dataType || parent.meta_data?.data_type || '').toLowerCase()
+
+     if (pType === 'array') {
+      const childrenCount = state.rules.filter((r) => {
+       const pPath = parent.target.join('.')
+       const cPath = r.target.join('.')
+       return cPath.startsWith(pPath + '.') && r.target.length === parent.target.length + 1
+      }).length
+
+      els.prop.key.value = childrenCount.toString()
+      els.prop.key.disabled = true
+
+      drawerUI.selectType('object')
+     } else {
+      drawerUI.selectType('string')
+     }
+    } else {
+     drawerUI.selectType('string')
+    }
+   } else {
+    drawerUI.selectType('string')
+   }
+
    drawerUI.selectMode('direct')
 
    if (!isNew) {
@@ -524,22 +556,27 @@ export function initSPEController() {
      const lastKey = node.target[node.target.length - 1]
      els.prop.key.value = lastKey
 
-     drawerUI.selectType(node.dataType)
+     const isIndex = !isNaN(lastKey)
+     if (isIndex) els.prop.key.disabled = true
+
+     const type = node.dataType || node.meta_data?.data_type || 'string'
+     drawerUI.selectType(type)
+
      if (node.type) drawerUI.selectMode(node.type)
 
-     if (node.type === 'direct') els.prop.valDirect.value = node.logic
-     if (node.type === 'formula') els.prop.valFormula.value = node.logic
-     if (node.type === 'static') els.prop.valStatic.value = node.logic
+     if (node.type === 'direct') els.prop.valDirect.value = node.logic || ''
+     if (node.type === 'formula') els.prop.valFormula.value = node.logic || ''
+     if (node.type === 'static') els.prop.valStatic.value = node.logic || ''
 
-     els.prop.encrypt.checked = node.encrypt
+     els.prop.encrypt.checked = !!node.encrypt
+
+     if (els.prop.btnDelete) els.prop.btnDelete.classList.remove('hidden')
     }
-    els.prop.btnDelete.classList.remove('hidden')
-    els.prop.key.disabled = false
    } else {
-    els.prop.btnDelete.classList.add('hidden')
+    if (els.prop.btnDelete) els.prop.btnDelete.classList.add('hidden')
    }
 
-   if (state.sourceSchema.length) {
+   if (state.sourceSchema && state.sourceSchema.length) {
     els.prop.valDirect.innerHTML =
      `<option value="" disabled selected>-- Select Field --</option>` +
      state.sourceSchema
@@ -548,10 +585,15 @@ export function initSPEController() {
    }
 
    els.drawerOverlay.classList.remove('hidden')
-   els.drawerOverlay.classList.remove('opacity-0')
-   els.drawer.classList.remove('translate-x-full')
 
-   setTimeout(() => els.prop.key.focus(), 100)
+   setTimeout(() => {
+    els.drawerOverlay.classList.remove('opacity-0')
+    els.drawer.classList.remove('translate-x-full')
+   }, 10)
+
+   if (!els.prop.key.disabled) {
+    setTimeout(() => els.prop.key.focus(), 300)
+   }
   },
 
   close: () => {

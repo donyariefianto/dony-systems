@@ -3,127 +3,201 @@ import { ObjectId } from 'mongodb'
 import vm from 'vm'
 
 export class SmartProjectionEngineService {
- static async executeEngine(data_request, method_request, param_request) {
+ static async executeEngine(data_request: any, method_request: any, param_request: any) {
   try {
    const source_data = data_request
    const trigger_collection = param_request.col
    const id_data = param_request.id
+
+   let eventType = ''
    switch (method_request) {
     case 'POST':
-     method_request = 'onInsert'
+     eventType = 'onInsert'
      break
     case 'PUT':
-     method_request = 'onUpdate'
+     eventType = 'onUpdate'
      break
     case 'DELETE':
-     method_request = 'onDelete'
+     eventType = 'onDelete'
      break
+    default:
+     return
    }
-   const collections = database.data?.collection('smart_projection_engine')
-   let find_engine_trigger = await collections?.findOne({
+
+   const speCollection = database.data?.collection('smart_projection_engine')
+   const config = await speCollection?.findOne({
     'status': 'active',
     'trigger.collection': trigger_collection,
-    'trigger.event': method_request,
+    'trigger.event': eventType,
    })
-   if (!find_engine_trigger || find_engine_trigger.mapping.length===0) {
+
+   if (!config || !config.mapping || config.mapping.length === 0) {
     return
    }
-   let engine_collection = find_engine_trigger.engine_collection
-   const collections_current = database.data?.collection(engine_collection)
-   let data_current = await collections_current?.findOne({},{},{sort:{updated_at:-1}})
-   let fields = find_engine_trigger.mapping
-   let result_smart_projection_engine = this.processNestedProjection(source_data, fields)
-   if (result_smart_projection_engine.errors) {
-    // insert log error
+
+   const targetCollectionName = config.engine_collection
+   if (!targetCollectionName) {
+    console.error(`SPE Error: Target collection not defined for ${config.feature_name}`)
     return
    }
-  //  save result 
-   await collections_current?.insertOne(result_smart_projection_engine.data)
+   const targetCollection = database.data?.collection(targetCollectionName)
+
+   let oldData: any = await targetCollection?.find({}).sort({ _id: -1 }).limit(1).toArray()
+   oldData = oldData[0]
+
+   const result = this.processNestedProjection(source_data, config.mapping, oldData)
+
+   if (result.data) {
+    await targetCollection?.insertOne(result.data)
+   }
   } catch (error) {
-    // insert log error
+   console.error('SPE Execution Error:', error)
   }
  }
- static getDeepValue(obj, path) {
-  if (!path || !obj) return null
-  const cleanPath = path.startsWith('source.') ? path.slice(7) : path
-  return cleanPath.split('.').reduce((acc, part) => {
-   return acc && acc[part] !== undefined ? acc[part] : null
-  }, obj)
- }
- static executeFormula(code, context) {
-  if (!code || typeof code !== 'string') return null
-  try {
-   const script = new vm.Script(`(function() { return ${code} })()`)
-   return script.runInContext(context, { timeout: 100 })
-  } catch (e) {
-   throw new Error(`Formula Error: ${e.message}`)
-  }
- }
- static castValue(value, type) {
-  if (value === null || value === undefined) return null
-  switch (type) {
-   case 'string':
-    return String(value)
-   case 'number':
-    const n = Number(value)
-    return isNaN(n) ? 0 : n
-   case 'boolean':
-    return !!value
-   case 'array':
-    return Array.isArray(value) ? value : []
-   case 'object':
-    return typeof value === 'object' ? value : {}
-   default:
-    return value
-  }
- }
- static processNestedProjection(sourceData, nestedMapping) {
-  const result = {}
-  const errors = []
-  const sandboxContext = {
+
+ static processNestedProjection(
+  sourceData: any,
+  mappingRules: any[],
+  oldData: any = null,
+  currentScope: any = null
+ ) {
+  const result: any = {}
+  const activeSource = currentScope || sourceData
+
+  const sandboxContext = vm.createContext({
    source: sourceData,
+   old: oldData,
+   item: activeSource,
    Math: Math,
    Date: Date,
-  }
-  const context = vm.createContext(sandboxContext)
-  const transformLevel = (rules, targetParent) => {
+
+   get: (path: string) => this.getDeepValue(activeSource, path),
+   ObjectId: ObjectId,
+   console: { log: () => {} },
+  })
+
+  const transformLevel = (rules: any[], container: any) => {
+   if (!Array.isArray(rules)) return
+
    rules.forEach((rule) => {
     const { target_key, transformation_type, expression, meta_data } = rule
     const dataType = (meta_data?.data_type || 'string').toLowerCase()
     const children = meta_data?.children || []
+
+    let finalValue: any = null
+
     try {
      if (dataType === 'object') {
-      targetParent[target_key] = {}
-      transformLevel(children, targetParent[target_key])
+      finalValue = {}
+      transformLevel(children, finalValue)
      } else if (dataType === 'array') {
-      targetParent[target_key] = []
-      const placeholderObj = {}
-      transformLevel(children, placeholderObj)
-      if (Object.keys(placeholderObj).length > 0) {
-       targetParent[target_key].push(placeholderObj)
+      finalValue = []
+
+      const isDynamicLoop = expression && String(expression).trim() !== ''
+
+      if (isDynamicLoop) {
+       const sourceArray =
+        transformation_type === 'formula'
+         ? this.executeFormula(expression, sandboxContext)
+         : this.getDeepValue(activeSource, expression)
+
+       if (Array.isArray(sourceArray)) {
+        finalValue = sourceArray.map((loopItem: any) => {
+         const childResult = this.processNestedProjection(sourceData, children, oldData, loopItem)
+         return childResult.data
+        })
+       }
+      } else {
+       transformLevel(children, finalValue)
       }
      } else {
-      let value = null
-      switch (transformation_type) {
-       case 'direct':
-        value = this.getDeepValue(sourceData, expression)
-        break
-       case 'static':
-        value = expression
-        break
-       case 'formula':
-        value = this.executeFormula(expression, context)
-        break
+      if (transformation_type === 'direct') {
+       finalValue = this.getDeepValue(activeSource, expression)
+      } else if (transformation_type === 'formula') {
+       finalValue = this.executeFormula(expression, sandboxContext)
+      } else {
+       finalValue = expression
       }
-      targetParent[target_key] = this.castValue(value, dataType)
+      finalValue = this.castValue(finalValue, dataType)
+     }
+
+     if (Array.isArray(container)) {
+      const index = parseInt(target_key, 10)
+      if (!isNaN(index)) {
+       container[index] = finalValue
+      } else {
+       container.push(finalValue)
+      }
+     } else {
+      container[target_key] = finalValue
      }
     } catch (err) {
-     errors.push({ field: target_key, error: err.message })
-     targetParent[target_key] = null
+     if (!Array.isArray(container)) container[target_key] = null
     }
    })
   }
-  transformLevel(nestedMapping, result)
-  return { data: result, errors: errors.length > 0 ? errors : null }
+
+  transformLevel(mappingRules, result)
+  return { data: result }
+ }
+
+ static getDeepValue(obj: any, path: string, defaultValue: any = null) {
+  if (!obj || typeof obj !== 'object' || !path) {
+   return defaultValue
+  }
+
+  const cleanPath = String(path).replace(/^(source\.|item\.|old\.)/, '')
+
+  if (!cleanPath) return obj
+
+  const keys = cleanPath.split('.')
+  let current = obj
+
+  for (const key of keys) {
+   if (current === null || current === undefined) {
+    return defaultValue
+   }
+   current = current[key]
+  }
+
+  return current !== undefined ? current : defaultValue
+ }
+
+ static executeFormula(code: string, context: any) {
+  if (!code || typeof code !== 'string') return null
+  try {
+   const scriptCode = `(function() { try { return ${code}; } catch(e) { return null; } })()`
+   const script = new vm.Script(scriptCode)
+   return script.runInContext(context, { timeout: 100 })
+  } catch (e) {
+   return null
+  }
+ }
+
+ static castValue(value: any, type: string) {
+  if (value === null || value === undefined) return null
+
+  switch (type.toLowerCase()) {
+   case 'string':
+    return typeof value === 'object' ? JSON.stringify(value) : String(value)
+   case 'number':
+    const num = Number(value)
+    return isNaN(num) ? 0 : num
+   case 'boolean':
+    if (typeof value === 'string' && value.toLowerCase() === 'false') return false
+    return Boolean(value)
+   case 'array':
+    return Array.isArray(value) ? value : [value]
+   case 'object':
+    return typeof value === 'object' && !Array.isArray(value) ? value : {}
+   case 'objectid':
+    try {
+     return new ObjectId(value)
+    } catch (e) {
+     return value
+    }
+   default:
+    return value
+  }
  }
 }
