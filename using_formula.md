@@ -1,10 +1,10 @@
-Berikut adalah isi lengkap untuk file `README.md` panduan penulisan formula **Smart Projection Engine (SPE)**. Dokumen ini disusun untuk mencakup semua level, dari dasar hingga penggunaan tingkat lanjut yang melibatkan pencarian antar-collection (*cross-collection lookup*).
+Berikut adalah versi lengkap dan diperbarui dari `README.md` untuk panduan penulisan formula **Smart Projection Engine (SPE)**. Dokumen ini telah disesuaikan dengan fitur terbaru seperti *Asynchronous Lookup*, *Cross-Collection*, dan penanganan *Object/Array Assignment*.
 
 ---
 
 # 📘 Panduan Penulisan Formula - Smart Projection Engine (SPE)
 
-Dokumen ini merupakan panduan resmi untuk menulis logika pada bagian **Logic (Formula Mode)** di dalam sistem SPE. Semua formula dijalankan dalam lingkungan *Sandbox* (VM Node.js) yang aman dan mendukung manipulasi data dinamis.
+Dokumen ini adalah referensi resmi untuk menulis logika transformasi pada bagian **Logic (Formula Mode)** di dalam sistem SPE. Semua formula dijalankan dalam lingkungan *Safe Sandbox* (VM Node.js) yang mendukung operasi asinkron dan manipulasi data tingkat lanjut.
 
 ---
 
@@ -14,82 +14,60 @@ Anda dapat mengakses objek berikut di dalam setiap formula:
 
 | Variabel | Deskripsi |
 | --- | --- |
-| `source` | Data baru (*current*) yang sedang diproses. |
-| `old` | Data lama (*previous*) dari database (tersedia pada event `onUpdate`). |
-| `item` | Data baris saat ini jika berada di dalam *Array Mapping*. |
-| `lookup` | Fungsi *asynchronous* untuk mengambil data dari collection lain. |
-| `Math`, `Date` | Library standar JavaScript untuk perhitungan dan tanggal. |
+| `source` | Data baru (*current*) yang memicu engine. |
+| `old` | Data lama (*previous*) dari database sebelum update (Hanya ada di event `onUpdate`). |
+| `item` | Data baris saat ini jika Anda berada di dalam pemetaan Array (Loop). |
+| `lookup` | Fungsi untuk mengambil **satu** data dari collection lain berdasarkan ID. |
+| `lookupList` | Fungsi untuk mengambil **banyak** data dari collection lain berdasarkan kriteria. |
+| `get(path)` | Helper untuk mengambil nilai nested secara aman (Contoh: `get('profile.address')`). |
 
 ---
 
-## 2. Struktur Penulisan Dasar
+## 2. Struktur Penulisan & Logika Kontrol
 
-### A. Ternary Operator (Direkomendasikan)
+### A. Ternary Operator (Logika Satu Baris)
 
-Cocok untuk logika sederhana satu baris.
-**Format:** `kondisi ? hasil_jika_benar : hasil_jika_salah`
+Sangat efisien untuk penentuan nilai sederhana.
+**Format:** `kondisi ? benar : salah`
 
 ```javascript
-source.price > 1000 ? "Mahal" : "Murah"
+source.price > 1000 ? "Premium" : "Reguler"
 
 ```
 
-### B. Block If-Else (IIFE)
+### B. Block If-Else (Logika Kompleks)
 
-Gunakan jika logika memerlukan lebih dari satu baris atau variabel lokal. Wajib dibungkus dalam fungsi anonim yang dipanggil langsung: `(() => { ... })()`.
+Jika membutuhkan variabel lokal atau banyak kondisi, gunakan **IIFE (Immediately Invoked Function Expression)**.
+**Format:** `(() => { ... return hasil; })()`
 
 ```javascript
 (() => {
-    const selisih = (source.price || 0) - (old?.price || 0);
-    if (selisih > 0) return "Naik";
-    if (selisih < 0) return "Turun";
-    return "Tetap";
+    const margin = (source.price || 0) - (source.cost || 0);
+    if (margin > 500) return "High Profit";
+    if (margin > 0) return "Medium Profit";
+    return "Loss";
 })()
 
 ```
 
 ---
 
-## 3. Level Menengah: Penanganan Data Kosong (Null-Safe)
+## 3. Advanced: Cross-Collection Lookup
 
-Sistem ini sangat ketat terhadap data `null`. Gunakan *Optional Chaining* (`?.`) agar sistem tidak *crash*.
+Fitur ini memungkinkan Anda menggabungkan (*join*) data dari collection lain secara asinkron. Wajib menggunakan kata kunci **`await`**.
 
-* **Perkalian Aman:**
-`(source.price || 0) * (old?.price || 0)`
-* **Pertambahan dengan Array Index:**
-`(source.qty || 0) + (old?.data?.[0]?.value || 0)`
-* **Keduanya Kosong = Null:**
-`(!source.val && !old?.val) ? null : (source.val || 0) + (old?.val || 0)`
-
----
-
-## 4. Level Lanjut: Pencarian Antar-Collection (Lookup)
-
-Anda bisa mengambil data dari collection lain (Master Data) tanpa menulis query MongoDB yang rumit.
-
-**Sintaks:** `await lookup('nama_collection', id_data, projection_object?)`
-
-* **Mengambil Data Master Supply:**
-`await lookup('master_supply', source.supply_id)`
-* **Hanya Mengambil Nama Produk:**
-`(await lookup('master_products', item.product_id, { name: 1 }))?.name || "N/A"`
-
----
-
-## 5. Level Expert: Manipulasi Array & Kompleksitas
-
-Manfaatkan fungsi tingkat tinggi JavaScript untuk transformasi data yang masif.
-
-* **Menghitung Total dari Array Objek:**
+* **Lookup Single (Berdasarkan ID):**
+Mengambil data supplier berdasarkan ID yang ada di source.
 ```javascript
-(source.items || []).reduce((sum, it) => sum + (it.price * it.qty), 0)
+await lookup('master_suppliers', source.supplier_id)
 
 ```
 
 
-* **Filter dan Join String:**
+* **Lookup List (Banyak Data dengan Filter):**
+Mengambil daftar log aktivitas yang berhubungan dengan data ini.
 ```javascript
-(source.tags || []).filter(t => t.active).map(t => t.label).join(', ')
+await lookupList('activity_logs', { ref_id: source.id }, { action: 1, date: 1 }, 5)
 
 ```
 
@@ -97,32 +75,78 @@ Manfaatkan fungsi tingkat tinggi JavaScript untuk transformasi data yang masif.
 
 ---
 
-## 6. Aturan Emas (Must Follow)
+## 4. Penanganan Object & Array Assignment
 
-1. **Gunakan `old?.**`: Selalu gunakan tanda tanya sebelum memanggil properti `old`. Jika tidak, sistem akan error saat proses **Insert** (karena `old` bernilai `null`).
-2. **Gunakan `await` untuk `lookup**`: Semua fungsi yang mengambil data dari database lain wajib diawali kata kunci `await`.
-3. **Default Value**: Berikan nilai default seperti `|| 0` atau `|| ""` untuk menghindari hasil `NaN` atau `undefined` pada output final.
-4. **Sandbox Security**: Anda tidak bisa memanggil fungsi `require`, `process`, atau akses database langsung selain melalui fungsi `lookup` yang disediakan.
+Anda dapat mengisi field bertipe **Object** atau **Array** secara utuh menggunakan formula.
+
+* **Object Assignment & Merge:**
+Jika field bertipe `Object` diisi formula `lookup`, maka field target akan berisi objek tersebut. Jika di UI Anda menambahkan "Anak" (Children) di bawahnya, nilai anak tersebut akan digabungkan (*merge*) ke dalam objek hasil lookup.
+```javascript
+await lookup('master_products', source.product_id)
+
+```
+
+
+* **Array Looping (Mapping):**
+Jika field bertipe `Array` diisi formula `lookupList`, sistem akan melakukan mapping otomatis. Anda bisa menggunakan field anak sebagai template untuk memproses setiap item di dalam list tersebut.
 
 ---
 
-### Contoh Kasus Lengkap (Audit Trail):
+## 5. Keamanan Data & Null-Safety (Wajib Baca)
+
+Sistem ini sangat ketat. Gunakan teknik berikut agar tidak menghasilkan `NaN` atau ralat `null`.
+
+1. **Gunakan `old?.**`: Selalu gunakan tanda tanya sebelum properti `old`. Saat *Insert*, `old` bernilai `null`.
+* ❌ Salah: `source.qty + old.qty`
+* ✅ Benar: `(source.qty || 0) + (old?.qty || 0)`
+
+
+2. **Operasi Matematika Robust**:
+Pastikan hasil operasi tidak `NaN` jika salah satu data kosong.
+```javascript
+(!source.price && !old?.price) ? null : ((source.price || 0) * (old?.price || 1))
+
+```
+
+
+3. **IIFE Asinkron**:
+Jika menggunakan `if/else` bersamaan dengan `lookup`, gunakan format `async`:
+```javascript
+await (async () => {
+    const master = await lookup('master_supply', source.sid);
+    return master ? master.name : "Unknown";
+})()
+
+```
+
+
+
+---
+
+## 6. Contoh Kasus Gabungan (Expert)
+
+Menghitung selisih harga dan mengambil informasi admin yang melakukan update:
 
 ```javascript
 await (async () => {
-    if (!old) return "Data Baru Dibuat";
+    // 1. Hitung selisih
+    const priceDiff = (source.price || 0) - (old?.price || 0);
     
-    const fields = ['status', 'price', 'qty'];
-    const changed = fields.filter(f => source[f] !== old[f]);
+    // 2. Ambil data master user
+    const admin = await lookup('users', source.updated_by);
     
-    if (changed.length === 0) return "Tidak Ada Perubahan";
-    
-    const supplier = await lookup('master_supply', source.supplier_id);
-    return `Update pada ${changed.join(', ')}. Supplier: ${supplier?.name}`;
+    return {
+        diff: priceDiff,
+        is_increased: priceDiff > 0,
+        admin_name: admin?.full_name || "System",
+        timestamp: new Date()
+    };
 })()
 
 ```
 
 ---
+
+*Dokumentasi ini dibuat untuk Smart Projection Engine Service - Versi 2026.01*
 
 *© 2026 Smart Projection Engine - High Performance Data Transformation*
