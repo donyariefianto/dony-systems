@@ -209,10 +209,10 @@ export default class BackendsController {
    }
   }
   const skip = (page - 1) * limit
-  const sort = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
+  const sort:any = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
 
   let data = await collections?.find(query).skip(skip).limit(Number(limit)).sort(sort).toArray()
-  const total = await collections?.countDocuments(query)
+  const total:any = await collections?.countDocuments(query)
   let response_data = { data, total, page: Number(page), totalPages: Math.ceil(total / limit) }
   let data_encrypt = EncryptionService.encrypt(JSON.stringify(response_data))
   return response.send(data_encrypt)
@@ -246,7 +246,7 @@ export default class BackendsController {
    const id = params.id
    let body = request.all()
    const collections = database.data?.collection(colName)
-   const updateData = { ...body, updated_at: new Date() }
+   const updateData:any = { ...body, updated_at: new Date() }
    delete updateData._id
    const result = await collections?.updateOne({ _id: new ObjectId(id) }, { $set: updateData })
    return response.status(200).send({ message: 'Data updated successfully', result })

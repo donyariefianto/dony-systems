@@ -497,103 +497,93 @@ export function initSPEController() {
   },
 
   open: (nodeId = null, parentId = null) => {
-   const isNew = nodeId === null
-   state.editingNodeId = nodeId
-   state.parentIdForNew = parentId
+    const isNew = nodeId === null;
+    state.editingNodeId = nodeId;
+    state.parentIdForNew = parentId;
 
-   els.prop.key.value = ''
-   els.prop.key.disabled = false
-   els.prop.typeVal.value = 'string'
-   els.prop.modeVal.value = 'direct'
-   els.prop.valDirect.value = ''
-   els.prop.valFormula.value = ''
-   els.prop.valStatic.value = ''
-   els.prop.encrypt.checked = false
+    // Reset Form
+    els.prop.key.value = '';
+    els.prop.key.disabled = false;
+    els.prop.valDirect.value = '';
+    els.prop.valFormula.value = '';
+    els.prop.valStatic.value = '';
+    els.prop.encrypt.checked = false;
 
-   document.querySelectorAll('.prop-type-btn, .prop-mode-btn').forEach((b) => {
-    b.classList.remove(
-     'bg-indigo-50',
-     'text-indigo-600',
-     'border-indigo-200',
-     'bg-slate-800',
-     'text-white'
-    )
-    b.classList.add('border-transparent')
-   })
+    // Reset UI Buttons
+    document.querySelectorAll('.prop-type-btn, .prop-mode-btn').forEach(b => {
+        b.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
+        b.classList.add('border-transparent');
+    });
 
-   if (isNew && parentId) {
-    const parent = state.rules.find((r) => r.id === parentId)
+    // --- LOGIKA LOAD DATA (EDIT MODE) ---
+    if (!isNew) {
+      const node = state.rules.find((r) => r.id === nodeId);
+      if (node) {
+        // Load Key
+        const lastKey = node.target[node.target.length - 1];
+        els.prop.key.value = lastKey;
+        
+        // Cek Array Index (Auto-lock)
+        if (!isNaN(lastKey)) els.prop.key.disabled = true;
 
-    if (parent) {
-     const pType = (parent.dataType || parent.meta_data?.data_type || '').toLowerCase()
+        // Load Tipe Data
+        const currentType = node.dataType || node.meta_data?.data_type || 'string';
+        
+        // Panggil selectType untuk mengatur UI (termasuk menampilkan input logic)
+        drawerUI.selectType(currentType);
 
-     if (pType === 'array') {
-      const childrenCount = state.rules.filter((r) => {
-       const pPath = parent.target.join('.')
-       const cPath = r.target.join('.')
-       return cPath.startsWith(pPath + '.') && r.target.length === parent.target.length + 1
-      }).length
+        // Load Mode Logic (Direct/Formula/Static)
+        const currentMode = node.type || 'direct';
+        drawerUI.selectMode(currentMode);
 
-      els.prop.key.value = childrenCount.toString()
-      els.prop.key.disabled = true
+        // Load Nilai Logic (PENTING: Ini sekarang akan masuk ke input meskipun Object/Array)
+        if (currentMode === 'direct') els.prop.valDirect.value = node.logic || '';
+        if (currentMode === 'formula') els.prop.valFormula.value = node.logic || '';
+        if (currentMode === 'static') els.prop.valStatic.value = node.logic || '';
 
-      drawerUI.selectType('object')
-     } else {
-      drawerUI.selectType('string')
-     }
+        els.prop.encrypt.checked = !!node.encrypt;
+        els.prop.btnDelete.classList.remove('hidden');
+      }
     } else {
-     drawerUI.selectType('string')
+      // --- LOGIKA NEW NODE ---
+      els.prop.btnDelete.classList.add('hidden');
+      
+      // Auto-Index Logic untuk Array Parent (seperti request sebelumnya)
+      if (parentId) {
+          const parent = state.rules.find(r => r.id === parentId);
+          if (parent && (parent.dataType === 'array' || parent.meta_data?.data_type === 'array')) {
+             const childrenCount = state.rules.filter(r => 
+                r.target.join('.').startsWith(parent.target.join('.') + '.') && 
+                r.target.length === parent.target.length + 1
+             ).length;
+             els.prop.key.value = childrenCount.toString();
+             els.prop.key.disabled = true;
+             drawerUI.selectType('object'); // Default suggestion
+          } else {
+             drawerUI.selectType('string');
+          }
+      } else {
+          drawerUI.selectType('string');
+      }
+      
+      drawerUI.selectMode('direct');
     }
-   } else {
-    drawerUI.selectType('string')
-   }
 
-   drawerUI.selectMode('direct')
-
-   if (!isNew) {
-    const node = state.rules.find((r) => r.id === nodeId)
-    if (node) {
-     const lastKey = node.target[node.target.length - 1]
-     els.prop.key.value = lastKey
-
-     const isIndex = !isNaN(lastKey)
-     if (isIndex) els.prop.key.disabled = true
-
-     const type = node.dataType || node.meta_data?.data_type || 'string'
-     drawerUI.selectType(type)
-
-     if (node.type) drawerUI.selectMode(node.type)
-
-     if (node.type === 'direct') els.prop.valDirect.value = node.logic || ''
-     if (node.type === 'formula') els.prop.valFormula.value = node.logic || ''
-     if (node.type === 'static') els.prop.valStatic.value = node.logic || ''
-
-     els.prop.encrypt.checked = !!node.encrypt
-
-     if (els.prop.btnDelete) els.prop.btnDelete.classList.remove('hidden')
+    // Populate Source Dropdown
+    if (state.sourceSchema && state.sourceSchema.length) {
+       // ... code populate dropdown ...
+       els.prop.valDirect.innerHTML = `<option value="" disabled selected>-- Select Field --</option>` +
+            state.sourceSchema.map(f => `<option value="source.${f.name}">source.${f.name} (${f.type})</option>`).join('');
     }
-   } else {
-    if (els.prop.btnDelete) els.prop.btnDelete.classList.add('hidden')
-   }
 
-   if (state.sourceSchema && state.sourceSchema.length) {
-    els.prop.valDirect.innerHTML =
-     `<option value="" disabled selected>-- Select Field --</option>` +
-     state.sourceSchema
-      .map((f) => `<option value="source.${f.name}">source.${f.name} (${f.type})</option>`)
-      .join('')
-   }
-
-   els.drawerOverlay.classList.remove('hidden')
-
-   setTimeout(() => {
-    els.drawerOverlay.classList.remove('opacity-0')
-    els.drawer.classList.remove('translate-x-full')
-   }, 10)
-
-   if (!els.prop.key.disabled) {
-    setTimeout(() => els.prop.key.focus(), 300)
-   }
+    // Tampilkan Drawer
+    els.drawerOverlay.classList.remove('hidden');
+    setTimeout(() => {
+      els.drawerOverlay.classList.remove('opacity-0');
+      els.drawer.classList.remove('translate-x-full');
+    }, 10);
+    
+    if (!els.prop.key.disabled) setTimeout(() => els.prop.key.focus(), 300);
   },
 
   close: () => {
@@ -605,22 +595,43 @@ export function initSPEController() {
   },
 
   selectType: (type) => {
-   els.prop.typeVal.value = type
-   document.querySelectorAll('.prop-type-btn').forEach((btn) => {
-    if (btn.dataset.type === type) {
-     btn.classList.add('bg-indigo-50', 'text-indigo-600', 'border-indigo-200')
-     btn.classList.remove('border-transparent')
-    } else {
-     btn.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200')
-     btn.classList.add('border-transparent')
-    }
-   })
+    // 1. Simpan value ke hidden input
+    els.prop.typeVal.value = type;
 
-   if (type === 'object' || type === 'array') {
-    els.prop.logicSection.classList.add('hidden')
-   } else {
-    els.prop.logicSection.classList.remove('hidden')
-   }
+    // 2. Update Style Tombol Tipe (Visual Feedback)
+    document.querySelectorAll('.prop-type-btn').forEach((b) => {
+      b.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200', 'ring-1', 'ring-indigo-200');
+      b.classList.add('border-transparent', 'text-slate-600');
+      
+      // Highlight tombol yang aktif
+      if (b.dataset.type === type) {
+        b.classList.remove('border-transparent', 'text-slate-600');
+        b.classList.add('bg-indigo-50', 'text-indigo-600', 'border-indigo-200', 'ring-1', 'ring-indigo-200');
+      }
+    });
+
+    // 3. LOGIC SECTION VISIBILITY (Perbaikan Utama)
+    // Dulu: if (type === 'object' || type === 'array') hide...
+    // Sekarang: Selalu TAMPILKAN (remove class hidden)
+    const logicSection = document.getElementById('prop-logic-section');
+    if (logicSection) logicSection.classList.remove('hidden');
+
+    // 4. Update Helper Text / Context Hint (Opsional - UI Friendly)
+    const hintText = document.getElementById('prop-value-hint');
+    if (hintText) {
+        if (type === 'object') {
+            hintText.innerHTML = '<i class="fas fa-info-circle"></i> Isi Logic untuk me-replace/merge object ini, atau biarkan kosong jika hanya sebagai container.';
+        } else if (type === 'array') {
+            hintText.innerHTML = '<i class="fas fa-info-circle"></i> Isi Logic (misal: Source Path / lookupList) untuk mengisi list ini secara otomatis.';
+        } else {
+            hintText.innerHTML = ''; // Kosongkan untuk tipe primitif
+        }
+    }
+    
+    // Default mode jika belum dipilih
+    if (!els.prop.modeVal.value) {
+        drawerUI.selectMode('direct');
+    }
   },
 
   selectMode: (mode) => {
@@ -640,90 +651,49 @@ export function initSPEController() {
   },
 
   save: () => {
-   const key = els.prop.key.value.trim()
-   const type = els.prop.typeVal.value
-   const mode = els.prop.modeVal.value
-   const encrypt = els.prop.encrypt.checked
+    const key = els.prop.key.value.trim();
+    const dataType = els.prop.typeVal.value; // 'object', 'array', 'string', dll
+    const transformationType = els.prop.modeVal.value; // 'direct', 'formula', 'static'
+    
+    if (!key) return alert('Key is required');
 
-   if (!key) {
-    showToast('Key name tidak boleh kosong', 'error')
-    return
-   }
+    // Ambil nilai logic berdasarkan mode yang dipilih
+    let logicValue = '';
+    if (transformationType === 'direct') logicValue = els.prop.valDirect.value;
+    else if (transformationType === 'formula') logicValue = els.prop.valFormula.value;
+    else if (transformationType === 'static') logicValue = els.prop.valStatic.value;
 
-   if (!/^[a-zA-Z0-9_]+$/.test(key)) {
-    showToast('Key hanya boleh berisi huruf, angka, dan underscore', 'error')
-    return
-   }
+    // Tentukan parent dan target path (untuk struktur nested)
+    const parent = state.parentIdForNew ? state.rules.find(r => r.id === state.parentIdForNew) : null;
+    const targetPath = parent ? [...parent.target, key] : [key];
 
-   let logicValue = null
-   if (type !== 'object' && type !== 'array') {
-    if (mode === 'direct') logicValue = els.prop.valDirect.value
-    else if (mode === 'formula') logicValue = els.prop.valFormula.value
-    else logicValue = els.prop.valStatic.value
-   }
+    // Bangun objek rule
+    // PENTING: Properti 'type' dan 'logic' harus disertakan untuk SEMUA dataType
+    const ruleData = {
+        id: state.editingNodeId || Date.now(),
+        target: targetPath,
+        dataType: dataType, // Simpan tipe data (object/array/string/dll)
+        type: transformationType, // Simpan mode (direct/formula/static)
+        logic: logicValue, // Simpan isi formula atau path mapping
+        encrypt: els.prop.encrypt.checked,
+        meta_data: {
+            data_type: dataType // Backup untuk kompatibilitas backend
+        }
+    };
 
-   if (state.editingNodeId) {
-    const ruleIndex = state.rules.findIndex((r) => r.id === state.editingNodeId)
-    if (ruleIndex > -1) {
-     const oldRule = state.rules[ruleIndex]
-     const oldPathStr = oldRule.target.join('.')
-
-     const newPath = [...oldRule.target]
-     newPath[newPath.length - 1] = key
-     const newPathStr = newPath.join('.')
-
-     state.rules[ruleIndex] = {
-      ...oldRule,
-      target: newPath,
-      dataType: type,
-      type: mode,
-      logic: logicValue,
-      encrypt: encrypt,
-     }
-
-     if (oldPathStr !== newPathStr) {
-      state.rules.forEach((r) => {
-       const rPathStr = r.target.join('.')
-       if (rPathStr.startsWith(oldPathStr + '.')) {
-        const suffix = rPathStr.substring(oldPathStr.length)
-        const updatedFullPath = newPathStr + suffix
-        r.target = updatedFullPath.split('.')
-       }
-      })
-     }
-    }
-   } else {
-    let targetPath = []
-
-    if (state.parentIdForNew) {
-     const parent = state.rules.find((r) => r.id === state.parentIdForNew)
-     if (parent) {
-      targetPath = [...parent.target, key]
-     }
+    if (state.editingNodeId) {
+        // Update existing rule
+        const index = state.rules.findIndex(r => r.id === state.editingNodeId);
+        if (index !== -1) state.rules[index] = ruleData;
     } else {
-     targetPath = [key]
+        // Add new rule
+        state.rules.push(ruleData);
     }
 
-    const isDuplicate = state.rules.some((r) => r.target.join('.') === targetPath.join('.'))
-    if (isDuplicate) {
-     showToast(`Key "${key}" sudah digunakan di level ini`, 'error')
-     return
-    }
-
-    state.rules.push({
-     id: Date.now(),
-     target: targetPath,
-     dataType: type,
-     type: mode,
-     logic: logicValue,
-     encrypt: encrypt,
-    })
-   }
-
-   showToast('Perubahan diterapkan ke Canvas', 'success')
-   drawerUI.close()
-   canvasUI.render()
-  },
+    // Render ulang canvas dan tutup drawer
+    canvasUI.render();
+    drawerUI.close();
+},
 
   delete: async () => {
    const confirmed = await showConfirmDialog({

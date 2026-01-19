@@ -248,7 +248,7 @@ async function initWidgetDataFetcher(widget) {
 
  if (loader) loader.classList.remove('opacity-0')
  try {
-  const queryParams = new URLSearchParams({ page: 1, limit: 1 })
+  const queryParams = new URLSearchParams({ page: 1, limit: 1, sortField:'_id', sortOrder:'desc' })
   const response = await apiFetch(
    `api/collections/${widget.data_config.collection}?${queryParams.toString()}`
   )
