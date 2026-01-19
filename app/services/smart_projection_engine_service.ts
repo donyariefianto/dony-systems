@@ -25,18 +25,20 @@ export class SmartProjectionEngineService {
     'trigger.collection': trigger_collection,
     'trigger.event': method_request,
    })
-   if (!find_engine_trigger) {
+   if (!find_engine_trigger || find_engine_trigger.mapping.length===0) {
     return
    }
+   let engine_collection = find_engine_trigger.engine_collection
+   const collections_current = database.data?.collection(engine_collection)
+   let data_current = await collections_current?.findOne({},{},{sort:{updated_at:-1}})
    let fields = find_engine_trigger.mapping
-   if (fields.length == 0) {
-    return
-   }
    let result_smart_projection_engine = this.processNestedProjection(source_data, fields)
    if (result_smart_projection_engine.errors) {
     // insert log error
     return
    }
+  //  save result 
+   await collections_current?.insertOne(result_smart_projection_engine.data)
   } catch (error) {
     // insert log error
   }
