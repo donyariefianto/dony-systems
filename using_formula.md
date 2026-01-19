@@ -1,29 +1,32 @@
-Berikut adalah draf lengkap untuk fail `README.md` yang boleh anda gunakan sebagai panduan rasmi penulisan formula dalam projek **Smart Projection Engine (SPE)** anda. Fail ini direka untuk membantu pembangun memahami cara menulis logik yang *robust* dan selamat.
+Berikut adalah isi lengkap untuk file `README.md` panduan penulisan formula **Smart Projection Engine (SPE)**. Dokumen ini disusun untuk mencakup semua level, dari dasar hingga penggunaan tingkat lanjut yang melibatkan pencarian antar-collection (*cross-collection lookup*).
 
 ---
 
-# Panduan Penulisan Formula - Smart Projection Engine (SPE)
+# 📘 Panduan Penulisan Formula - Smart Projection Engine (SPE)
 
-Dokumen ini mengandungi panduan lengkap untuk menulis formula pada bahagian **Logic (Formula Mode)** dalam sistem SPE. Formula dijalankan dalam persekitaran *Sandbox* (VM Node.js) yang selamat dan menyokong manipulasi data dinamik antara data semasa (**source**) dan data lama (**old**).
+Dokumen ini merupakan panduan resmi untuk menulis logika pada bagian **Logic (Formula Mode)** di dalam sistem SPE. Semua formula dijalankan dalam lingkungan *Sandbox* (VM Node.js) yang aman dan mendukung manipulasi data dinamis.
 
-## 1. Pembolehubah Global (Global Variables)
+---
 
-Terdapat tiga objek utama yang boleh anda akses di dalam setiap formula:
+## 1. Variabel Global (Global Variables)
 
-| Pembolehubah | Deskripsi |
+Anda dapat mengakses objek berikut di dalam setiap formula:
+
+| Variabel | Deskripsi |
 | --- | --- |
-| `source` | Merujuk kepada data semasa (payload baru) yang sedang diproses. |
-| `old` | Merujuk kepada data lama yang sedia ada di database (hanya ada pada event `onUpdate`). |
-| `item` | Merujuk kepada data dalam baris semasa apabila berada di dalam *Array Loop*. |
-| `get(path)` | Helper function untuk mengambil data secara selamat (Contoh: `get('profile.address.city')`). |
+| `source` | Data baru (*current*) yang sedang diproses. |
+| `old` | Data lama (*previous*) dari database (tersedia pada event `onUpdate`). |
+| `item` | Data baris saat ini jika berada di dalam *Array Mapping*. |
+| `lookup` | Fungsi *asynchronous* untuk mengambil data dari collection lain. |
+| `Math`, `Date` | Library standar JavaScript untuk perhitungan dan tanggal. |
 
 ---
 
-## 2. Struktur Penulisan Asas
+## 2. Struktur Penulisan Dasar
 
-### A. Ternary Operator (Sangat Disyorkan)
+### A. Ternary Operator (Direkomendasikan)
 
-Sesuai untuk logik ringkas satu baris.
+Cocok untuk logika sederhana satu baris.
 **Format:** `kondisi ? hasil_jika_benar : hasil_jika_salah`
 
 ```javascript
@@ -33,7 +36,7 @@ source.price > 1000 ? "Mahal" : "Murah"
 
 ### B. Block If-Else (IIFE)
 
-Gunakan format ini jika logik anda memerlukan lebih daripada satu baris atau pengisytiharan variabel. Anda **mesti** membungkusnya dalam fungsi anonim yang dipanggil terus `(() => { ... })()`.
+Gunakan jika logika memerlukan lebih dari satu baris atau variabel lokal. Wajib dibungkus dalam fungsi anonim yang dipanggil langsung: `(() => { ... })()`.
 
 ```javascript
 (() => {
@@ -47,129 +50,46 @@ Gunakan format ini jika logik anda memerlukan lebih daripada satu baris atau pen
 
 ---
 
-## 3. Contoh Kes & Amalan Terbaik
+## 3. Level Menengah: Penanganan Data Kosong (Null-Safe)
 
-### Operasi Matematik Selamat (Null-Safe)
+Sistem ini sangat ketat terhadap data `null`. Gunakan *Optional Chaining* (`?.`) agar sistem tidak *crash*.
 
-Sentiasa gunakan *Optional Chaining* (`?.`) dan *Nullish Coalescing* (`||`) untuk mengelakkan ralat `NaN` atau *crash* apabila `old` adalah `null`.
-
-* **Pendaraban (Harga x Kuantiti):**
-```javascript
-(source.price || 0) * (source.qty || 0)
-
-```
-
-
-* **Perbandingan dengan Data Lama:**
-Jika `old` tiada (Insert), maka nilai `old.price` dianggap `0`.
-```javascript
-(source.price || 0) + (old?.price || 0)
-
-```
-
-
-
-### Pengesanan Perubahan (Change Detection)
-
-Berguna untuk membuat *Audit Log* atau status dinamik.
-
-```javascript
-source.status !== old?.status ? `Berubah dari ${old?.status} ke ${source.status}` : "Tiada Perubahan"
-
-```
-
-### Manipulasi Array (Nested Data)
-
-Jika anda memproses field di dalam Array, gunakan `item`.
-
-```javascript
-// Mengira total harga dalam senarai item
-(item.price || 0) * (item.qty || 0)
-
-```
+* **Perkalian Aman:**
+`(source.price || 0) * (old?.price || 0)`
+* **Pertambahan dengan Array Index:**
+`(source.qty || 0) + (old?.data?.[0]?.value || 0)`
+* **Keduanya Kosong = Null:**
+`(!source.val && !old?.val) ? null : (source.val || 0) + (old?.val || 0)`
 
 ---
 
-## 4. Peraturan Penting (Must Follow)
+## 4. Level Lanjut: Pencarian Antar-Collection (Lookup)
 
-1. **Gunakan `old?.**`: Jangan sesekali memanggil `old.field` secara terus. Gunakan tanda soal (`old?.field`) untuk memastikan sistem tidak *crash* semasa proses **Insert** (di mana `old` adalah `null`).
-2. **Keduanya Kosong = Null**: Jika anda mahu hasil menjadi `null` apabila kedua-dua data tiada:
-```javascript
-(!source.val && !old?.val) ? null : (source.val || 0) + (old?.val || 0)
+Anda bisa mengambil data dari collection lain (Master Data) tanpa menulis query MongoDB yang rumit.
 
-```
+**Sintaks:** `await lookup('nama_collection', id_data, projection_object?)`
 
-
-3. **Tipe Data**: Pastikan hasil akhir formula selaras dengan **Data Type** yang anda pilih di UI (contoh: Formula untuk tipe Number harus mengembalikan angka).
+* **Mengambil Data Master Supply:**
+`await lookup('master_supply', source.supply_id)`
+* **Hanya Mengambil Nama Produk:**
+`(await lookup('master_products', item.product_id, { name: 1 }))?.name || "N/A"`
 
 ---
 
-## 5. Advanced Level: Teknik Manipulasi Kompleks
+## 5. Level Expert: Manipulasi Array & Kompleksitas
 
-### A. Penggunaan Higher-Order Functions pada Array
+Manfaatkan fungsi tingkat tinggi JavaScript untuk transformasi data yang masif.
 
-Karena formula berjalan di Node.js, Anda bisa menggunakan fungsi seperti `.map()`, `.filter()`, dan `.reduce()` untuk mentransformasi data array secara dinamis dalam satu field.
-
-* **Menghitung Total Harga (Summing Up):**
-Mengambil total nilai dari sebuah array objek tanpa membuat banyak field.
+* **Menghitung Total dari Array Objek:**
 ```javascript
-// Menghitung total belanja dari array items
-(source.items || []).reduce((sum, item) => sum + (item.price * item.qty), 0)
+(source.items || []).reduce((sum, it) => sum + (it.price * it.qty), 0)
 
 ```
 
 
-* **Filtering Data (Hanya Mengambil Data Tertentu):**
-Misal hanya ingin mengambil nama item yang kategorinya "Elektronik".
+* **Filter dan Join String:**
 ```javascript
-(source.items || [])
-  .filter(item => item.category === 'Elektronik')
-  .map(item => item.name)
-  .join(', ')
-
-```
-
-
-
-### B. Deep Comparison & Audit Trail
-
-Untuk membuat log perubahan yang sangat detail, Anda bisa membandingkan objek secara mendalam.
-
-* **Mendeteksi Perubahan pada Field Spesifik secara Dinamis:**
-```javascript
-(() => {
-    const fields = ['status', 'price', 'stock'];
-    const changes = fields.filter(f => source[f] !== old?.[f]);
-    return changes.length > 0 ? `Perubahan pada: ${changes.join(', ')}` : "Tidak ada perubahan signifikan"
-})()
-
-```
-
-
-
-### C. Manipulasi Tanggal Tingkat Lanjut
-
-Menggunakan objek `Date` untuk menghitung durasi atau menentukan *deadline*.
-
-* **Menghitung Selisih Jam (SLA Check):**
-```javascript
-(() => {
-    if (!old?.created_at) return 0;
-    const diffInMs = new Date() - new Date(old.created_at);
-    return Math.floor(diffInMs / (1000 * 60 * 60)); // Hasil dalam jam
-})()
-
-```
-
-
-
-### D. Data Normalization & Cleaning
-
-Membersihkan data kotor dari sumber (source) sebelum masuk ke target.
-
-* **Regex untuk Membersihkan Format String (Misal Nomor Telepon):**
-```javascript
-source.phone ? source.phone.replace(/[^0-9]/g, '') : null
+(source.tags || []).filter(t => t.active).map(t => t.label).join(', ')
 
 ```
 
@@ -177,47 +97,32 @@ source.phone ? source.phone.replace(/[^0-9]/g, '') : null
 
 ---
 
-## 6. Optimization & Security (Best Practices)
+## 6. Aturan Emas (Must Follow)
 
-1. **Early Returns dalam IIFE:**
-Gunakan `if (!data) return null` di awal blok IIFE untuk menghindari eksekusi kode berat di bawahnya jika data esensial tidak ada.
-2. **Hindari Infinite Loops:**
-Meskipun sistem memiliki timeout 100ms, hindari penggunaan `while` loop yang berisiko. Gunakan metode array standar JavaScript yang lebih aman.
-3. **Cek Eksistensi Array Index:**
-Saat mengakses `old.data[0]`, pastikan menggunakan `old?.data?.[0]` untuk mencegah error *undefined* jika array tersebut kosong.
-4. **Optimasi Formula:**
-Jika sebuah logika digunakan di banyak field, pertimbangkan untuk menyederhanakan input di tingkat `source` sebelum masuk ke SPE untuk menjaga performa transformasi.
+1. **Gunakan `old?.**`: Selalu gunakan tanda tanya sebelum memanggil properti `old`. Jika tidak, sistem akan error saat proses **Insert** (karena `old` bernilai `null`).
+2. **Gunakan `await` untuk `lookup**`: Semua fungsi yang mengambil data dari database lain wajib diawali kata kunci `await`.
+3. **Default Value**: Berikan nilai default seperti `|| 0` atau `|| ""` untuk menghindari hasil `NaN` atau `undefined` pada output final.
+4. **Sandbox Security**: Anda tidak bisa memanggil fungsi `require`, `process`, atau akses database langsung selain melalui fungsi `lookup` yang disediakan.
 
 ---
 
-### Contoh Struktur Formula Advanced (IIFE + Object Mapping):
-
-Gunakan teknik ini untuk mengonversi kode status dari database menjadi label yang ramah pengguna.
+### Contoh Kasus Lengkap (Audit Trail):
 
 ```javascript
-(() => {
-    const statusMap = {
-        1: "Pending",
-        2: "Processing",
-        3: "Completed",
-        4: "Cancelled"
-    };
+await (async () => {
+    if (!old) return "Data Baru Dibuat";
     
-    // Jika status berubah, kembalikan label baru, jika tidak gunakan label lama
-    if (old && source.status === old.status) return statusMap[old.status] || "Unknown";
-    return statusMap[source.status] || "Invalid Status";
+    const fields = ['status', 'price', 'qty'];
+    const changed = fields.filter(f => source[f] !== old[f]);
+    
+    if (changed.length === 0) return "Tidak Ada Perubahan";
+    
+    const supplier = await lookup('master_supply', source.supplier_id);
+    return `Update pada ${changed.join(', ')}. Supplier: ${supplier?.name}`;
 })()
 
 ```
 
-Dengan memahami **Advanced Level** ini, Anda dapat membangun sistem proyeksi data yang sangat cerdas dan mampu menangani logika bisnis yang rumit langsung di dalam SPE tanpa perlu mengubah kode backend utama.
-
-## 7. Troubleshooting
-
-* **Hasil `null` terus?**: Semak sama ada nama field dalam `source.nama_field` sudah betul.
-* **Error "is not defined"**: Pastikan anda tidak memanggil variabel luar selain `source`, `old`, `item`, `Math`, dan `Date`.
-* **Formula Terlalu Panjang**: Jika formula terlalu kompleks, pertimbangkan untuk memecahkannya kepada beberapa field kecil atau gunakan format **IIFE** (Point 2B).
-
 ---
 
-*Hak Cipta © 2026 Smart Projection Engine Service*
+*© 2026 Smart Projection Engine - High Performance Data Transformation*
