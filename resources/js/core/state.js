@@ -1,5 +1,6 @@
 import { CONFIG } from '../config/constants.js'
 const appKey = import.meta.env.VITE_APP_KEY
+
 export const AppState = {
  app_key: appKey,
  menuData: [],
@@ -16,14 +17,12 @@ export const AppState = {
  dbDashboards: { data: [] },
  isSubmitHandlerAttached: false,
 
- // --- TAMBAHAN BARU UNTUK DASHBOARD ---
  dashboard: {
-  activeId: '695f7561f3e95366efe10afa', // ID Dashboard yang sedang dilihat
-  intervals: [], // Simpan ID timer refresh agar bisa dibersihkan
-  charts: {}, // Simpan instance ECharts untuk resize/dispose
+  activeId: '695f7561f3e95366efe10afa',
+  intervals: [],
+  charts: {},
  },
 
- // ... state sementara builder ...
  tempBuilderWidgets: [],
  currentEditingDashboardId: null,
 }

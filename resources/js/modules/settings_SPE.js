@@ -65,7 +65,7 @@ export function getSPEView() {
                             <h3 class="text-[10px] font-bold text-indigo-800 uppercase mb-2">1. Identity & Trigger</h3>
                             <div class="space-y-3">
                                 <input type="text" id="spe-input-name" placeholder="Engine Name" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded text-xs font-bold focus:ring-1 focus:ring-indigo-500 outline-none">
-                                <input type="text" id="spe-input-target-collection" placeholder="Target Coll. (e.g. report_sales)" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded text-xs font-mono focus:ring-1 focus:ring-indigo-500 outline-none">
+                                <input type="text" id="spe-input-target-collection" placeholder="Engine Coll. (e.g. report_sales)" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded text-xs font-mono focus:ring-1 focus:ring-indigo-500 outline-none">
                                 <select id="spe-input-status" class="w-full px-2 py-2 border border-slate-200 rounded text-xs bg-white"><option selected value="">-- Select Status --</option><option value="active">Active</option><option value="pause">Pause</option><option value="draft">Draft</option></select>
                                 <textarea id="spe-input-desc" placeholder="Description..." rows="2" class="w-full px-3 py-2 border border-slate-200 rounded text-xs resize-none"></textarea>
                             </div>
@@ -206,11 +206,6 @@ export function getSPEView() {
     </div>`
 }
 
-/**
- * ==================================================================
- * 2. CONTROLLER (UPDATED FOR CANVAS & DRAWER LOGIC)
- * ==================================================================
- */
 export function initSPEController() {
  const DATA_TYPES = {
   string: {
@@ -299,44 +294,6 @@ export function initSPEController() {
   },
  }
 
- function buildTree(rules) {
-  const root = { id: 'root', children: [] }
-
-  const rulesCopy = JSON.parse(JSON.stringify(rules))
-
-  rulesCopy.forEach((rule) => {
-   const path = rule.target
-   let currentLevel = root.children
-
-   if (path.length === 1) {
-    currentLevel.push({ ...rule, children: [] })
-   } else {
-    const parentPath = path.slice(0, -1)
-    const parentNode = findNodeByPath(root.children, parentPath)
-
-    if (parentNode) {
-     parentNode.children.push({ ...rule, children: [] })
-    } else {
-     root.children.push({ ...rule, children: [], isOrphan: true })
-    }
-   }
-  })
-  return root.children
- }
-
- function findNodeByPath(nodes, pathArr) {
-  for (const node of nodes) {
-   if (JSON.stringify(node.target) === JSON.stringify(pathArr)) {
-    return node
-   }
-   if (node.children && node.children.length > 0) {
-    const found = findNodeByPath(node.children, pathArr)
-    if (found) return found
-   }
-  }
-  return null
- }
-
  const canvasUI = {
   render: () => {
    els.canvasRoot.innerHTML = ''
@@ -350,75 +307,96 @@ export function initSPEController() {
     els.emptyState.style.pointerEvents = 'none'
    }
 
-   const tree = buildTree(state.rules)
+   const tree = drawerUI.buildTree(state.rules)
 
    const renderNodes = (nodes, level = 0) => {
+    if (!nodes || !Array.isArray(nodes)) return ''
+
     return nodes
      .map((node, idx) => {
-      const isContainer = node.dataType === 'object' || node.dataType === 'array'
-      const styles = DATA_TYPES[node.dataType] || DATA_TYPES.string
-      const lastKey = node.target[node.target.length - 1]
-      const hasLogic = !isContainer
+      const rawType = node.dataType || (node.meta_data && node.meta_data.data_type) || 'string'
+      const dataType = rawType.toLowerCase()
+
+      // 2. Tentukan apakah ini Container (Object/Array) atau Leaf (String/Number/Bool)
+      const isContainer = dataType === 'object' || dataType === 'array'
+      const styles = DATA_TYPES[dataType] || DATA_TYPES.string
+
+      // Ambil nama key (jika format flat ambil element terakhir, jika nested ambil target_key)
+      const displayName =
+       node.target_key ||
+       (Array.isArray(node.target) ? node.target[node.target.length - 1] : node.target)
 
       let valuePreview = ''
-      if (hasLogic) {
-       if (node.type === 'direct')
-        valuePreview = `<span class="font-mono text-indigo-600 truncate max-w-[100px]">${node.logic}</span>`
-       else if (node.type === 'static')
-        valuePreview = `<span class="font-bold text-slate-800">"${node.logic}"</span>`
-       else valuePreview = `<span class="font-mono text-emerald-600">ƒ(x)</span>`
+      if (!isContainer) {
+       if (node.type === 'direct') {
+        valuePreview = `<span class="font-mono text-indigo-600 truncate max-w-[120px]" title="${node.logic}">
+                    <i class="fas fa-link text-[8px] mr-1"></i>${node.logic}
+                </span>`
+       } else if (node.type === 'static') {
+        valuePreview = `<span class="font-bold text-slate-700">"${node.logic}"</span>`
+       } else if (node.type === 'formula') {
+        valuePreview = `<span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[9px] font-mono">ƒ(x) Formula</span>`
+       }
       }
 
       return `
-                    <div class="relative pl-6 animate-in fade-in slide-in-from-bottom-2 duration-300" style="animation-delay: ${level * 50}ms">
-                        ${level > 0 ? `<div class="spe-tree-connector"></div>` : ''}
-                        
-                        <div class="spe-node-card group flex items-stretch bg-white border ${styles.border} rounded-lg shadow-sm hover:shadow-md transition-all mb-2 overflow-hidden cursor-pointer" onclick="document.dispatchEvent(new CustomEvent('spe:open-drawer', {detail: ${node.id}}))">
+            <div class="relative pl-6 animate-in fade-in slide-in-from-left-2 duration-300" style="animation-delay: ${level * 30}ms">
+                ${level > 0 ? `<div class="spe-tree-connector"></div>` : ''}
+                
+                <div class="spe-node-card group flex items-stretch bg-white border ${styles.border} rounded-lg shadow-sm hover:shadow-md transition-all mb-2 overflow-hidden cursor-pointer" 
+                     onclick="document.dispatchEvent(new CustomEvent('spe:open-drawer', {detail: ${node.id}}))">
+                    
+                    <div class="w-10 flex items-center justify-center ${styles.bg} border-r ${styles.border}">
+                        <i class="fas ${styles.icon} ${styles.color} text-xs"></i>
+                    </div>
+
+                    <div class="flex-1 px-3 py-2 flex flex-col justify-center min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-800 truncate">${displayName}</span>
                             
-                            <div class="w-10 flex items-center justify-center ${styles.bg} border-r ${styles.border}">
-                                <i class="fas ${styles.icon} ${styles.color}"></i>
-                            </div>
-
-                            <div class="flex-1 px-3 py-2 flex flex-col justify-center min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-slate-800 truncate">${lastKey}</span>
-                                    ${node.dataType === 'array' ? '<span class="text-[9px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-bold">List</span>' : ''}
-                                    ${node.encrypt ? '<i class="fas fa-lock text-[9px] text-amber-500" title="Encrypted"></i>' : ''}
-                                </div>
-                                <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-                                    <span class="uppercase font-bold tracking-wider">${styles.label}</span>
-                                    ${hasLogic ? `<i class="fas fa-arrow-right text-[8px]"></i> ${valuePreview}` : ''}
-                                </div>
-                            </div>
-
-                            <div class="flex items-center border-l border-slate-100 bg-slate-50/50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                ${
-                                 isContainer
-                                  ? `
-                                <button class="w-8 h-full hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-colors" 
-                                    title="Add Child" 
-                                    onclick="event.stopPropagation(); document.dispatchEvent(new CustomEvent('spe:add-child', {detail: ${node.id}}))">
-                                    <i class="fas fa-plus"></i>
-                                </button>`
-                                  : ''
-                                }
-                                <button class="w-8 h-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" 
-                                    title="Edit">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                            </div>
+                            ${dataType === 'array' ? '<span class="text-[8px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-bold uppercase">List</span>' : ''}
+                            ${dataType === 'object' ? '<span class="text-[8px] px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded font-bold uppercase">Map</span>' : ''}
+                            
+                            ${node.encrypt ? '<i class="fas fa-lock text-[9px] text-amber-500"></i>' : ''}
                         </div>
+                        <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                            <span class="uppercase font-medium tracking-tighter">${dataType}</span>
+                            ${!isContainer ? `<i class="fas fa-long-arrow-alt-right text-[8px] opacity-50"></i> ${valuePreview}` : ''}
+                        </div>
+                    </div>
 
+                    <div class="flex items-center border-l border-slate-100 bg-slate-50/50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                         ${
                          isContainer
                           ? `
-                            <div class="relative border-l-2 border-slate-200/50 ml-5 my-1 pl-0">
-                                ${renderNodes(node.children, level + 1)}
-                            </div>
-                        `
+                            <button class="w-9 h-full hover:bg-indigo-50 text-indigo-400 hover:text-indigo-600 transition-colors border-r border-slate-100" 
+                                title="Tambah Field di dalam ${displayName}" 
+                                onclick="event.stopPropagation(); document.dispatchEvent(new CustomEvent('spe:add-child', {detail: ${node.id}}))">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>`
                           : ''
                         }
-                    </div>`
+                        
+                        <button class="w-9 h-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+
+                ${
+                 isContainer
+                  ? `
+                    <div class="relative border-l-2 border-dashed border-slate-200 ml-5 my-1">
+                        ${
+                         node.children && node.children.length > 0
+                          ? renderNodes(node.children, level + 1) // <--- PANGGIL ULANG UNTUK ANAK
+                          : `<div class="py-2 pl-8 text-[10px] text-slate-300 italic">Belum ada field di dalam ${displayName}</div>`
+                        }
+                    </div>
+                `
+                  : ''
+                }
+            </div>`
      })
      .join('')
    }
@@ -428,12 +406,96 @@ export function initSPEController() {
  }
 
  const drawerUI = {
+  flattenRules: (nestedMapping, parentPath = []) => {
+   let flatResults = []
+
+   nestedMapping.forEach((item, index) => {
+    const currentKey = item.target_key
+    const currentPath = [...parentPath, currentKey]
+    flatResults.push({
+     id: Date.now() + Math.random(),
+     target: currentPath,
+     dataType: item.meta_data?.data_type || 'string',
+     type: item.transformation_type,
+     logic: item.expression,
+     encrypt: item.is_encrypted,
+    })
+
+    if (item.meta_data && item.meta_data.children && item.meta_data.children.length > 0) {
+     const children = drawerUI.flattenRules(item.meta_data.children, currentPath)
+     flatResults = flatResults.concat(children)
+    }
+   })
+
+   return flatResults
+  },
+
+  findNodeByPath: (nodes, pathArr) => {
+   for (const node of nodes) {
+    if (JSON.stringify(node.target) === JSON.stringify(pathArr)) {
+     return node
+    }
+    if (node.children && node.children.length > 0) {
+     const found = drawerUI.findNodeByPath(node.children, pathArr)
+     if (found) return found
+    }
+   }
+   return null
+  },
+
+  buildTree: (rules) => {
+   const root = { id: 'root', children: [] }
+   const rulesCopy = JSON.parse(JSON.stringify(rules))
+   rulesCopy.forEach((rule) => {
+    const path = rule.target
+    let currentLevel = root.children
+    if (path.length === 1) {
+     currentLevel.push({ ...rule, children: [] })
+    } else {
+     const parentPath = path.slice(0, -1)
+     const parentNode = drawerUI.findNodeByPath(root.children, parentPath)
+     if (parentNode) {
+      parentNode.children.push({ ...rule, children: [] })
+     } else {
+      root.children.push({ ...rule, children: [], isOrphan: true })
+     }
+    }
+   })
+   return root.children
+  },
+
+  formatNestedRules: (rules, parentPath = []) => {
+   return rules
+    .filter((r) => {
+     if (parentPath.length === 0) return r.target.length === 1
+     const isChild = r.target.length === parentPath.length + 1
+     const matchesParent = r.target.slice(0, parentPath.length).join('.') === parentPath.join('.')
+     return isChild && matchesParent
+    })
+    .map((rule) => {
+     const dataType = (rule.dataType || 'string').toLowerCase()
+     const isContainer = dataType === 'object' || dataType === 'array'
+     const localKey = rule.target[rule.target.length - 1]
+     const node = {
+      target_key: localKey,
+      transformation_type: rule.type || 'direct',
+      expression: rule.logic || '',
+      is_encrypted: !!rule.encrypt,
+      meta_data: {
+       data_type: dataType,
+      },
+     }
+     if (isContainer) {
+      node.meta_data.children = drawerUI.formatNestedRules(rules, rule.target)
+     }
+     return node
+    })
+  },
+
   open: (nodeId = null, parentId = null) => {
    const isNew = nodeId === null
-
    state.editingNodeId = nodeId
    state.parentIdForNew = parentId
-
    els.prop.key.value = ''
    els.prop.typeVal.value = 'string'
    els.prop.modeVal.value = 'direct'
@@ -537,55 +599,86 @@ export function initSPEController() {
 
   save: () => {
    const key = els.prop.key.value.trim()
-   if (!key) return showToast('Key name is required', 'error')
-
-   if (!/^[a-zA-Z0-9_]+$/.test(key))
-    return showToast('Key must be alphanumeric (a-z, 0-9, _)', 'error')
-
    const type = els.prop.typeVal.value
    const mode = els.prop.modeVal.value
-   let logic = null
+   const encrypt = els.prop.encrypt.checked
 
+   if (!key) {
+    showToast('Key name tidak boleh kosong', 'error')
+    return
+   }
+
+   if (!/^[a-zA-Z0-9_]+$/.test(key)) {
+    showToast('Key hanya boleh berisi huruf, angka, dan underscore', 'error')
+    return
+   }
+
+   let logicValue = null
    if (type !== 'object' && type !== 'array') {
-    if (mode === 'direct') logic = els.prop.valDirect.value
-    else if (mode === 'formula') logic = els.prop.valFormula.value
-    else logic = els.prop.valStatic.value
+    if (mode === 'direct') logicValue = els.prop.valDirect.value
+    else if (mode === 'formula') logicValue = els.prop.valFormula.value
+    else logicValue = els.prop.valStatic.value
    }
 
    if (state.editingNodeId) {
-    const rule = state.rules.find((r) => r.id === state.editingNodeId)
+    const ruleIndex = state.rules.findIndex((r) => r.id === state.editingNodeId)
+    if (ruleIndex > -1) {
+     const oldRule = state.rules[ruleIndex]
+     const oldPathStr = oldRule.target.join('.')
 
-    rule.target[rule.target.length - 1] = key
-    rule.dataType = type
-    rule.type = mode
-    rule.logic = logic
-    rule.encrypt = els.prop.encrypt.checked
+     const newPath = [...oldRule.target]
+     newPath[newPath.length - 1] = key
+     const newPathStr = newPath.join('.')
 
-    if (type === 'object' || type === 'array') {
-     rule.logic = null
+     state.rules[ruleIndex] = {
+      ...oldRule,
+      target: newPath,
+      dataType: type,
+      type: mode,
+      logic: logicValue,
+      encrypt: encrypt,
+     }
+
+     if (oldPathStr !== newPathStr) {
+      state.rules.forEach((r) => {
+       const rPathStr = r.target.join('.')
+       if (rPathStr.startsWith(oldPathStr + '.')) {
+        const suffix = rPathStr.substring(oldPathStr.length)
+        const updatedFullPath = newPathStr + suffix
+        r.target = updatedFullPath.split('.')
+       }
+      })
+     }
     }
    } else {
     let targetPath = []
+
     if (state.parentIdForNew) {
      const parent = state.rules.find((r) => r.id === state.parentIdForNew)
-     targetPath = [...parent.target, key]
+     if (parent) {
+      targetPath = [...parent.target, key]
+     }
     } else {
      targetPath = [key]
     }
 
-    const exists = state.rules.find((r) => JSON.stringify(r.target) === JSON.stringify(targetPath))
-    if (exists) return showToast('Field with this name already exists in this scope.', 'error')
+    const isDuplicate = state.rules.some((r) => r.target.join('.') === targetPath.join('.'))
+    if (isDuplicate) {
+     showToast(`Key "${key}" sudah digunakan di level ini`, 'error')
+     return
+    }
 
     state.rules.push({
      id: Date.now(),
      target: targetPath,
      dataType: type,
      type: mode,
-     logic: logic,
-     encrypt: els.prop.encrypt.checked,
+     logic: logicValue,
+     encrypt: encrypt,
     })
    }
 
+   showToast('Perubahan diterapkan ke Canvas', 'success')
    drawerUI.close()
    canvasUI.render()
   },
@@ -638,8 +731,6 @@ export function initSPEController() {
     state.configs = data.data || []
     ui.renderList()
    } catch (err) {
-    console.log(e)
-
     els.listContainer.innerHTML = 'Error loading data.'
    }
   },
@@ -682,6 +773,7 @@ export function initSPEController() {
    ui.switchView('builder')
    els.btnDelete.classList.remove('hidden')
    els.btnDelete.setAttribute('data-id', id)
+
    state.rules = []
    state.configId = id
    canvasUI.render()
@@ -693,7 +785,7 @@ export function initSPEController() {
     const config = json.data || json
 
     els.inputs.name.value = config.feature_name
-    els.inputs.targetCol.value = config.target_collection
+    els.inputs.targetCol.value = config.engine_collection
     els.inputs.desc.value = config.description
     els.inputs.status.value = config.status
 
@@ -706,15 +798,10 @@ export function initSPEController() {
     els.inputs.event.disabled = false
     els.btnAddRoot.disabled = false
 
-    state.rules = (config.mapping || []).map((m, i) => ({
-     id: Date.now() + i,
-     target: m.target_key ? m.target_key.split('.') : [],
-     type: m.transformation_type,
-     logic: m.expression,
-     encrypt: m.is_encrypted,
-
-     dataType: 'string',
-    }))
+    if (config.mapping && Array.isArray(config.mapping)) {
+     drawerUI.flattenRules(config.mapping)
+     state.rules = drawerUI.flattenRules(config.mapping)
+    }
 
     canvasUI.render()
    } catch (e) {
@@ -726,20 +813,15 @@ export function initSPEController() {
    if (!els.inputs.name.value) return showToast('Name required', 'error')
    if (state.rules.length === 0) return showToast('Canvas is empty', 'error')
 
-   const mappingPayload = state.rules.map((r) => ({
-    target_key: r.target.join('.'),
-    transformation_type: r.type,
-    expression: r.logic,
-    is_encrypted: r.encrypt,
-   }))
+   const nestedMapping = drawerUI.formatNestedRules(state.rules)
 
    const payload = {
     feature_name: els.inputs.name.value,
-    target_collection: els.inputs.targetCol.value,
+    engine_collection: els.inputs.targetCol.value,
     description: els.inputs.desc.value,
     status: els.inputs.status.value,
     trigger: { collection: els.inputs.collection.value, event: els.inputs.event.value },
-    mapping: mappingPayload,
+    mapping: nestedMapping,
    }
 
    const url = state.configId
@@ -835,9 +917,7 @@ export function initSPEController() {
    els.listContainer.innerHTML = state.configs
     .map((conf) => {
      const safeId = conf.id || conf._id
-
      if (!safeId) console.warn('Item tanpa ID ditemukan:', conf)
-
      let statusClass = 'bg-slate-100 text-slate-400'
      let statusIcon = 'fa-pause'
 
@@ -851,7 +931,7 @@ export function initSPEController() {
 
      const displayName = conf.feature_name || conf.name || 'Untitled Engine'
      const displayColl = conf.trigger?.collection || conf.collection || '-'
-     const displayCollTarget = conf.target_collection || '-'
+     const displayCollTarget = conf.engine_collection || '-'
      const displayEvent = conf.trigger?.event || conf.event || '-'
      const rulesCount = conf.mapping ? conf.mapping.length : conf.rules_count || 0
 

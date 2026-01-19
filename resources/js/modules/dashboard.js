@@ -248,11 +248,12 @@ async function initWidgetDataFetcher(widget) {
 
  if (loader) loader.classList.remove('opacity-0')
  try {
-  const filterJson = JSON.stringify({ _id: widget.id })
-  const queryParams = new URLSearchParams({ page: 1, limit: 1, filter: filterJson })
-  const response = await apiFetch(`api/collections/widgets?${queryParams.toString()}`)
+  const queryParams = new URLSearchParams({ page: 1, limit: 1 })
+  const response = await apiFetch(
+   `api/collections/${widget.data_config.collection}?${queryParams.toString()}`
+  )
   if (!response || !response.ok) throw new Error('Network Error')
-  const result = await response.json()
+  let result = await response.json()
   result = decryptData(result.nonce, result.ciphertext)
   result = JSON.parse(result)
   const widgetDoc = result.data ? result.data[0] : null
