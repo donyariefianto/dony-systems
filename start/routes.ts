@@ -39,5 +39,6 @@ router
   router.patch('/patch-menu', '#controllers/backends_controller.patchMenu')
   router.post('/dashboard-snapshot', '#controllers/backends_controller.dashboardSnapshots')
   router.get('/settings', '#controllers/backends_controller.settingsGeneral')
+  router.post('/test-formula', '#controllers/backends_controller.runTestFormulaSPE')
  })
  .prefix('/api')

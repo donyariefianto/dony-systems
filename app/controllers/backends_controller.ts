@@ -3,6 +3,7 @@ import { database } from '#services/mongodb_service'
 import { ObjectId } from 'mongodb'
 import fs from 'fs'
 import { EncryptionService } from '#services/encryption_service'
+import { SmartProjectionEngineService } from '#services/smart_projection_engine_service'
 
 export default class BackendsController {
  async patchMenu({ response, request }: HttpContext) {
@@ -186,6 +187,23 @@ export default class BackendsController {
   }
   return response.send(settings)
  }
+ async runTestFormulaSPE({ params, request, response }: HttpContext) {
+  try {
+   const { code, source, old } = request.only(['code', 'source', 'old'])
+   const result = await SmartProjectionEngineService.testFormula({
+    code,
+    source,
+    old,
+   })
+
+   return response.ok(result)
+  } catch (error) {
+   return response.badRequest({
+    success: false,
+    error: error.message,
+   })
+  }
+ }
  async getCollectionData({ params, request, response }: HttpContext) {
   const colName = params.col
   const { page = 1, limit = 10, sortField, sortOrder, search, filter } = request.all()
@@ -209,10 +227,10 @@ export default class BackendsController {
    }
   }
   const skip = (page - 1) * limit
-  const sort:any = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
+  const sort: any = sortField ? { [sortField]: sortOrder === 'desc' ? -1 : 1 } : { updated_at: -1 }
 
   let data = await collections?.find(query).skip(skip).limit(Number(limit)).sort(sort).toArray()
-  const total:any = await collections?.countDocuments(query)
+  const total: any = await collections?.countDocuments(query)
   let response_data = { data, total, page: Number(page), totalPages: Math.ceil(total / limit) }
   let data_encrypt = EncryptionService.encrypt(JSON.stringify(response_data))
   return response.send(data_encrypt)
@@ -246,7 +264,7 @@ export default class BackendsController {
    const id = params.id
    let body = request.all()
    const collections = database.data?.collection(colName)
-   const updateData:any = { ...body, updated_at: new Date() }
+   const updateData: any = { ...body, updated_at: new Date() }
    delete updateData._id
    const result = await collections?.updateOne({ _id: new ObjectId(id) }, { $set: updateData })
    return response.status(200).send({ message: 'Data updated successfully', result })

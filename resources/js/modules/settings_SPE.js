@@ -170,9 +170,25 @@ export function getSPEView() {
                         </div>
 
                         <div id="prop-input-formula" class="prop-input-area hidden">
-                            <textarea id="prop-val-formula" rows="4" class="w-full px-3 py-2.5 bg-slate-900 text-emerald-400 border border-slate-700 rounded-lg text-xs font-mono outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-600" placeholder="source.qty * source.price"></textarea>
-                             <div class="flex gap-2 mt-1">
-                                <span class="text-[9px] px-2 py-0.5 bg-slate-100 rounded text-slate-500 border border-slate-200">JS Expression</span>
+                            <textarea 
+                                id="prop-val-formula" 
+                                rows="4" 
+                                class="w-full px-3 py-2.5 bg-slate-900 text-emerald-400 border border-slate-700 rounded-lg text-xs font-mono outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-600 transition-all" 
+                                placeholder="source.qty * source.price"></textarea>
+                            
+                            <div class="flex items-center justify-between mt-2">
+                                <div class="flex gap-2">
+                                    <span class="text-[9px] px-2 py-1 bg-slate-800 rounded text-slate-400 border border-slate-700 font-medium">JS Expression</span>
+                                    <span class="text-[9px] px-2 py-1 bg-indigo-500/10 rounded text-indigo-400 border border-indigo-500/20 font-medium">Async Supported</span>
+                                </div>
+
+                                <button 
+                                    id="spe-formula-test"
+                                    type="button"
+                                    class="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/20 hover:border-emerald-500 rounded-md transition-all active:scale-95 text-[10px] font-bold uppercase tracking-wider">
+                                    <i class="fas fa-flask"></i>
+                                    Run Test
+                                </button>
                             </div>
                         </div>
 
@@ -200,6 +216,79 @@ export function getSPEView() {
                     <button id="spe-drawer-save" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md hover:bg-indigo-700 transition-colors">
                         Apply Changes
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="formula-test-modal" class="fixed inset-0 z-[100] hidden">
+            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity" onclick="drawerUI.closeTestModal()"></div>
+            
+            <div class="absolute inset-0 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[600px] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in duration-200">
+                    
+                    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                                <i class="fas fa-vial"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800">Formula Laboratory</h3>
+                                <p class="text-[11px] text-slate-500">Uji logika mapping dan manipulasi data secara real-time.</p>
+                            </div>
+                        </div>
+                        <button id="btn-close-test-formula-modal" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-400 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 grid grid-cols-12 divide-x divide-slate-100 overflow-hidden">
+                        
+                        <div class="col-span-5 flex flex-col bg-slate-50/50">
+                            <div class="flex border-b border-slate-200 bg-white">
+                                <button id="tab-btn-source" class="flex-1 py-3 text-[10px] font-bold text-emerald-600 border-b-2 border-emerald-600">SOURCE DATA</button>
+                                <button id="tab-btn-old" class="flex-1 py-3 text-[10px] font-bold text-slate-400 hover:text-slate-600">OLD DATA</button>
+                            </div>
+
+                            <div class="flex-1 relative p-4">
+                                <textarea id="test-input-source" class="w-full h-full p-4 font-mono text-[11px] text-slate-700 bg-white border border-slate-200 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none" placeholder='{ "price": 1000 }'></textarea>
+                                <textarea id="test-input-old" class="w-full h-full p-4 font-mono text-[11px] text-slate-700 bg-white border border-slate-200 rounded-xl shadow-inner outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none hidden" placeholder='{ "price": 800 }'></textarea>
+                            </div>
+                            
+                            <div class="px-4 py-3 bg-slate-100/50 border-t border-slate-200 flex justify-between items-center">
+                                <span class="text-[10px] text-slate-400 font-medium tracking-wide">FORMAT: JSON</span>
+                                <button onclick="drawerUI.formatTestJson()" class="text-[10px] font-bold text-emerald-600 hover:text-emerald-700">PRETTIFY JSON</button>
+                            </div>
+                        </div>
+
+                        <div class="col-span-7 flex flex-col bg-white">
+                            <div class="p-4 border-b border-slate-50">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Active Formula Preview</span>
+                                <div id="test-formula-preview" class="mt-1 p-2 bg-slate-900 rounded-lg text-[11px] font-mono text-emerald-400 truncate border border-slate-800"></div>
+                            </div>
+
+                            <div id="test-output-container" class="flex-1 p-6 overflow-auto bg-slate-50/30">
+                                <div class="h-full flex flex-col items-center justify-center text-slate-300">
+                                    <i class="fas fa-terminal text-5xl mb-3 opacity-10"></i>
+                                    <p class="text-xs font-medium">Klik tombol di bawah untuk menjalankan tes</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-white border-t border-slate-100 flex items-center justify-between">
+                                <div id="test-status-indicator" class="flex items-center gap-3 opacity-0 transition-all duration-300">
+                                    <div class="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 rounded-full border border-emerald-100">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span id="test-status-text" class="text-[10px] font-bold text-emerald-700">SUCCESS</span>
+                                    </div>
+                                    <span id="test-execution-time" class="text-[10px] font-mono text-slate-400">12ms</span>
+                                </div>
+
+                                <button id="execute-run-test" class="px-8 py-3 bg-slate-900 hover:bg-emerald-600 text-white rounded-xl shadow-lg shadow-slate-200 text-xs font-bold transition-all transform active:scale-95 flex items-center gap-2">
+                                    <i class="fas fa-play text-[10px]"></i>
+                                    RUN EXECUTION
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,6 +357,11 @@ export function initSPEController() {
   btnSave: document.getElementById('spe-btn-save'),
   btnDelete: document.getElementById('spe-btn-delete-main'),
   btnEmptyAndCreate: document.getElementById('spe-create-new'),
+  btnTestFormula: document.getElementById('spe-formula-test'),
+  btnCloseTestFormula: document.getElementById('btn-close-test-formula-modal'),
+  btnTabSource: document.getElementById('tab-btn-source'),
+  btnTabOld: document.getElementById('tab-btn-old'),
+  btnRunExecuteFormula: document.getElementById('execute-run-test'),
 
   inputs: {
    name: document.getElementById('spe-input-name'),
@@ -410,6 +504,44 @@ export function initSPEController() {
  }
 
  const drawerUI = {
+  generateDummyFromSchema: (isOld = false) => {
+   // Jika schema tidak ada, kembalikan object kosong
+   if (!state.sourceSchema || !state.sourceSchema.length) return {}
+
+   const dummy = {}
+   state.sourceSchema.forEach((field) => {
+    // Tentukan nilai default berdasarkan tipe data field
+    let defaultValue = ''
+    const type = (field.type || 'string').toLowerCase()
+
+    switch (type) {
+     case 'number':
+     case 'int':
+     case 'float':
+      defaultValue = isOld ? 500 : 1000 // Bedakan nilai old & source untuk testing
+      break
+     case 'boolean':
+      defaultValue = true
+      break
+     case 'array':
+      defaultValue = []
+      break
+     case 'object':
+      defaultValue = {}
+      break
+     case 'date':
+      defaultValue = new Date().toISOString()
+      break
+     default:
+      defaultValue = isOld ? `Old ${field.name}` : `Sample ${field.name}`
+    }
+
+    dummy[field.name] = defaultValue
+   })
+
+   return dummy
+  },
+
   flattenRules: (nestedMapping, parentPath = []) => {
    let flatResults = []
 
@@ -497,93 +629,82 @@ export function initSPEController() {
   },
 
   open: (nodeId = null, parentId = null) => {
-    const isNew = nodeId === null;
-    state.editingNodeId = nodeId;
-    state.parentIdForNew = parentId;
+   const isNew = nodeId === null
+   state.editingNodeId = nodeId
+   state.parentIdForNew = parentId
 
-    // Reset Form
-    els.prop.key.value = '';
-    els.prop.key.disabled = false;
-    els.prop.valDirect.value = '';
-    els.prop.valFormula.value = '';
-    els.prop.valStatic.value = '';
-    els.prop.encrypt.checked = false;
+   els.prop.key.value = ''
+   els.prop.key.disabled = false
+   els.prop.valDirect.value = ''
+   els.prop.valFormula.value = ''
+   els.prop.valStatic.value = ''
+   els.prop.encrypt.checked = false
 
-    // Reset UI Buttons
-    document.querySelectorAll('.prop-type-btn, .prop-mode-btn').forEach(b => {
-        b.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200');
-        b.classList.add('border-transparent');
-    });
+   document.querySelectorAll('.prop-type-btn, .prop-mode-btn').forEach((b) => {
+    b.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200')
+    b.classList.add('border-transparent')
+   })
 
-    // --- LOGIKA LOAD DATA (EDIT MODE) ---
-    if (!isNew) {
-      const node = state.rules.find((r) => r.id === nodeId);
-      if (node) {
-        // Load Key
-        const lastKey = node.target[node.target.length - 1];
-        els.prop.key.value = lastKey;
-        
-        // Cek Array Index (Auto-lock)
-        if (!isNaN(lastKey)) els.prop.key.disabled = true;
+   if (!isNew) {
+    const node = state.rules.find((r) => r.id === nodeId)
+    if (node) {
+     const lastKey = node.target[node.target.length - 1]
+     els.prop.key.value = lastKey
 
-        // Load Tipe Data
-        const currentType = node.dataType || node.meta_data?.data_type || 'string';
-        
-        // Panggil selectType untuk mengatur UI (termasuk menampilkan input logic)
-        drawerUI.selectType(currentType);
+     if (!isNaN(lastKey)) els.prop.key.disabled = true
 
-        // Load Mode Logic (Direct/Formula/Static)
-        const currentMode = node.type || 'direct';
-        drawerUI.selectMode(currentMode);
+     const currentType = node.dataType || node.meta_data?.data_type || 'string'
 
-        // Load Nilai Logic (PENTING: Ini sekarang akan masuk ke input meskipun Object/Array)
-        if (currentMode === 'direct') els.prop.valDirect.value = node.logic || '';
-        if (currentMode === 'formula') els.prop.valFormula.value = node.logic || '';
-        if (currentMode === 'static') els.prop.valStatic.value = node.logic || '';
+     drawerUI.selectType(currentType)
 
-        els.prop.encrypt.checked = !!node.encrypt;
-        els.prop.btnDelete.classList.remove('hidden');
-      }
+     const currentMode = node.type || 'direct'
+     drawerUI.selectMode(currentMode)
+
+     if (currentMode === 'direct') els.prop.valDirect.value = node.logic || ''
+     if (currentMode === 'formula') els.prop.valFormula.value = node.logic || ''
+     if (currentMode === 'static') els.prop.valStatic.value = node.logic || ''
+
+     els.prop.encrypt.checked = !!node.encrypt
+     els.prop.btnDelete.classList.remove('hidden')
+    }
+   } else {
+    els.prop.btnDelete.classList.add('hidden')
+
+    if (parentId) {
+     const parent = state.rules.find((r) => r.id === parentId)
+     if (parent && (parent.dataType === 'array' || parent.meta_data?.data_type === 'array')) {
+      const childrenCount = state.rules.filter(
+       (r) =>
+        r.target.join('.').startsWith(parent.target.join('.') + '.') &&
+        r.target.length === parent.target.length + 1
+      ).length
+      els.prop.key.value = childrenCount.toString()
+      els.prop.key.disabled = true
+      drawerUI.selectType('object')
+     } else {
+      drawerUI.selectType('string')
+     }
     } else {
-      // --- LOGIKA NEW NODE ---
-      els.prop.btnDelete.classList.add('hidden');
-      
-      // Auto-Index Logic untuk Array Parent (seperti request sebelumnya)
-      if (parentId) {
-          const parent = state.rules.find(r => r.id === parentId);
-          if (parent && (parent.dataType === 'array' || parent.meta_data?.data_type === 'array')) {
-             const childrenCount = state.rules.filter(r => 
-                r.target.join('.').startsWith(parent.target.join('.') + '.') && 
-                r.target.length === parent.target.length + 1
-             ).length;
-             els.prop.key.value = childrenCount.toString();
-             els.prop.key.disabled = true;
-             drawerUI.selectType('object'); // Default suggestion
-          } else {
-             drawerUI.selectType('string');
-          }
-      } else {
-          drawerUI.selectType('string');
-      }
-      
-      drawerUI.selectMode('direct');
+     drawerUI.selectType('string')
     }
+    drawerUI.selectMode('direct')
+   }
 
-    // Populate Source Dropdown
-    if (state.sourceSchema && state.sourceSchema.length) {
-       // ... code populate dropdown ...
-       els.prop.valDirect.innerHTML = `<option value="" disabled selected>-- Select Field --</option>` +
-            state.sourceSchema.map(f => `<option value="source.${f.name}">source.${f.name} (${f.type})</option>`).join('');
-    }
+   if (state.sourceSchema && state.sourceSchema.length) {
+    els.prop.valDirect.innerHTML =
+     `<option value="" disabled selected>-- Select Field --</option>` +
+     state.sourceSchema
+      .map((f) => `<option value="source.${f.name}">source.${f.name} (${f.type})</option>`)
+      .join('')
+   }
 
-    // Tampilkan Drawer
-    els.drawerOverlay.classList.remove('hidden');
-    setTimeout(() => {
-      els.drawerOverlay.classList.remove('opacity-0');
-      els.drawer.classList.remove('translate-x-full');
-    }, 10);
-    
-    if (!els.prop.key.disabled) setTimeout(() => els.prop.key.focus(), 300);
+   els.drawerOverlay.classList.remove('hidden')
+   setTimeout(() => {
+    els.drawerOverlay.classList.remove('opacity-0')
+    els.drawer.classList.remove('translate-x-full')
+   }, 10)
+
+   if (!els.prop.key.disabled) setTimeout(() => els.prop.key.focus(), 300)
   },
 
   close: () => {
@@ -595,43 +716,48 @@ export function initSPEController() {
   },
 
   selectType: (type) => {
-    // 1. Simpan value ke hidden input
-    els.prop.typeVal.value = type;
+   els.prop.typeVal.value = type
+   document.querySelectorAll('.prop-type-btn').forEach((b) => {
+    b.classList.remove(
+     'bg-indigo-50',
+     'text-indigo-600',
+     'border-indigo-200',
+     'ring-1',
+     'ring-indigo-200'
+    )
+    b.classList.add('border-transparent', 'text-slate-600')
 
-    // 2. Update Style Tombol Tipe (Visual Feedback)
-    document.querySelectorAll('.prop-type-btn').forEach((b) => {
-      b.classList.remove('bg-indigo-50', 'text-indigo-600', 'border-indigo-200', 'ring-1', 'ring-indigo-200');
-      b.classList.add('border-transparent', 'text-slate-600');
-      
-      // Highlight tombol yang aktif
-      if (b.dataset.type === type) {
-        b.classList.remove('border-transparent', 'text-slate-600');
-        b.classList.add('bg-indigo-50', 'text-indigo-600', 'border-indigo-200', 'ring-1', 'ring-indigo-200');
-      }
-    });
-
-    // 3. LOGIC SECTION VISIBILITY (Perbaikan Utama)
-    // Dulu: if (type === 'object' || type === 'array') hide...
-    // Sekarang: Selalu TAMPILKAN (remove class hidden)
-    const logicSection = document.getElementById('prop-logic-section');
-    if (logicSection) logicSection.classList.remove('hidden');
-
-    // 4. Update Helper Text / Context Hint (Opsional - UI Friendly)
-    const hintText = document.getElementById('prop-value-hint');
-    if (hintText) {
-        if (type === 'object') {
-            hintText.innerHTML = '<i class="fas fa-info-circle"></i> Isi Logic untuk me-replace/merge object ini, atau biarkan kosong jika hanya sebagai container.';
-        } else if (type === 'array') {
-            hintText.innerHTML = '<i class="fas fa-info-circle"></i> Isi Logic (misal: Source Path / lookupList) untuk mengisi list ini secara otomatis.';
-        } else {
-            hintText.innerHTML = ''; // Kosongkan untuk tipe primitif
-        }
+    if (b.dataset.type === type) {
+     b.classList.remove('border-transparent', 'text-slate-600')
+     b.classList.add(
+      'bg-indigo-50',
+      'text-indigo-600',
+      'border-indigo-200',
+      'ring-1',
+      'ring-indigo-200'
+     )
     }
-    
-    // Default mode jika belum dipilih
-    if (!els.prop.modeVal.value) {
-        drawerUI.selectMode('direct');
+   })
+
+   const logicSection = document.getElementById('prop-logic-section')
+   if (logicSection) logicSection.classList.remove('hidden')
+
+   const hintText = document.getElementById('prop-value-hint')
+   if (hintText) {
+    if (type === 'object') {
+     hintText.innerHTML =
+      '<i class="fas fa-info-circle"></i> Isi Logic untuk me-replace/merge object ini, atau biarkan kosong jika hanya sebagai container.'
+    } else if (type === 'array') {
+     hintText.innerHTML =
+      '<i class="fas fa-info-circle"></i> Isi Logic (misal: Source Path / lookupList) untuk mengisi list ini secara otomatis.'
+    } else {
+     hintText.innerHTML = ''
     }
+   }
+
+   if (!els.prop.modeVal.value) {
+    drawerUI.selectMode('direct')
+   }
   },
 
   selectMode: (mode) => {
@@ -651,49 +777,44 @@ export function initSPEController() {
   },
 
   save: () => {
-    const key = els.prop.key.value.trim();
-    const dataType = els.prop.typeVal.value; // 'object', 'array', 'string', dll
-    const transformationType = els.prop.modeVal.value; // 'direct', 'formula', 'static'
-    
-    if (!key) return alert('Key is required');
+   const key = els.prop.key.value.trim()
+   const dataType = els.prop.typeVal.value
+   const transformationType = els.prop.modeVal.value
 
-    // Ambil nilai logic berdasarkan mode yang dipilih
-    let logicValue = '';
-    if (transformationType === 'direct') logicValue = els.prop.valDirect.value;
-    else if (transformationType === 'formula') logicValue = els.prop.valFormula.value;
-    else if (transformationType === 'static') logicValue = els.prop.valStatic.value;
+   if (!key) return alert('Key is required')
 
-    // Tentukan parent dan target path (untuk struktur nested)
-    const parent = state.parentIdForNew ? state.rules.find(r => r.id === state.parentIdForNew) : null;
-    const targetPath = parent ? [...parent.target, key] : [key];
+   let logicValue = ''
+   if (transformationType === 'direct') logicValue = els.prop.valDirect.value
+   else if (transformationType === 'formula') logicValue = els.prop.valFormula.value
+   else if (transformationType === 'static') logicValue = els.prop.valStatic.value
 
-    // Bangun objek rule
-    // PENTING: Properti 'type' dan 'logic' harus disertakan untuk SEMUA dataType
-    const ruleData = {
-        id: state.editingNodeId || Date.now(),
-        target: targetPath,
-        dataType: dataType, // Simpan tipe data (object/array/string/dll)
-        type: transformationType, // Simpan mode (direct/formula/static)
-        logic: logicValue, // Simpan isi formula atau path mapping
-        encrypt: els.prop.encrypt.checked,
-        meta_data: {
-            data_type: dataType // Backup untuk kompatibilitas backend
-        }
-    };
+   const parent = state.parentIdForNew
+    ? state.rules.find((r) => r.id === state.parentIdForNew)
+    : null
+   const targetPath = parent ? [...parent.target, key] : [key]
 
-    if (state.editingNodeId) {
-        // Update existing rule
-        const index = state.rules.findIndex(r => r.id === state.editingNodeId);
-        if (index !== -1) state.rules[index] = ruleData;
-    } else {
-        // Add new rule
-        state.rules.push(ruleData);
-    }
+   const ruleData = {
+    id: state.editingNodeId || Date.now(),
+    target: targetPath,
+    dataType: dataType,
+    type: transformationType,
+    logic: logicValue,
+    encrypt: els.prop.encrypt.checked,
+    meta_data: {
+     data_type: dataType,
+    },
+   }
 
-    // Render ulang canvas dan tutup drawer
-    canvasUI.render();
-    drawerUI.close();
-},
+   if (state.editingNodeId) {
+    const index = state.rules.findIndex((r) => r.id === state.editingNodeId)
+    if (index !== -1) state.rules[index] = ruleData
+   } else {
+    state.rules.push(ruleData)
+   }
+
+   canvasUI.render()
+   drawerUI.close()
+  },
 
   delete: async () => {
    const confirmed = await showConfirmDialog({
@@ -715,6 +836,147 @@ export function initSPEController() {
      drawerUI.close()
      canvasUI.render()
     }
+   }
+  },
+
+  openTestModal: () => {
+   const test_formula_modal = document.getElementById('formula-test-modal')
+   const formula = document.getElementById('prop-val-formula').value
+   if (!formula.trim()) return showToast('Formula is Empty!')
+   const previewEl = document.getElementById('test-formula-preview')
+   if (previewEl) previewEl.textContent = formula
+   test_formula_modal.classList.remove('hidden')
+   const sourceInput = document.getElementById('test-input-source')
+   const oldInput = document.getElementById('test-input-old')
+
+   if (!sourceInput.value.trim() || sourceInput.value === '{}') {
+    const dummySource = drawerUI.generateDummyFromSchema(false)
+    sourceInput.value = JSON.stringify(dummySource, null, 2)
+   }
+
+   if (!oldInput.value.trim() || oldInput.value === 'null') {
+    const dummyOld = drawerUI.generateDummyFromSchema(true)
+    oldInput.value = JSON.stringify(dummyOld, null, 2)
+   }
+   const outputContainer = document.getElementById('test-output-container')
+   outputContainer.innerHTML = `
+    <div class="h-full flex flex-col items-center justify-center text-slate-300">
+        <i class="fas fa-flask text-5xl mb-3 opacity-10"></i>
+        <p class="text-xs font-medium">Siap untuk pengujian logika.</p>
+    </div>`
+
+   document.getElementById('test-status-indicator').classList.add('opacity-0')
+   document.getElementById('formula-test-modal').classList.remove('hidden')
+  },
+
+  closeTestModal: () => {
+   document.getElementById('formula-test-modal').classList.add('hidden')
+  },
+
+  switchTestTab: (tab) => {
+   const isSrc = tab === 'source'
+   document.getElementById('test-input-source').classList.toggle('hidden', !isSrc)
+   document.getElementById('test-input-old').classList.toggle('hidden', isSrc)
+
+   // Update styling tab aktif
+   const btnSrc = document.getElementById('tab-btn-source')
+   const btnOld = document.getElementById('tab-btn-old')
+
+   if (isSrc) {
+    btnSrc.className =
+     'flex-1 py-3 text-[10px] font-bold text-emerald-600 border-b-2 border-emerald-600 bg-white'
+    btnOld.className =
+     'flex-1 py-3 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors'
+   } else {
+    btnOld.className =
+     'flex-1 py-3 text-[10px] font-bold text-emerald-600 border-b-2 border-emerald-600 bg-white'
+    btnSrc.className =
+     'flex-1 py-3 text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors'
+   }
+  },
+
+  formatTestJson: () => {
+   try {
+    const srcEl = document.getElementById('test-input-source')
+    const oldEl = document.getElementById('test-input-old')
+    if (srcEl.value.trim()) srcEl.value = JSON.stringify(JSON.parse(srcEl.value), null, 2)
+    if (oldEl.value.trim()) oldEl.value = JSON.stringify(JSON.parse(oldEl.value), null, 2)
+   } catch (e) {
+    alert('Format JSON tidak valid! Periksa kembali tanda koma atau kurung Anda.')
+   }
+  },
+
+  runTest: async () => {
+   const code = document.getElementById('prop-val-formula').value
+   const sourceStr = document.getElementById('test-input-source').value
+   const oldStr = document.getElementById('test-input-old').value || 'null'
+
+   const outputContainer = document.getElementById('test-output-container')
+   const statusIndicator = document.getElementById('test-status-indicator')
+   const statusText = document.getElementById('test-status-text')
+   const timeText = document.getElementById('test-execution-time')
+
+   try {
+    const source = JSON.parse(sourceStr)
+    const old = oldStr === 'null' ? null : JSON.parse(oldStr)
+    const startTime = performance.now()
+
+    // Tampilkan Loading
+    outputContainer.innerHTML = `
+    <div class="flex flex-col items-center justify-center h-full text-emerald-500">
+        <i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Executing...</span>
+    </div>`
+
+    // Request ke Backend SPE
+    const response = await apiFetch('api/test-formula', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ code, source, old }),
+    })
+
+    const data = await response.json()
+    console.log(data)
+
+    const duration = Math.round(performance.now() - startTime)
+
+    // Tampilkan Indikator Status
+    statusIndicator.classList.remove('opacity-0')
+    timeText.textContent = `${duration}ms`
+
+    if (data.success) {
+     // Tampilan SUKSES
+     statusText.textContent = 'SUCCESS'
+     statusText.className = 'text-[10px] font-bold text-emerald-700'
+     statusIndicator.querySelector('div').className =
+      'flex items-center gap-1.5 px-2 py-1 bg-emerald-50 rounded-full border border-emerald-100'
+
+     outputContainer.innerHTML = `
+        <div class="animate-in fade-in duration-300">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Return Result:</span>
+                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[9px] font-bold rounded">${typeof data.result}</span>
+            </div>
+            <pre class="p-4 bg-slate-900 text-emerald-400 rounded-xl border border-slate-800 font-mono text-xs overflow-auto max-h-[350px] shadow-inner">${JSON.stringify(data.result, null, 2)}</pre>
+        </div>`
+    } else {
+     // Tampilan GAGAL
+     statusText.textContent = 'FAILED'
+     statusText.className = 'text-[10px] font-bold text-rose-700'
+     statusIndicator.querySelector('div').className =
+      'flex items-center gap-1.5 px-2 py-1 bg-rose-50 rounded-full border border-rose-100'
+
+     outputContainer.innerHTML = `
+        <div class="animate-in slide-in-from-top-2 duration-300">
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fas fa-exclamation-triangle text-rose-500"></i>
+                <span class="text-[10px] font-bold text-rose-600 uppercase">Runtime Error:</span>
+            </div>
+            <div class="p-4 bg-rose-50 text-rose-700 rounded-xl border border-rose-100 font-mono text-xs whitespace-pre-wrap leading-relaxed">${data.error}</div>
+        </div>`
+    }
+   } catch (e) {
+    outputContainer.innerHTML = `<div class="p-4 bg-amber-50 text-amber-700 rounded-lg border border-amber-200 text-xs"><strong>JSON Error:</strong> ${e.message}</div>`
    }
   },
  }
@@ -1006,6 +1268,21 @@ export function initSPEController() {
 
  els.btnSave.onclick = actions.saveConfig
  els.btnEmptyAndCreate.onclick = actions.openBuilder
+ els.btnTestFormula.addEventListener('click', function (event) {
+  drawerUI.openTestModal()
+ })
+ els.btnCloseTestFormula.addEventListener('click', function (event) {
+  drawerUI.closeTestModal()
+ })
+ els.btnTabSource.addEventListener('click', function (event) {
+  drawerUI.switchTestTab('source')
+ })
+ els.btnTabOld.addEventListener('click', function (event) {
+  drawerUI.switchTestTab('')
+ })
+ els.btnRunExecuteFormula.addEventListener('click', function (event) {
+  drawerUI.runTest()
+ })
  els.btnDelete.addEventListener('click', async function (event) {
   const clickedId = event.target.dataset.id
   await actions.deleteConfig(clickedId)
