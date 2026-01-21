@@ -1,7 +1,3 @@
-Tentu, Anda benar. Penggunaan `lookupList` sangat penting untuk menangani skenario data _one-to-many_. Berikut adalah versi **README.md** yang sudah diperbarui dengan menyertakan detail penggunaan `lookupList`, lengkap dengan contoh kasusnya.
-
----
-
 # 📘 Panduan Penulisan Formula - Smart Projection Engine (SPE)
 
 Dokumen ini adalah referensi resmi untuk menulis logika transformasi pada bagian **Logic (Formula Mode)** di dalam sistem SPE. Semua formula dijalankan dalam lingkungan _Safe Sandbox_ (VM Node.js) yang mendukung operasi asinkron dan manipulasi data tingkat lanjut.
