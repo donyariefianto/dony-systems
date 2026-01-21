@@ -147,7 +147,7 @@ export function getSPEView() {
                                     <i class="fas fa-cube text-indigo-400"></i> Object
                                 </button>
                                 <button type="button" class="prop-type-btn px-2 py-2 rounded-lg border text-[10px] font-bold transition-all flex flex-col items-center gap-1 hover:bg-slate-50" data-type="array">
-                                    <i class="fas fa-brackets text-amber-400"></i> Array
+                                    <i class="fas fa-code text-amber-400"></i> Array
                                 </button>
                             </div>
                             <input type="hidden" id="prop-type-val">
