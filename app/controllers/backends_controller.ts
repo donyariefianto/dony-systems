@@ -7,8 +7,9 @@ import { SmartProjectionEngineService } from '#services/smart_projection_engine_
 import env from '#start/env'
 import jwt from 'jsonwebtoken'
 
-const ACCESS_SECRET = env.get('ACCESS_SECRET')
-const REFRESH_SECRET = env.get('REFRESH_SECRET')
+const ACCESS_SECRET:any = env.get('ACCESS_SECRET')
+const REFRESH_SECRET:any = env.get('REFRESH_SECRET')
+
 export default class BackendsController {
  async patchMenu({ response, request }: HttpContext) {
   let body = request.all()
@@ -191,7 +192,7 @@ export default class BackendsController {
   }
   return response.send(settings)
  }
- async runTestFormulaSPE({ params, request, response }: HttpContext) {
+ async runTestFormulaSPE({ request, response }: HttpContext) {
   try {
    const { code, source, old } = request.only(['code', 'source', 'old'])
    const result = await SmartProjectionEngineService.testFormula({
@@ -288,7 +289,7 @@ export default class BackendsController {
   }
  }
  async login({ request, response }: HttpContext) {
-  const { username, password } = request.all()
+  const { username } = request.all()
   return response.send({ token: `token`, user: { username, role: 'admin' } })
  }
  async authentication_login({ request, response }: HttpContext) {
