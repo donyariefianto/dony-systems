@@ -17,6 +17,11 @@ router
  .group(() => {
   router.post('/login', '#controllers/backends_controller.login')
   router.delete('/logout', '#controllers/backends_controller.menu')
+  router.post('/v2/login', '#controllers/backends_controller.authentication_login')
+  router.patch('/v2/refresh', '#controllers/backends_controller.authentication_refresh')
+  router
+   .delete('/v2/logout', '#controllers/backends_controller.authentication_logout')
+   .use(middleware.authentication())
  })
  .prefix('/authentication')
 router

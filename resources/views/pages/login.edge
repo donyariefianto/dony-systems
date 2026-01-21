@@ -6,11 +6,11 @@
   <title>
    Login - TB Sahabat
   </title>
-  @vite(['resources/css/app.css', 'resources/js/authentication.js'])
   <link
    rel="stylesheet"
-   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
   />
+  @vite(['resources/css/app.css', 'resources/js/authentication.js'])
  </head>
  <body class="bg-gray-50 flex items-center justify-center min-h-screen p-6">
   <div
@@ -38,6 +38,7 @@
       name="username"
       required
       class="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm"
+      placeholder="Masukkan username"
      />
     </div>
     <div>
@@ -47,16 +48,20 @@
       name="password"
       required
       class="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm"
+      placeholder="••••••••"
      />
     </div>
     <button
      type="submit"
      id="btn-login"
-     class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all transform active:scale-[0.98]"
+     class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
     >
-     Masuk ke Sistem
+     <span>Masuk ke Sistem</span>
     </button>
    </form>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[100] space-y-3 pointer-events-none">
   </div>
  </body>
 </html>

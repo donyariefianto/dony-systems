@@ -4,6 +4,7 @@ import { sha256 } from '@noble/hashes/sha2.js'
 import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils.js'
 import { hexToBytes } from '@noble/hashes/utils.js'
 import { AppState } from '../core/state'
+import { apiFetch } from '../core/api'
 
 function getKey() {
  const secret_key = String(AppState.app_key)
@@ -23,9 +24,20 @@ export function decryptData(nonceHex, ciphertextHex) {
   return null
  }
 }
-export function logout() {
- localStorage.clear()
- window.location.href = '/login'
+
+export async function logout() {
+ //  localStorage.clear()
+ const token = localStorage.getItem('auth_token')
+ const response = await fetch('authentication/v2/logout', {
+  method: 'DELETE',
+  headers: { Authorization: `Bearer ${token}` },
+ })
+ if (response.status === 403) {
+  return showToast('SINI', 'failed')
+ }
+ console.log(response)
+
+ //  window.location.href = '/login'
 }
 
 export function showToast(message, type = 'success') {

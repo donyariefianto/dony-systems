@@ -73,7 +73,7 @@ window.doSearch = (val) => {
  }, 500)
 }
 
-window.saveSettings = () => showToast('Konfigurasi Toko Disimpan!', 'success')
+window.saveSettings = () => showToast('Configuration save Succesfully', 'success')
 window.openWidgetEditor = openWidgetEditor
 window.saveDashboardBuilder = saveDashboardBuilder
 window.fetchDashboardsFromDB = fetchDashboardsFromDB
