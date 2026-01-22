@@ -3,6 +3,7 @@ import { AppState } from '../core/state.js'
 import { showToast, showConfirmDialog, decryptData } from '../utils/helpers.js'
 import { WidgetRegistry } from '../config/WidgetRegistry.js'
 import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
+import { iconPicker } from '../utils/icon_picker.js'
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 
 let activeMobileTab = 'editor'
@@ -15,16 +16,86 @@ let dashboardListState = {
 const MAX_WIDGET_LIMIT = 7
 let currentEditingIndex = null
 
-export function renderDashboardGenerator() {
- return `
-    <div class="flex flex-col lg:flex-row h-full w-full bg-white relative overflow-hidden group/dashboard">
-        ${renderFilesPanel()}
-        ${renderEditorPanel()}
-        ${renderToolsPanel()}
-        ${renderMobileNavigation()}
-        ${renderWidgetConfigModal()}
-    </div>
-    `
+function escapeHtml(text) {
+ const div = document.createElement('div')
+ div.textContent = text
+ return div.innerHTML
+}
+
+function initMobileNavDrag() {
+ const nav = document.getElementById('dashboard-mobile-nav')
+ const handle = document.getElementById('mob-nav-handle')
+
+ if (!nav || !handle) {
+  console.warn('Mobile Nav elements not found, retrying...')
+
+  setTimeout(initMobileNavDrag, 1000)
+  return
+ }
+
+ let isDragging = false
+ let startY = 0
+ let startTop = 0
+ let screenHeight = window.innerHeight
+
+ function preventDefault(e) {
+  if (e.cancelable) e.preventDefault()
+ }
+
+ handle.addEventListener(
+  'touchstart',
+  (e) => {
+   isDragging = true
+
+   const touch = e.touches[0]
+   startY = touch.clientY
+
+   const rect = nav.getBoundingClientRect()
+   startTop = rect.top
+
+   nav.style.transform = 'none'
+   nav.style.top = startTop + 'px'
+
+   nav.style.transition = 'none'
+
+   document.body.style.overflow = 'hidden'
+  },
+  { passive: false }
+ )
+
+ document.addEventListener(
+  'touchmove',
+  (e) => {
+   if (!isDragging) return
+   preventDefault(e)
+
+   const touch = e.touches[0]
+   const deltaY = touch.clientY - startY
+   let newTop = startTop + deltaY
+
+   const maxTop = screenHeight - nav.offsetHeight - 20
+   const minTop = 60
+
+   if (newTop < minTop) newTop = minTop
+   if (newTop > maxTop) newTop = maxTop
+
+   nav.style.top = `${newTop}px`
+  },
+  { passive: false }
+ )
+
+ document.addEventListener('touchend', () => {
+  if (!isDragging) return
+  isDragging = false
+
+  document.body.style.overflow = ''
+
+  nav.style.transition = 'opacity 0.2s ease'
+ })
+
+ window.addEventListener('resize', () => {
+  screenHeight = window.innerHeight
+ })
 }
 
 function renderFilesPanel() {
@@ -204,7 +275,7 @@ function renderMobileNavigation() {
 
 function renderWidgetConfigModal() {
  return `
-        <div id="widget-config-modal" class="fixed top-24 right-4 lg:right-10 z-[100] w-[90vw] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[80vh] transition-all duration-200 animate-in fade-in zoom-in-95">
+        <div id="widget-config-modal" class="fixed top-24 right-4 md:right-8 lg:right-10 z-[100] w-[90vw] md:w-[380px] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[80vh] transition-all duration-200 animate-in fade-in zoom-in-95">
             
             <div id="widget-config-header" class="h-12 border-b border-gray-100 flex justify-between items-center px-5 bg-gray-50 rounded-t-2xl shrink-0 cursor-move select-none group">
                 <div class="flex items-center gap-2 pointer-events-none">
@@ -226,6 +297,141 @@ function renderWidgetConfigModal() {
                 </button>
             </div>
         </div>
+    `
+}
+
+function renderSavedDashboardsList() {
+ const container = document.getElementById('saved-dashboards-list')
+ const paginationContainer = document.getElementById('dashboard-pagination')
+
+ if (!container || !AppState.dbDashboards?.data) {
+  if (container)
+   container.innerHTML =
+    '<div class="p-8 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</div>'
+  return
+ }
+
+ const filtered = AppState.dbDashboards.data.filter((d) =>
+  d.name.toLowerCase().includes(dashboardListState.search)
+ )
+
+ dashboardListState.totalPages = Math.max(1, Math.ceil(filtered.length / dashboardListState.limit))
+ const startIndex = (dashboardListState.page - 1) * dashboardListState.limit
+ const paginatedItems = filtered.slice(startIndex, startIndex + dashboardListState.limit)
+
+ if (paginatedItems.length === 0) {
+  container.innerHTML =
+   '<div class="p-8 text-center text-[10px] text-gray-400 font-bold uppercase">Data Kosong</div>'
+ } else {
+  container.innerHTML = paginatedItems
+   .map(
+    (d) => `
+        <div onclick="openWidgetEditor('${d._id}', '${d.name}'); switchMobileTab('editor');" 
+                class="group flex items-center justify-between pl-3 pr-2 lg:px-3 py-3 lg:py-2 rounded-lg cursor-pointer transition-all border border-transparent hover:bg-gray-50 ${AppState.currentEditingDashboardId === d._id ? 'bg-blue-50 border-blue-200' : 'border-b border-gray-50 lg:border-none'}">
+            
+            <div class="flex items-center gap-3 overflow-hidden flex-1">
+                <i class="fas fa-chart-pie text-[10px] ${AppState.currentEditingDashboardId === d._id ? 'text-blue-500' : 'text-gray-300'}"></i>
+                <span class="text-[11px] font-bold text-gray-700 truncate uppercase w-full">${d.name}</span>
+            </div>
+
+            <button onclick="event.stopPropagation(); deleteDashboardConfig('${d._id}', '${d.name}')" 
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors z-10 shrink-0" 
+                    title="Hapus Dashboard">
+                <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+        </div>
+    `
+   )
+   .join('')
+ }
+
+ if (paginationContainer) {
+  paginationContainer.innerHTML = `
+            <button onclick="changeDashboardPage(${dashboardListState.page - 1})" 
+                    class="w-6 h-6 rounded hover:bg-white hover:shadow-sm text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"
+                    ${dashboardListState.page === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left text-[10px]"></i>
+            </button>
+            <span class="text-[9px] font-bold text-gray-500 uppercase">Page ${dashboardListState.page} / ${dashboardListState.totalPages}</span>
+            <button onclick="changeDashboardPage(${dashboardListState.page + 1})" 
+                    class="w-6 h-6 rounded hover:bg-white hover:shadow-sm text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"
+                    ${dashboardListState.page >= dashboardListState.totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right text-[10px]"></i>
+            </button>
+        `
+ }
+}
+
+function updateMobileViewVisibility() {
+ const isDesktop = window.innerWidth >= 1024
+ const files = document.getElementById('panel-files')
+ const editor = document.getElementById('panel-editor')
+ const tools = document.getElementById('panel-tools')
+
+ if (!files || !editor || !tools) return
+
+ if (isDesktop) {
+  files.className =
+   'w-full lg:w-72 flex-col border-r border-gray-200 bg-white h-full hidden lg:flex z-20 shrink-0'
+  editor.className =
+   'w-full flex-1 flex-col bg-gray-100/50 h-full hidden lg:flex relative z-10 min-w-0'
+  tools.className =
+   'w-full lg:w-72 flex-col border-l border-gray-200 bg-white h-full hidden lg:flex z-20 shrink-0'
+ } else {
+  const editorBase = 'w-full flex-col h-full absolute inset-0 bg-gray-50 z-10 flex'
+  const overlayBase =
+   'w-full flex-col h-full absolute inset-0 bg-white z-20 animate-in slide-in-from-bottom-5 fade-in duration-300'
+
+  files.className = 'hidden'
+  tools.className = 'hidden'
+
+  editor.className = editorBase
+
+  if (activeMobileTab === 'files') {
+   files.className = overlayBase + ' flex'
+  } else if (activeMobileTab === 'tools') {
+   tools.className = overlayBase + ' flex'
+  } else {
+  }
+ }
+
+ const btnFiles = document.getElementById('mob-btn-files')
+ const btnTools = document.getElementById('mob-btn-tools')
+ const btnEditor = document.getElementById('mob-btn-editor')
+
+ if (btnFiles && btnTools && btnEditor) {
+  const activeClass = 'bg-gray-900 text-white shadow-xl scale-110 ring-2 ring-white ring-offset-2'
+
+  const inactiveClass = 'bg-white/90 text-gray-400 hover:text-gray-600 hover:bg-white'
+
+  btnFiles.className = `w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md ${activeMobileTab === 'files' ? activeClass : inactiveClass}`
+  btnEditor.className = `w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md ${activeMobileTab === 'editor' ? activeClass : inactiveClass}`
+  btnTools.className = `w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md ${activeMobileTab === 'tools' ? activeClass : inactiveClass}`
+ }
+}
+
+function getColSpanClass(width) {
+ switch (width) {
+  case 'full':
+   return 'col-span-1 sm:col-span-2 lg:col-span-4'
+  case 'half':
+   return 'col-span-1 sm:col-span-2 lg:col-span-2'
+  case 'quarter':
+   return 'col-span-1 lg:col-span-1'
+  default:
+   return 'col-span-1 sm:col-span-2 lg:col-span-2'
+ }
+}
+
+export function renderDashboardGenerator() {
+ return `
+    <div class="flex flex-col lg:flex-row h-full w-full bg-white relative overflow-hidden group/dashboard">
+        ${renderFilesPanel()}
+        ${renderEditorPanel()}
+        ${renderToolsPanel()}
+        ${renderMobileNavigation()}
+        ${renderWidgetConfigModal()}
+    </div>
     `
 }
 
@@ -302,119 +508,9 @@ export async function deleteDashboardConfig(id, name) {
  }
 }
 
-function renderSavedDashboardsList() {
- const container = document.getElementById('saved-dashboards-list')
- const paginationContainer = document.getElementById('dashboard-pagination')
-
- if (!container || !AppState.dbDashboards?.data) {
-  if (container)
-   container.innerHTML =
-    '<div class="p-8 text-center text-[10px] text-gray-400 font-bold uppercase">Loading...</div>'
-  return
- }
-
- const filtered = AppState.dbDashboards.data.filter((d) =>
-  d.name.toLowerCase().includes(dashboardListState.search)
- )
-
- dashboardListState.totalPages = Math.max(1, Math.ceil(filtered.length / dashboardListState.limit))
- const startIndex = (dashboardListState.page - 1) * dashboardListState.limit
- const paginatedItems = filtered.slice(startIndex, startIndex + dashboardListState.limit)
-
- if (paginatedItems.length === 0) {
-  container.innerHTML =
-   '<div class="p-8 text-center text-[10px] text-gray-400 font-bold uppercase">Data Kosong</div>'
- } else {
-  container.innerHTML = paginatedItems
-   .map(
-    (d) => `
-        <div onclick="openWidgetEditor('${d._id}', '${d.name}'); switchMobileTab('editor');" 
-                class="group flex items-center justify-between pl-3 pr-2 lg:px-3 py-3 lg:py-2 rounded-lg cursor-pointer transition-all border border-transparent hover:bg-gray-50 ${AppState.currentEditingDashboardId === d._id ? 'bg-blue-50 border-blue-200' : 'border-b border-gray-50 lg:border-none'}">
-            
-            <div class="flex items-center gap-3 overflow-hidden flex-1">
-                <i class="fas fa-chart-pie text-[10px] ${AppState.currentEditingDashboardId === d._id ? 'text-blue-500' : 'text-gray-300'}"></i>
-                <span class="text-[11px] font-bold text-gray-700 truncate uppercase w-full">${d.name}</span>
-            </div>
-
-            <button onclick="event.stopPropagation(); deleteDashboardConfig('${d._id}', '${d.name}')" 
-                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors z-10 shrink-0" 
-                    title="Hapus Dashboard">
-                <i class="fas fa-trash-alt text-xs"></i>
-            </button>
-        </div>
-    `
-   )
-   .join('')
- }
-
- if (paginationContainer) {
-  paginationContainer.innerHTML = `
-            <button onclick="changeDashboardPage(${dashboardListState.page - 1})" 
-                    class="w-6 h-6 rounded hover:bg-white hover:shadow-sm text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"
-                    ${dashboardListState.page === 1 ? 'disabled' : ''}>
-                <i class="fas fa-chevron-left text-[10px]"></i>
-            </button>
-            <span class="text-[9px] font-bold text-gray-500 uppercase">Page ${dashboardListState.page} / ${dashboardListState.totalPages}</span>
-            <button onclick="changeDashboardPage(${dashboardListState.page + 1})" 
-                    class="w-6 h-6 rounded hover:bg-white hover:shadow-sm text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"
-                    ${dashboardListState.page >= dashboardListState.totalPages ? 'disabled' : ''}>
-                <i class="fas fa-chevron-right text-[10px]"></i>
-            </button>
-        `
- }
-}
-
 export function switchMobileTab(tab) {
  activeMobileTab = tab
  updateMobileViewVisibility()
-}
-
-function updateMobileViewVisibility() {
- const isDesktop = window.innerWidth >= 1024
- const files = document.getElementById('panel-files')
- const editor = document.getElementById('panel-editor')
- const tools = document.getElementById('panel-tools')
-
- if (!files || !editor || !tools) return
-
- if (isDesktop) {
-  files.className =
-   'w-full lg:w-72 flex-col border-r border-gray-200 bg-white h-full hidden lg:flex z-20 shrink-0'
-  editor.className =
-   'w-full flex-1 flex-col bg-gray-100/50 h-full hidden lg:flex relative z-10 min-w-0'
-  tools.className =
-   'w-full lg:w-72 flex-col border-l border-gray-200 bg-white h-full hidden lg:flex z-20 shrink-0'
- } else {
-  const editorBase = 'w-full flex-col h-full absolute inset-0 bg-gray-50 z-10 flex'
-  const overlayBase =
-   'w-full flex-col h-full absolute inset-0 bg-white z-20 animate-in slide-in-from-bottom-5 fade-in duration-300'
-
-  files.className = 'hidden'
-  tools.className = 'hidden'
-
-  editor.className = editorBase
-
-  if (activeMobileTab === 'files') {
-   files.className = overlayBase + ' flex'
-  } else if (activeMobileTab === 'tools') {
-   tools.className = overlayBase + ' flex'
-  } else {
-  }
- }
-
- const btnFiles = document.getElementById('mob-btn-files')
- const btnTools = document.getElementById('mob-btn-tools')
- const btnEditor = document.getElementById('mob-btn-editor')
-
- if (btnFiles && btnTools && btnEditor) {
-  const activeClass = 'bg-gray-900 text-white shadow-xl scale-110 ring-2 ring-white ring-offset-2'
-
-  const inactiveClass = 'bg-white/90 text-gray-400 hover:text-gray-600 hover:bg-white'
-
-  btnFiles.className = `w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md ${activeMobileTab === 'files' ? activeClass : inactiveClass}`
-  btnEditor.className = `w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md ${activeMobileTab === 'editor' ? activeClass : inactiveClass}`
-  btnTools.className = `w-10 h-10 rounded-full flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 backdrop-blur-md ${activeMobileTab === 'tools' ? activeClass : inactiveClass}`
- }
 }
 
 export function renderWidgetLibrary() {
@@ -433,32 +529,32 @@ export function renderWidgetLibrary() {
    if (widgets.length === 0) return ''
 
    return `
-                <div class="mb-4 widget-group">
-                    <div class="flex items-center gap-2 mb-2 px-1">
-                        <span class="w-1.5 h-1.5 rounded-full ${cat.bg.replace('bg-', 'bg-').replace('50', '500')}"></span>
-                        <h4 class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${cat.name}</h4>
-                    </div>
-                    <div class="space-y-2">
-                        ${widgets
-                         .map(
-                          (w) => `
-                                    <div onclick="addWidgetToBuilder('${w.key}'); switchMobileTab('editor');" 
-                                         class="widget-item flex items-center gap-3 p-2 bg-white border border-gray-100 hover:border-blue-400 hover:shadow-sm rounded-lg cursor-pointer transition-all group active:scale-95">
-                                        <div class="w-8 h-8 shrink-0 rounded-md ${cat.bg} ${cat.color} flex items-center justify-center text-xs shadow-sm">
-                                            <i class="fas ${w.icon}"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <h5 class="text-[10px] font-bold text-gray-700 group-hover:text-blue-700 truncate">${w.name}</h5>
-                                            <p class="text-[8px] text-gray-400 truncate leading-tight">${w.desc}</p>
-                                        </div>
-                                        <div class="w-5 h-5 rounded hover:bg-blue-50 text-gray-300 group-hover:text-blue-500 flex items-center justify-center transition-colors">
-                                            <i class="fas fa-plus text-[9px]"></i>
-                                        </div>
-                                    </div>`
-                         )
-                         .join('')}
-                    </div>
-                </div>`
+        <div class="mb-4 widget-group">
+            <div class="flex items-center gap-2 mb-2 px-1">
+                <span class="w-1.5 h-1.5 rounded-full ${cat.bg.replace('bg-', 'bg-').replace('50', '500')}"></span>
+                <h4 class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${cat.name}</h4>
+            </div>
+            <div class="space-y-2">
+                ${widgets
+                 .map(
+                  (w) => `
+                    <div onclick="addWidgetToBuilder('${w.key}'); switchMobileTab('editor');" 
+                            class="widget-item flex items-center gap-3 p-2 bg-white border border-gray-100 hover:border-blue-400 hover:shadow-sm rounded-lg cursor-pointer transition-all group active:scale-95">
+                        <div class="w-8 h-8 shrink-0 rounded-md ${cat.bg} ${cat.color} flex items-center justify-center text-xs shadow-sm">
+                            <i class="fas ${w.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h5 class="text-[10px] font-bold text-gray-700 group-hover:text-blue-700 truncate">${w.name}</h5>
+                            <p class="text-[8px] text-gray-400 truncate leading-tight">${w.desc}</p>
+                        </div>
+                        <div class="w-5 h-5 rounded hover:bg-blue-50 text-gray-300 group-hover:text-blue-500 flex items-center justify-center transition-colors">
+                            <i class="fas fa-plus text-[9px]"></i>
+                        </div>
+                    </div>`
+                 )
+                 .join('')}
+            </div>
+        </div>`
   })
   .join('')
 }
@@ -555,7 +651,7 @@ export function renderBuilderWidgets() {
         <div class="p-3 flex-1">
             <div class="flex items-start justify-between mb-2">
                 <div class="flex items-center gap-2 overflow-hidden">
-                    <i class="fas ${w.icon || 'fa-cube'} ${iconColor} text-[10px]"></i>
+                    <i class="${w.icon || 'fas fa-cube'} ${iconColor} text-[10px]"></i>
                     <div class="min-w-0">
                         <h3 class="text-[10px] font-bold text-gray-700 uppercase tracking-tight truncate w-full" title="${w.title}">${w.title || 'Untitled'}</h3>
                         <p class="text-[8px] text-gray-400 font-mono flex gap-1 mt-0.5">
@@ -591,19 +687,6 @@ export function renderBuilderWidgets() {
     </div>`
   })
   .join('')
-}
-
-function getColSpanClass(width) {
- switch (width) {
-  case 'full':
-   return 'col-span-1 sm:col-span-2 lg:col-span-4'
-  case 'half':
-   return 'col-span-1 sm:col-span-2 lg:col-span-2'
-  case 'quarter':
-   return 'col-span-1 lg:col-span-1'
-  default:
-   return 'col-span-1 sm:col-span-2 lg:col-span-2'
- }
 }
 
 export function removeBuilderWidget(index) {
@@ -676,15 +759,37 @@ export function editWidgetConfig(index) {
             <div class="space-y-3">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</label>
-                    <input type="text" id="conf-title" value="${escapeHtml(widget.title || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-800 outline-none focus:border-blue-500 transition-all">
+                    <input type="text" id="conf-title" 
+                        value="${escapeHtml(widget.title || '')}" 
+                        class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-800 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
                 </div>
+
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</label>
-                    <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all">
+                    <input type="text" id="conf-desc" 
+                        value="${escapeHtml(widget.description || '')}" 
+                        class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
                 </div>
+
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Icon</label>
-                    <input type="text" id="conf-icon" value="${escapeHtml(widget.icon || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all">
+                    <div class="flex gap-2">
+                        
+                        <div id="preview-conf-icon" 
+                            class="shrink-0 w-[38px] h-[38px] rounded-lg bg-slate-50 border border-gray-200 flex items-center justify-center text-slate-500 shadow-sm transition-all duration-300">
+                            <i class="${widget.icon || 'fas fa-icons'} text-sm"></i>
+                        </div>
+                        
+                        <div class="relative flex-1 group">
+                            <input type="text" 
+                                id="conf-icon" 
+                                value="${escapeHtml(widget.icon || 'fas fa-icons')}"
+                                readonly
+                                onclick="triggerIconPickerSettingsDashboard('conf-icon')"
+                                class="w-full p-2.5 pr-8 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 outline-none focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-all placeholder:font-normal"
+                                placeholder="Select icon...">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -961,6 +1066,19 @@ export async function openWidgetEditor(id, name) {
  }
 }
 
+export async function triggerIconPickerSettingsDashboard(fieldName) {
+ await iconPicker.open((selectedIcon) => {
+  const inputEl = document.getElementById(`${fieldName}`)
+  if (inputEl) inputEl.value = selectedIcon
+
+  const previewEl = document.getElementById(`preview-${fieldName}`)
+  if (previewEl) {
+   previewEl.innerHTML = `<i class="${selectedIcon}"></i>`
+   previewEl.classList.add('bg-blue-50', 'border-blue-200')
+  }
+ })
+}
+
 export async function openAddDashboardModal() {
  const { value: formValues } = await Swal.fire({
   title:
@@ -1091,12 +1209,6 @@ export function previewConfig() {
  }
 }
 
-function escapeHtml(text) {
- const div = document.createElement('div')
- div.textContent = text
- return div.innerHTML
-}
-
 export function initDashboardGenerator() {
  window.removeEventListener('resize', updateMobileViewVisibility)
  window.addEventListener('resize', updateMobileViewVisibility)
@@ -1106,80 +1218,4 @@ export function initDashboardGenerator() {
  renderWidgetLibrary()
 
  setTimeout(initMobileNavDrag, 500)
-}
-
-function initMobileNavDrag() {
- const nav = document.getElementById('dashboard-mobile-nav')
- const handle = document.getElementById('mob-nav-handle')
-
- if (!nav || !handle) {
-  console.warn('Mobile Nav elements not found, retrying...')
-
-  setTimeout(initMobileNavDrag, 1000)
-  return
- }
-
- let isDragging = false
- let startY = 0
- let startTop = 0
- let screenHeight = window.innerHeight
-
- function preventDefault(e) {
-  if (e.cancelable) e.preventDefault()
- }
-
- handle.addEventListener(
-  'touchstart',
-  (e) => {
-   isDragging = true
-
-   const touch = e.touches[0]
-   startY = touch.clientY
-
-   const rect = nav.getBoundingClientRect()
-   startTop = rect.top
-
-   nav.style.transform = 'none'
-   nav.style.top = startTop + 'px'
-
-   nav.style.transition = 'none'
-
-   document.body.style.overflow = 'hidden'
-  },
-  { passive: false }
- )
-
- document.addEventListener(
-  'touchmove',
-  (e) => {
-   if (!isDragging) return
-   preventDefault(e)
-
-   const touch = e.touches[0]
-   const deltaY = touch.clientY - startY
-   let newTop = startTop + deltaY
-
-   const maxTop = screenHeight - nav.offsetHeight - 20
-   const minTop = 60
-
-   if (newTop < minTop) newTop = minTop
-   if (newTop > maxTop) newTop = maxTop
-
-   nav.style.top = `${newTop}px`
-  },
-  { passive: false }
- )
-
- document.addEventListener('touchend', () => {
-  if (!isDragging) return
-  isDragging = false
-
-  document.body.style.overflow = ''
-
-  nav.style.transition = 'opacity 0.2s ease'
- })
-
- window.addEventListener('resize', () => {
-  screenHeight = window.innerHeight
- })
 }

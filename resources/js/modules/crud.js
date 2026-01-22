@@ -1,6 +1,7 @@
 import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { showToast, showConfirmDialog, decryptData } from '../utils/helpers.js'
+import { iconPicker } from '../utils/icon_picker.js'
 
 window.formDynamicState = {}
 window.repeaterSchemas = {}
@@ -246,15 +247,12 @@ export function renderTableView(config, container) {
 
                 <button onclick="window.refreshTable()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
                     <i id="refresh-icon" class="fas fa-sync-alt text-slate-400 group-hover:text-blue-500 transition-colors"></i>
-                    <span class="hidden sm:inline"></span>
                 </button>
                 <button onclick="window.dropCollections('${collectionName}')" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
                     <i id="drop-collections" class="fas fa-trash text-slate-400 group-hover:text-pink-500 transition-colors"></i>
-                    <span class="hidden sm:inline"></span>
                 </button>
                 <button onclick="window.openCrudModal()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-lime-600 hover:border-lime-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
                     <i id="open-crud-modal" class="fas fa-square-plus text-slate-400 group-hover:text-lime-500 transition-colors"></i>
-                    <span class="hidden sm:inline"></span>
                 </button>
             </div>
         </div>
@@ -544,6 +542,34 @@ export async function openCrudModal(existingData = null) {
    const baseClass = `w-full px-4 py-3 bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium outline-none ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`
    const labelHtml = `<label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>`
 
+   if (field.type === 'icon') {
+    const value = val || ''
+    return `
+        <div class="w-full ${field.width === '100' ? 'col-span-full' : ''}">
+            ${labelHtml}
+            <div class="flex gap-2">
+                <div id="preview-${field.name}" class="shrink-0 w-[42px] h-[42px] rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 shadow-sm transition-all duration-300">
+                    <i class="${value || 'fas fa-icons'}"></i>
+                </div>
+                
+                <div class="relative flex-1 group">
+                    <input type="text" 
+                           id="input-${field.name}" 
+                           name="${field.name}" 
+                           value="${value}"
+                           readonly
+                           onclick="triggerIconPicker('${field.name}')"
+                           class="${baseClass} pl-4 pr-9 cursor-pointer hover:bg-white hover:border-blue-400 hover:ring-4 hover:ring-blue-500/10 transition-all placeholder:font-normal"
+                           placeholder="Pilih ikon widget...">
+                    
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-blue-500 transition-colors">
+                        <i class="fas fa-search text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>`
+   }
+
    if (field.type === 'date') {
     let dateVal = val
     if (val && typeof val === 'string') {
@@ -619,7 +645,7 @@ export async function openCrudModal(existingData = null) {
 
   form.innerHTML = `
     <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-gray-50/30"><div class="grid grid-cols-1 md:grid-cols-2 gap-5">${renderedFields.join('')}</div></div>
-    <div class="p-5 border-t border-gray-100 bg-white shrink-0 flex gap-3"><button type="button" onclick="window.closeModal()" class="flex-1 py-3 bg-white border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-xs hover:bg-gray-50">Batal</button><button type="submit" class="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold uppercase text-xs flex items-center justify-center gap-2"><i class="fas fa-save"></i> Simpan</button></div>`
+    <div class="p-5 border-t border-gray-100 bg-white shrink-0 flex gap-3"><button type="button" onclick="window.closeModal()" class="flex-1 py-3 bg-white border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-xs hover:bg-gray-50">Cancel</button><button type="submit" class="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold uppercase text-xs flex items-center justify-center gap-2"><i class="fas fa-save"></i> Save</button></div>`
  } catch (err) {
   console.error(err)
   form.innerHTML = `<div class="flex-1 flex items-center justify-center text-red-500 font-bold text-xs">Error loading form</div>`
@@ -736,7 +762,7 @@ export async function handleFormSubmit(e) {
   if (response.ok) {
    window.closeModal()
    fetchTableData()
-   showToast('Data berhasil disimpan', 'success')
+   showToast('Data berhasil diSave', 'success')
   } else {
    let errMsg = 'Gagal menyimpan data'
    try {
@@ -756,10 +782,10 @@ export async function handleFormSubmit(e) {
 
 export async function deleteData(id) {
  const isConfirmed = await showConfirmDialog({
-  title: 'Hapus?',
-  text: 'Data hilang permanen.',
+  title: 'Delete?',
+  text: 'Data will be permanently deleted.',
   icon: 'warning',
-  confirmText: 'Hapus',
+  confirmText: 'Delete',
   dangerMode: true,
  })
  if (isConfirmed) {
@@ -792,6 +818,29 @@ export async function doSearch(query) {
  fetchTableData()
 }
 
+async function dropCollectionsData(collectionsNames) {
+ try {
+  const url = `api/collections/${collectionsNames.toString()}`
+  const response = await apiFetch(url, { method: 'DELETE' })
+  if (response.ok) {
+   return {
+    success: true,
+    message: 'Collections data dropped successfully',
+   }
+  } else {
+   return {
+    success: false,
+    message: err.message || 'Failed to drop collections data',
+   }
+  }
+ } catch (err) {
+  return {
+   success: false,
+   message: err.message || 'Failed to drop collections data',
+  }
+ }
+}
+
 function renderPaginationControls(totalPages, totalItems, currentPage) {
  const container = document.getElementById('pagination-container')
  if (!container) return
@@ -799,11 +848,11 @@ function renderPaginationControls(totalPages, totalItems, currentPage) {
   totalItems === 0
    ? ''
    : `
-        <div class="text-xs font-bold text-gray-700">Halaman ${currentPage} / ${totalPages}</div>
-        <div class="flex gap-2">
-            <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Prev</button>
-            <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Next</button>
-        </div>`
+    <div class="text-xs font-bold text-gray-700">Halaman ${currentPage} / ${totalPages}</div>
+    <div class="flex gap-2">
+        <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Prev</button>
+        <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Next</button>
+    </div>`
 }
 
 function debounce(func, wait) {
@@ -1181,11 +1230,8 @@ window.handleRepeaterInputChange = function (el, fieldName, index, colName) {
 
  if (window.formDynamicState[fieldName] && window.formDynamicState[fieldName][index]) {
   window.formDynamicState[fieldName][index][colName] = val
-
   window.recalculateRow(window.formDynamicState[fieldName][index], schema)
-
   window.renderRepeater(fieldName)
-
   window.recalculateMainFields()
  }
 }
@@ -1226,7 +1272,7 @@ window.dropCollections = async function (collections) {
  if (icon) icon.classList.add('fa-spin')
  const isConfirmed = await showConfirmDialog({
   title: 'Delete All?',
-  text: 'Data will be remove permanant.',
+  text: 'Data will be permanently deleted from the selected collections.',
   icon: 'warning',
   confirmText: 'Delete',
   dangerMode: true,
@@ -1235,35 +1281,25 @@ window.dropCollections = async function (collections) {
   const result = await dropCollectionsData(collections)
   if (result.success) {
    showToast(result.message, 'success')
+   await fetchTableData()
   } else {
    showToast(result.message, 'error')
   }
  }
  setTimeout(async () => {
   if (icon) icon.classList.remove('fa-spin')
-  await fetchTableData()
  }, 500)
 }
 
-async function dropCollectionsData(collectionsNames) {
- try {
-  const url = `api/collections/${collectionsNames.toString()}`
-  const response = await apiFetch(url, { method: 'DELETE' })
-  if (response.ok) {
-   return {
-    success: true,
-    message: 'Collections data dropped successfully',
-   }
-  } else {
-   return {
-    success: false,
-    message: err.message || 'Failed to drop collections data',
-   }
+window.triggerIconPicker = async (fieldName) => {
+ await iconPicker.open((selectedIcon) => {
+  const inputEl = document.getElementById(`input-${fieldName}`)
+  if (inputEl) inputEl.value = selectedIcon
+
+  const previewEl = document.getElementById(`preview-${fieldName}`)
+  if (previewEl) {
+   previewEl.innerHTML = `<i class="${selectedIcon}"></i>`
+   previewEl.classList.add('bg-blue-50', 'border-blue-200')
   }
- } catch (err) {
-  return {
-   success: false,
-   message: err.message || 'Failed to drop collections data',
-  }
- }
+ })
 }

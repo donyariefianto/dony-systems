@@ -201,7 +201,7 @@ async function loadDashboardConfig(dashboardId) {
         <div class="flex justify-between items-start mb-4">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm">
-                    <i class="fas ${widget.icon || 'fa-cube'}"></i>
+                    <i class="${widget.icon || 'fa-cube'}"></i>
                 </div>
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-tight truncate max-w-[150px] md:max-w-xs">${widget.title}</h3>
             </div>

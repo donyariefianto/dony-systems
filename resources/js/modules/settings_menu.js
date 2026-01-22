@@ -1,5 +1,6 @@
 import { apiFetch } from '../core/api.js'
 import { showToast, showConfirmDialog, decryptData } from '../utils/helpers.js'
+import { iconPicker } from '../utils/icon_picker.js'
 
 const API_CONFIG = {
  URL_LOAD: 'api/list-menu',
@@ -352,9 +353,9 @@ function renderPropertiesPanel() {
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Icon Class</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                    <i class="${item.icon}"></i>
+                                    <i id="conf-icon-value" class="${item.icon}"></i>
                                 </div>
-                                <input type="text" value="${item.icon}" oninput="window.updateProperty('icon', this.value)"
+                                <input id="conf-icon" type="text" value="${item.icon}" onclick="window.triggerIconPickerSettingsmenu('conf-icon')"
                                     class="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500">
                             </div>
                         </div>
@@ -533,6 +534,7 @@ function renderFieldCard(field, idx) {
                             <option value="textarea" ${field.type === 'textarea' ? 'selected' : ''}>Textarea (Paragraf)</option>
                             <option value="image" ${field.type === 'image' ? 'selected' : ''}>Image (Upload)</option>
                             <option value="boolean" ${field.type === 'boolean' ? 'selected' : ''}>Boolean (Switch)</option>
+                            <option value="icon" ${field.type === 'icon' ? 'selected' : ''}>Icon (Select Icon)</option>
                         </select>
                         <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400"><i class="fas fa-chevron-down text-[10px]"></i></div>
                     </div>
@@ -958,10 +960,10 @@ function renderTree(items, level = 0, parentId = null) {
  if (!items || items.length === 0) {
   if (level === 0)
    return `<div class="flex flex-col items-center justify-center py-10 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-                    <i class="fas fa-layer-group text-2xl mb-2 opacity-30"></i>
-                    <span class="text-xs font-medium italic">Custom Area Empty</span>
-                    <span class="text-[10px]">Add items from Library</span>
-                   </div>`
+    <i class="fas fa-layer-group text-2xl mb-2 opacity-30"></i>
+    <span class="text-xs font-medium italic">Custom Area Empty</span>
+    <span class="text-[10px]">Add items from Library</span>
+    </div>`
   return ''
  }
 
@@ -1132,7 +1134,17 @@ window.deleteMenuItem = async function (id) {
  window.refreshBuilderUI()
 }
 
-window.updateProperty = function (key, value) {
+window.triggerIconPickerSettingsmenu = async function (fieldName) {
+ await iconPicker.open((selectedIcon) => {
+  const inputEl = document.getElementById(`${fieldName}`)
+  const inputElIcon = document.getElementById(`${fieldName}-value`)
+  if (inputEl) inputEl.value = selectedIcon
+  if (inputElIcon) inputElIcon.className = selectedIcon
+  window.updateProperty('icon', selectedIcon)
+ })
+}
+
+window.updateProperty = async function (key, value) {
  if (!window.menuBuilderState.selectedId) return
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
  if (item) {
@@ -1146,6 +1158,11 @@ window.updateProperty = function (key, value) {
   if (key === 'name' || key === 'icon') {
    const listEl = document.getElementById('user-menu-list')
    if (listEl) listEl.innerHTML = renderTree(window.menuBuilderState.data)
+   if (key === 'icon') {
+    await iconPicker.open((selectedIcon) => {
+     // item.icon = selectedIcon
+    })
+   }
   }
  }
 }

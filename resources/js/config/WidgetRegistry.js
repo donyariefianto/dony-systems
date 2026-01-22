@@ -2,6 +2,12 @@ import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
 
 export const WidgetRegistry = {
  categories: {
+  'simple': {
+   name: 'Tabel & Labels',
+   icon: 'fa-chart-simple',
+   color: 'text-violet-500',
+   bg: 'bg-violet-200',
+  },
   'line': {
    name: 'Line Charts',
    icon: 'fa-chart-line',
@@ -17,32 +23,32 @@ export const WidgetRegistry = {
   'pie': {
    name: 'Pie & Donut',
    icon: 'fa-chart-pie',
-   color: 'text-orange-600',
-   bg: 'bg-orange-50',
+   color: 'text-yellow-500',
+   bg: 'bg-yellow-100',
   },
   'scatter': {
    name: 'Scatter & Plot',
    icon: 'fa-braille',
-   color: 'text-purple-600',
-   bg: 'bg-purple-50',
+   color: 'text-lime-600',
+   bg: 'bg-lime-200',
   },
   'radar': {
    name: 'Radar & Gauge',
    icon: 'fa-compass',
-   color: 'text-pink-600',
-   bg: 'bg-pink-50',
+   color: 'text-indigo-500',
+   bg: 'bg-indigo-100',
   },
   'flow': {
    name: 'Tree & Flow',
    icon: 'fa-project-diagram',
-   color: 'text-indigo-600',
-   bg: 'bg-indigo-50',
+   color: 'text-purple-800',
+   bg: 'bg-purple-200',
   },
   '3d': {
    name: '3D Visualization',
    icon: 'fa-cubes',
-   color: 'text-gray-800',
-   bg: 'bg-gray-100',
+   color: 'text-rose-250',
+   bg: 'bg-rose-200',
   },
  },
 
@@ -4038,6 +4044,59 @@ export const WidgetRegistry = {
       },
      ],
     }),
+   },
+  },
+
+  simple_table: {
+   name: 'Table',
+   icon: 'fa-solid fa-table',
+   category: 'simple',
+   desc: 'Table view',
+   defaultConfig: {
+    type: 'table',
+    subtype: 'table',
+    width: 'half',
+    title: 'Data table',
+    icon: 'fa-solid fa-table',
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData([
+     {
+      name: 'Susu UHT 1L',
+      category: 'Dairy',
+      stock: 5,
+      unit: 'Box',
+      status: 'critical',
+     },
+     {
+      name: 'Biji Kopi Arabika',
+      category: 'Coffee',
+      stock: 2,
+      unit: 'Kg',
+      status: 'low',
+     },
+     {
+      name: 'Gula Pasir',
+      category: 'Groceries',
+      stock: 10,
+      unit: 'Kg',
+      status: 'safe',
+     },
+    ]),
+   },
+  },
+  label: {
+   name: 'Label',
+   icon: 'fa-solid fa-tag',
+   category: 'simple',
+   desc: 'Label view',
+   defaultConfig: {
+    type: 'label',
+    subtype: 'label',
+    width: 'half',
+    title: 'Data Label',
+    icon: 'fa-solid fa-tag',
+    echarts_options: {},
+    data_config: WidgetConfigBuilder.staticData({}),
    },
   },
  },

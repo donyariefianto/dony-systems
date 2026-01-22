@@ -33,6 +33,7 @@ import {
  filterWidgetLibraryOnly,
  switchConfigTab,
  initDashboardGenerator,
+ triggerIconPickerSettingsDashboard,
 } from './modules/settings_dashboard.js'
 
 import { toggleSidebar, showToast, logout, closeModal } from './utils/helpers.js'
@@ -75,6 +76,7 @@ window.doSearch = (val) => {
 
 window.saveSettings = () => showToast('Configuration save Succesfully', 'success')
 window.openWidgetEditor = openWidgetEditor
+window.triggerIconPickerSettingsDashboard = triggerIconPickerSettingsDashboard
 window.saveDashboardBuilder = saveDashboardBuilder
 window.fetchDashboardsFromDB = fetchDashboardsFromDB
 window.openAddDashboardModal = openAddDashboardModal
