@@ -4,13 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>
-   Canvas JSON Generator
+   Sistem Pembukuan Akuntansi Profesional
   </title>
   <link
    rel="stylesheet"
    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   />
   <style>
+   /* Reset dan Base Styles */
+   
    * {
     margin: 0;
     padding: 0;
@@ -18,174 +20,304 @@
    }
    
    body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
     color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
    }
    
    .container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
     padding: 20px;
    }
+   
+   /* Header Styles */
    
    header {
-    text-align: center;
-    margin-bottom: 20px;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-   }
-   
-   h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-   }
-   
-   .subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-   }
-   
-   .app-wrapper {
-    flex: 1;
-    display: flex;
-    gap: 20px;
     background: white;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    overflow: hidden;
-   }
-   
-   @media (max-width: 1024px) {
-    .app-wrapper {
-     flex-direction: column;
-    }
-   }
-   
-   .canvas-container {
-    flex: 1;
-    position: relative;
-    border-radius: 12px;
-    background: #f8fafc;
-    border: 2px dashed #cbd5e1;
-    overflow: hidden;
-    min-height: 600px;
-   }
-   
-   #jsonCanvas {
-    width: 100%;
-    height: 100%;
-    cursor: crosshair;
-   }
-   
-   .control-panel {
-    width: 350px;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: column;
-    gap: 20px;
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    border: 2px solid #e2e8f0;
+    justify-content: space-between;
+    align-items: center;
    }
    
-   @media (max-width: 768px) {
-    .control-panel {
-     width: 100%;
-    }
-   }
-   
-   .panel-section {
-    background: #f8fafc;
-    border-radius: 10px;
-    padding: 15px;
-    border: 1px solid #e2e8f0;
-   }
-   
-   .section-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #475569;
-    margin-bottom: 15px;
+   .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 15px;
    }
    
-   .section-title i {
-    color: #6366f1;
+   .logo i {
+    font-size: 2.5rem;
+    color: #4f46e5;
+    background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
    }
    
-   .form-group {
-    margin-bottom: 15px;
-   }
-   
-   .form-label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #64748b;
+   .logo-text h1 {
+    font-size: 1.8rem;
+    color: #1f2937;
     margin-bottom: 5px;
    }
    
-   .form-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s;
+   .logo-text p {
+    color: #6b7280;
+    font-size: 0.9rem;
    }
    
-   .form-input:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+   .period-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center;
    }
    
-   .type-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-   }
-   
-   .type-btn {
-    padding: 10px;
-    border: 2px solid #cbd5e1;
+   .period-selector select {
+    padding: 8px 15px;
+    border: 2px solid #d1d5db;
     border-radius: 8px;
     background: white;
-    cursor: pointer;
-    font-size: 0.85rem;
+    font-weight: 500;
+   }
+   
+   /* Navigation Tabs */
+   
+   .nav-tabs {
+    display: flex;
+    background: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+   }
+   
+   .tab {
+    padding: 15px 25px;
+    border-radius: 10px;
     font-weight: 600;
-    text-align: center;
-    transition: all 0.3s;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
    }
    
-   .type-btn:hover {
-    border-color: #6366f1;
-    transform: translateY(-2px);
+   .tab:hover {
+    background: #f3f4f6;
    }
    
-   .type-btn.active {
-    background: #6366f1;
+   .tab.active {
+    background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
     color: white;
-    border-color: #6366f1;
+   }
+   
+   .tab i {
+    font-size: 1.2rem;
+   }
+   
+   /* Main Content */
+   
+   .content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+    margin-bottom: 30px;
+   }
+   
+   @media (max-width: 1024px) {
+    .content {
+     grid-template-columns: 1fr;
+    }
+   }
+   
+   /* Dashboard Cards */
+   
+   .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+   }
+   
+   .card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+   }
+   
+   .card:hover {
+    transform: translateY(-5px);
+   }
+   
+   .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+   }
+   
+   .card-title {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+   }
+   
+   .card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 10px;
+   }
+   
+   .card-change {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+   }
+   
+   .positive {
+    color: #10b981;
+   }
+   
+   .negative {
+    color: #ef4444;
+   }
+   
+   /* Tables */
+   
+   .table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+   }
+   
+   table {
+    width: 100%;
+    border-collapse: collapse;
+   }
+   
+   th {
+    background: #f9fafb;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+   }
+   
+   td {
+    padding: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #4b5563;
+   }
+   
+   tr:hover {
+    background: #f9fafb;
+   }
+   
+   .amount {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    text-align: right;
+   }
+   
+   .debit {
+    color: #10b981;
+   }
+   
+   .credit {
+    color: #ef4444;
+   }
+   
+   /* Sidebar */
+   
+   .sidebar {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+   }
+   
+   .sidebar-title {
+    font-size: 1.2rem;
+    color: #1f2937;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+   }
+   
+   .sidebar-title i {
+    color: #4f46e5;
+   }
+   
+   /* Forms */
+   
+   .form-group {
+    margin-bottom: 20px;
+   }
+   
+   label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #4b5563;
+    font-size: 0.9rem;
+   }
+   
+   input,
+   select,
+   textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+   }
+   
+   input:focus,
+   select:focus,
+   textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+   }
+   
+   .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
    }
    
    .btn {
-    padding: 12px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
     border: none;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -193,1623 +325,1909 @@
    }
    
    .btn-primary {
-    background: #6366f1;
+    background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
     color: white;
+    width: 100%;
    }
    
    .btn-primary:hover {
-    background: #4f46e5;
     transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
    }
    
-   .btn-success {
-    background: #10b981;
-    color: white;
+   .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #d1d5db;
    }
    
-   .btn-success:hover {
-    background: #059669;
-    transform: translateY(-2px);
+   .btn-secondary:hover {
+    background: #e5e7eb;
    }
    
-   .btn-danger {
-    background: #ef4444;
-    color: white;
-   }
+   /* Chart Container */
    
-   .btn-danger:hover {
-    background: #dc2626;
-    transform: translateY(-2px);
-   }
-   
-   .btn-warning {
-    background: #f59e0b;
-    color: white;
-   }
-   
-   .btn-warning:hover {
-    background: #d97706;
-    transform: translateY(-2px);
-   }
-   
-   .json-preview {
-    flex: 1;
-    min-height: 200px;
-    max-height: 300px;
-    overflow-y: auto;
-    background: #1e1e1e;
-    border-radius: 8px;
-    padding: 15px;
-    font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 13px;
-    line-height: 1.4;
-    white-space: pre-wrap;
-    word-break: break-all;
-   }
-   
-   .json-key {
-    color: #9cdcfe;
-   }
-   
-   .json-string {
-    color: #ce9178;
-   }
-   
-   .json-number {
-    color: #b5cea8;
-   }
-   
-   .json-boolean {
-    color: #569cd6;
-   }
-   
-   .json-null {
-    color: #569cd6;
-   }
-   
-   .json-bracket {
-    color: #d4d4d4;
-   }
-   
-   .node {
-    position: absolute;
-    cursor: move;
-    transition: transform 0.3s, box-shadow 0.3s;
-   }
-   
-   .node.selected {
-    box-shadow: 0 0 0 3px #6366f1;
-    z-index: 100;
-   }
-   
-   .node-header {
-    padding: 12px 15px;
+   .chart-container {
     background: white;
-    border-radius: 8px 8px 0 0;
-    font-weight: 600;
-    font-size: 14px;
-    border-bottom: 2px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
    }
    
-   .node-body {
-    padding: 15px;
-    background: #f8fafc;
-    border-radius: 0 0 8px 8px;
-    font-size: 13px;
-   }
-   
-   .node-type {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-   }
-   
-   .node-type.string {
-    background: #fef3c7;
-    color: #92400e;
-   }
-   
-   .node-type.number {
-    background: #d1fae5;
-    color: #065f46;
-   }
-   
-   .node-type.boolean {
-    background: #e0e7ff;
-    color: #3730a3;
-   }
-   
-   .node-type.array {
-    background: #fce7f3;
-    color: #831843;
-   }
-   
-   .node-type.object {
-    background: #f0f9ff;
-    color: #075985;
-   }
-   
-   .connection {
-    position: absolute;
-    pointer-events: none;
-    z-index: 1;
-   }
-   
-   .connection-line {
-    stroke: #94a3b8;
-    stroke-width: 2;
-    fill: none;
-   }
-   
-   .connection.selected .connection-line {
-    stroke: #6366f1;
-    stroke-width: 3;
-   }
-   
-   .toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-   }
-   
-   .tool-btn {
-    padding: 10px 15px;
-    background: white;
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-   }
-   
-   .tool-btn:hover {
-    border-color: #6366f1;
-    transform: translateY(-2px);
-   }
-   
-   .tool-btn.active {
-    background: #6366f1;
-    color: white;
-    border-color: #6366f1;
-   }
-   
-   .color-picker {
-    display: flex;
-    gap: 5px;
-   }
-   
-   .color-option {
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 2px solid transparent;
-   }
-   
-   .color-option.active {
-    border-color: #1f2937;
-   }
+   /* Modals */
    
    .modal {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    display: flex;
+    z-index: 1000;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
     padding: 20px;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s;
-   }
-   
-   .modal.active {
-    opacity: 1;
-    visibility: visible;
    }
    
    .modal-content {
     background: white;
-    border-radius: 12px;
+    border-radius: 15px;
     width: 100%;
-    max-width: 600px;
-    max-height: 80vh;
+    max-width: 500px;
+    max-height: 90vh;
     overflow-y: auto;
-    transform: translateY(-20px);
-    transition: transform 0.3s;
+    animation: modalSlideIn 0.3s ease;
    }
    
-   .modal.active .modal-content {
-    transform: translateY(0);
+   @keyframes modalSlideIn {
+    from {
+     opacity: 0;
+     transform: translateY(-30px);
+    }
+   
+    to {
+     opacity: 1;
+     transform: translateY(0);
+    }
    }
    
    .modal-header {
-    padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 25px;
+    border-bottom: 2px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
     align-items: center;
    }
    
    .modal-body {
-    padding: 20px;
+    padding: 25px;
    }
    
    .modal-footer {
-    padding: 20px;
-    border-top: 1px solid #e2e8f0;
+    padding: 25px;
+    border-top: 2px solid #e5e7eb;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
    }
    
-   .toast {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 15px 20px;
-    background: #10b981;
+   /* Status Indicators */
+   
+   .status {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+   }
+   
+   .status-paid {
+    background: #d1fae5;
+    color: #065f46;
+   }
+   
+   .status-pending {
+    background: #fef3c7;
+    color: #92400e;
+   }
+   
+   .status-overdue {
+    background: #fee2e2;
+    color: #991b1b;
+   }
+   
+   /* Badges */
+   
+   .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+   }
+   
+   .badge-income {
+    background: #d1fae5;
+    color: #065f46;
+   }
+   
+   .badge-expense {
+    background: #fee2e2;
+    color: #991b1b;
+   }
+   
+   .badge-asset {
+    background: #dbeafe;
+    color: #3730a3;
+   }
+   
+   .badge-liability {
+    background: #fce7f3;
+    color: #831843;
+   }
+   
+   /* Footer */
+   
+   footer {
+    text-align: center;
+    padding: 20px;
     color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 1001;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s;
+    font-size: 0.9rem;
+    opacity: 0.9;
    }
    
-   .toast.show {
-    transform: translateY(0);
-    opacity: 1;
+   /* Print Styles */
+   
+   @media print {
+    .nav-tabs,
+    .sidebar,
+    footer,
+    .btn {
+     display: none !important;
+    }
+   
+    .container {
+     padding: 0;
+    }
+   
+    .table-container {
+     box-shadow: none;
+     padding: 0;
+    }
+   
+    table {
+     page-break-inside: avoid;
+    }
    }
    
-   .toast.error {
-    background: #ef4444;
+   /* Responsive Design */
+   
+   @media (max-width: 768px) {
+    header {
+     flex-direction: column;
+     gap: 20px;
+     text-align: center;
+    }
+   
+    .form-row {
+     grid-template-columns: 1fr;
+    }
+   
+    .tab {
+     padding: 12px 15px;
+     font-size: 0.9rem;
+    }
+   
+    .card-value {
+     font-size: 1.5rem;
+    }
    }
    
-   .node-properties {
-    margin-top: 10px;
+   /* Utility Classes */
+   
+   .text-center {
+    text-align: center;
    }
    
-   .property-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-    background: white;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    border: 1px solid #e2e8f0;
+   .text-right {
+    text-align: right;
    }
    
-   .node-actions {
-    display: flex;
-    gap: 5px;
+   .mt-20 {
+    margin-top: 20px;
    }
    
-   .action-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
-    background: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+   .mb-20 {
+    margin-bottom: 20px;
    }
    
-   .action-btn:hover {
-    background: #f1f5f9;
+   .p-20 {
+    padding: 20px;
    }
    
-   .canvas-tools {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    display: flex;
-    gap: 10px;
-    z-index: 10;
-   }
-   
-   .zoom-controls {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    z-index: 10;
-   }
-   
-   .zoom-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: white;
-    border: 2px solid #cbd5e1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.3s;
-   }
-   
-   .zoom-btn:hover {
-    border-color: #6366f1;
-    background: #f1f5f9;
-   }
-   
-   .canvas-info {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    background: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    color: #64748b;
-    z-index: 10;
-    border: 1px solid #cbd5e1;
-   }
-   
-   .grid-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: linear-gradient(rgba(203, 213, 225, 0.3) 1px, transparent 1px),
-                                              linear-gradient(90deg, rgba(203, 213, 225, 0.3) 1px, transparent 1px);
-    background-size: 20px 20px;
-    pointer-events: none;
+   .hidden {
+    display: none;
    }
   </style>
  </head>
  <body>
   <div class="container">
+   <!-- Header -->
    <header>
-    <h1>
-     <i class="fas fa-project-diagram"></i>Canvas JSON Generator
-    </h1>
-    <p class="subtitle">
-     Buat struktur JSON visual dengan drag & drop di canvas
-    </p>
+    <div class="logo">
+     <i class="fas fa-calculator"></i>
+     <div class="logo-text">
+      <h1>
+       Smart Accounting System
+      </h1>
+      <p>
+       Sistem Pembukuan Akuntansi Profesional
+      </p>
+     </div>
+    </div>
+    <div class="period-selector">
+     <span>Periode:</span>
+     <select id="periodSelect">
+      <option value="2024-01">
+       Januari 2024
+      </option>
+      <option value="2024-02" selected>
+       Februari 2024
+      </option>
+      <option value="2024-03">
+       Maret 2024
+      </option>
+      <option value="2024-Q1">
+       Q1 2024
+      </option>
+      <option value="2024-FY">
+       Tahun 2024
+      </option>
+     </select>
+    </div>
    </header>
 
-   <div class="app-wrapper">
-    <div class="canvas-container">
-     <div class="canvas-tools">
-      <div class="tool-btn" id="selectTool" title="Select Mode">
-       <i class="fas fa-mouse-pointer"></i>
-      </div>
-      <div class="tool-btn" id="addTool" title="Add Mode">
-       <i class="fas fa-plus"></i>
-      </div>
-      <div class="tool-btn" id="connectTool" title="Connect Nodes">
-       <i class="fas fa-link"></i>
-      </div>
-      <div class="tool-btn" id="deleteTool" title="Delete Mode">
-       <i class="fas fa-trash"></i>
-      </div>
-     </div>
-
-     <div class="zoom-controls">
-      <button class="zoom-btn" id="zoomIn">
-       <i class="fas fa-plus"></i>
-      </button>
-      <button class="zoom-btn" id="zoomOut">
-       <i class="fas fa-minus"></i>
-      </button>
-      <button class="zoom-btn" id="zoomReset">
-       <i class="fas fa-search"></i>
-      </button>
-     </div>
-
-     <div class="canvas-info">
-      <span id="nodeCount">0 Nodes</span>| 
-                    <span id="zoomLevel">100%</span>
-     </div>
-
-     <div class="grid-overlay">
-     </div>
-     <canvas id="jsonCanvas">
-     </canvas>
+   <!-- Navigation Tabs -->
+   <nav class="nav-tabs">
+    <div class="tab active" data-tab="dashboard">
+     <i class="fas fa-home"></i>Dashboard
     </div>
+    <div class="tab" data-tab="jurnal">
+     <i class="fas fa-book"></i>Jurnal Umum
+    </div>
+    <div class="tab" data-tab="buku-besar">
+     <i class="fas fa-book-open"></i>Buku Besar
+    </div>
+    <div class="tab" data-tab="neraca">
+     <i class="fas fa-balance-scale"></i>Neraca
+    </div>
+    <div class="tab" data-tab="labarugi">
+     <i class="fas fa-chart-line"></i>Laba Rugi
+    </div>
+    <div class="tab" data-tab="aruskas">
+     <i class="fas fa-money-bill-wave"></i>Arus Kas
+    </div>
+    <div class="tab" data-tab="ekuitas">
+     <i class="fas fa-chart-pie"></i>Perubahan Ekuitas
+    </div>
+    <div class="tab" data-tab="laporan">
+     <i class="fas fa-file-alt"></i>Laporan
+    </div>
+   </nav>
 
-    <div class="control-panel">
-     <div class="panel-section">
-      <h3 class="section-title">
-       <i class="fas fa-cube"></i>Node Properties
-      </h3>
-
-      <div class="form-group">
-       <label class="form-label">Node Name</label>
-       <input type="text" id="nodeName" class="form-input" placeholder="Enter node name" />
-      </div>
-
-      <div class="form-group">
-       <label class="form-label">Data Type</label>
-       <div class="type-grid">
-        <button class="type-btn string active" data-type="string">
-         <i class="fas fa-quote-left"></i>String
-                            </button>
-        <button class="type-btn number" data-type="number">
-         <i class="fas fa-hashtag"></i>Number
-                            </button>
-        <button class="type-btn boolean" data-type="boolean">
-         <i class="fas fa-check-circle"></i>Boolean
-                            </button>
-        <button class="type-btn array" data-type="array">
-         <i class="fas fa-list"></i>Array
-                            </button>
-        <button class="type-btn object" data-type="object">
-         <i class="fas fa-sitemap"></i>Object
-                            </button>
-        <button class="type-btn null" data-type="null">
-         <i class="fas fa-ban"></i>Null
-                            </button>
+   <!-- Main Content Area -->
+   <div class="content">
+    <main>
+     <!-- Dashboard -->
+     <div id="dashboard" class="tab-content">
+      <!-- Summary Cards -->
+      <div class="dashboard-cards">
+       <div class="card">
+        <div class="card-header">
+         <span class="card-title">Total Aset</span>
+         <i class="fas fa-landmark" style="color: #4f46e5;"></i>
+        </div>
+        <div class="card-value">
+         Rp 2.450.000.000
+        </div>
+        <div class="card-change positive">
+         <i class="fas fa-arrow-up"></i>12.5% dari bulan lalu
+        </div>
        </div>
-      </div>
 
-      <div id="valueInput" class="form-group">
-       <label class="form-label">Value</label>
-       <input type="text" id="nodeValue" class="form-input" placeholder="Enter value" />
-      </div>
+       <div class="card">
+        <div class="card-header">
+         <span class="card-title">Total Liabilitas</span>
+         <i class="fas fa-hand-holding-usd" style="color: #ef4444;"></i>
+        </div>
+        <div class="card-value">
+         Rp 850.000.000
+        </div>
+        <div class="card-change negative">
+         <i class="fas fa-arrow-down"></i>3.2% dari bulan lalu
+        </div>
+       </div>
 
-      <div class="form-group">
-       <label class="form-label">Node Color</label>
-       <div class="color-picker">
-        <div class="color-option active" style="background: #3b82f6;" data-color="#3b82f6">
+       <div class="card">
+        <div class="card-header">
+         <span class="card-title">Pendapatan Bersih</span>
+         <i class="fas fa-chart-line" style="color: #10b981;"></i>
         </div>
-        <div class="color-option" style="background: #10b981;" data-color="#10b981">
+        <div class="card-value">
+         Rp 425.000.000
         </div>
-        <div class="color-option" style="background: #f59e0b;" data-color="#f59e0b">
+        <div class="card-change positive">
+         <i class="fas fa-arrow-up"></i>18.7% dari bulan lalu
         </div>
-        <div class="color-option" style="background: #8b5cf6;" data-color="#8b5cf6">
+       </div>
+
+       <div class="card">
+        <div class="card-header">
+         <span class="card-title">Kas & Setara Kas</span>
+         <i class="fas fa-wallet" style="color: #f59e0b;"></i>
         </div>
-        <div class="color-option" style="background: #ec4899;" data-color="#ec4899">
+        <div class="card-value">
+         Rp 320.000.000
+        </div>
+        <div class="card-change positive">
+         <i class="fas fa-arrow-up"></i>8.3% dari bulan lalu
         </div>
        </div>
       </div>
 
-      <div class="form-group">
-       <label class="form-label">Node Size</label>
-       <input type="range" id="nodeSize" class="form-input" min="100" max="300" value="200" />
-      </div>
-
-      <button id="addNodeBtn" class="btn btn-primary" style="width: 100%;">
-       <i class="fas fa-plus-circle"></i>Add Node to Canvas
-                    </button>
-
-      <button id="updateNodeBtn" class="btn btn-success" style="width: 100%; margin-top: 10px; display: none;">
-       <i class="fas fa-save"></i>Update Selected Node
-                    </button>
-     </div>
-
-     <div class="panel-section">
-      <h3 class="section-title">
-       <i class="fas fa-code"></i>JSON Preview
-      </h3>
-      <div class="json-preview" id="jsonPreview">
-       {
-  "message": "Add nodes to canvas to see JSON here"
-}
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-       <button id="generateJsonBtn" class="btn btn-success" style="flex: 1;">
-        <i class="fas fa-bolt"></i>Generate
-                        </button>
-       <button id="copyJsonBtn" class="btn btn-primary" style="flex: 1;">
-        <i class="fas fa-copy"></i>Copy
-                        </button>
-      </div>
-     </div>
-
-     <div class="panel-section">
-      <h3 class="section-title">
-       <i class="fas fa-tools"></i>Canvas Tools
-      </h3>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-       <button id="clearCanvasBtn" class="btn btn-danger">
-        <i class="fas fa-broom"></i>Clear
-                        </button>
-       <button id="autoLayoutBtn" class="btn btn-warning">
-        <i class="fas fa-project-diagram"></i>Auto Layout
-                        </button>
-       <button id="exportImageBtn" class="btn btn-success">
-        <i class="fas fa-image"></i>Export Image
-                        </button>
-       <button id="loadTemplateBtn" class="btn btn-primary">
-        <i class="fas fa-file-import"></i>Load Template
-                        </button>
+      <!-- Recent Transactions -->
+      <div class="table-container">
+       <h3 style="margin-bottom: 20px; color: #1f2937;">
+        <i class="fas fa-history"></i>Transaksi Terbaru
+       </h3>
+       <table>
+        <thead>
+         <tr>
+          <th>
+           Tanggal
+          </th>
+          <th>
+           Keterangan
+          </th>
+          <th>
+           Akun
+          </th>
+          <th>
+           Debit
+          </th>
+          <th>
+           Kredit
+          </th>
+          <th>
+           Status
+          </th>
+         </tr>
+        </thead>
+        <tbody id="recentTransactions">
+         <!-- Data akan diisi oleh JavaScript -->
+        </tbody>
+       </table>
       </div>
      </div>
-    </div>
-   </div>
-  </div>
 
-  <!-- Modal Template -->
-  <div class="modal" id="templateModal">
-   <div class="modal-content">
-    <div class="modal-header">
-     <h3>
-      Load JSON Template
+     <!-- Jurnal Umum -->
+     <div id="jurnal" class="tab-content hidden">
+      <div class="table-container">
+       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: #1f2937;">
+         <i class="fas fa-book"></i>Jurnal Umum
+        </h3>
+        <button class="btn btn-primary" onclick="openJournalModal()">
+         <i class="fas fa-plus"></i>Tambah Jurnal
+                            </button>
+       </div>
+       <table>
+        <thead>
+         <tr>
+          <th>
+           No. Jurnal
+          </th>
+          <th>
+           Tanggal
+          </th>
+          <th>
+           Keterangan
+          </th>
+          <th>
+           Ref
+          </th>
+          <th>
+           Akun Debit
+          </th>
+          <th>
+           Debit
+          </th>
+          <th>
+           Akun Kredit
+          </th>
+          <th>
+           Kredit
+          </th>
+         </tr>
+        </thead>
+        <tbody id="journalEntries">
+         <!-- Data akan diisi oleh JavaScript -->
+        </tbody>
+       </table>
+      </div>
+     </div>
+
+     <!-- Buku Besar -->
+     <div id="buku-besar" class="tab-content hidden">
+      <div class="table-container">
+       <h3 style="margin-bottom: 20px; color: #1f2937;">
+        <i class="fas fa-book-open"></i>Buku Besar
+       </h3>
+       <div style="margin-bottom: 20px;">
+        <select id="ledgerAccountSelect" style="width: 300px;">
+         <option value="">
+          Pilih Akun...
+         </option>
+         <!-- Akun akan diisi oleh JavaScript -->
+        </select>
+       </div>
+       <div id="ledgerDetail">
+        <!-- Detail buku besar akan ditampilkan di sini -->
+       </div>
+      </div>
+     </div>
+
+     <!-- Neraca -->
+     <div id="neraca" class="tab-content hidden">
+      <div class="table-container">
+       <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #1f2937; margin-bottom: 5px;">
+         NERACA
+        </h2>
+        <p style="color: #6b7280;">
+         Per 29 Februari 2024
+        </p>
+       </div>
+
+       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <!-- Aset -->
+        <div>
+         <h3
+          style="color: #4f46e5; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #4f46e5;"
+         >
+          ASET
+         </h3>
+         <div id="balanceSheetAssets">
+          <!-- Data aset akan diisi oleh JavaScript -->
+         </div>
+         <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.2rem;">
+           <span>Total Aset</span>
+           <span>Rp 2.450.000.000</span>
+          </div>
+         </div>
+        </div>
+
+        <!-- Liabilitas & Ekuitas -->
+        <div>
+         <h3
+          style="color: #ef4444; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #ef4444;"
+         >
+          LIABILITAS
+         </h3>
+         <div id="balanceSheetLiabilities">
+          <!-- Data liabilitas akan diisi oleh JavaScript -->
+         </div>
+
+         <h3
+          style="color: #10b981; margin: 30px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #10b981;"
+         >
+          EKUITAS
+         </h3>
+         <div id="balanceSheetEquity">
+          <!-- Data ekuitas akan diisi oleh JavaScript -->
+         </div>
+
+         <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
+          <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.2rem;">
+           <span>Total Liabilitas & Ekuitas</span>
+           <span>Rp 2.450.000.000</span>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+
+     <!-- Laba Rugi -->
+     <div id="labarugi" class="tab-content hidden">
+      <div class="table-container">
+       <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #1f2937; margin-bottom: 5px;">
+         LAPORAN LABA RUGI
+        </h2>
+        <p style="color: #6b7280;">
+         Periode 1 - 29 Februari 2024
+        </p>
+       </div>
+
+       <div id="incomeStatement">
+        <!-- Data laba rugi akan diisi oleh JavaScript -->
+       </div>
+      </div>
+     </div>
+
+     <!-- Arus Kas -->
+     <div id="aruskas" class="tab-content hidden">
+      <div class="table-container">
+       <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #1f2937; margin-bottom: 5px;">
+         LAPORAN ARUS KAS
+        </h2>
+        <p style="color: #6b7280;">
+         Periode 1 - 29 Februari 2024
+        </p>
+       </div>
+
+       <div id="cashFlowStatement">
+        <!-- Data arus kas akan diisi oleh JavaScript -->
+       </div>
+      </div>
+     </div>
+
+     <!-- Perubahan Ekuitas -->
+     <div id="ekuitas" class="tab-content hidden">
+      <div class="table-container">
+       <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #1f2937; margin-bottom: 5px;">
+         LAPORAN PERUBAHAN EKUITAS
+        </h2>
+        <p style="color: #6b7280;">
+         Periode 1 - 29 Februari 2024
+        </p>
+       </div>
+
+       <div id="equityStatement">
+        <!-- Data perubahan ekuitas akan diisi oleh JavaScript -->
+       </div>
+      </div>
+     </div>
+
+     <!-- Laporan -->
+     <div id="laporan" class="tab-content hidden">
+      <div class="dashboard-cards" style="margin-bottom: 30px;">
+       <div class="card" onclick="generateReport('neraca')" style="cursor: pointer;">
+        <div class="card-header">
+         <span class="card-title">Neraca</span>
+         <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+        </div>
+        <div class="card-value">
+         Download PDF
+        </div>
+        <p style="color: #6b7280; font-size: 0.9rem;">
+         Laporan posisi keuangan
+        </p>
+       </div>
+
+       <div class="card" onclick="generateReport('labarugi')" style="cursor: pointer;">
+        <div class="card-header">
+         <span class="card-title">Laba Rugi</span>
+         <i class="fas fa-file-excel" style="color: #10b981;"></i>
+        </div>
+        <div class="card-value">
+         Download Excel
+        </div>
+        <p style="color: #6b7280; font-size: 0.9rem;">
+         Laporan kinerja usaha
+        </p>
+       </div>
+
+       <div class="card" onclick="generateReport('aruskas')" style="cursor: pointer;">
+        <div class="card-header">
+         <span class="card-title">Arus Kas</span>
+         <i class="fas fa-file-invoice" style="color: #3b82f6;"></i>
+        </div>
+        <div class="card-value">
+         Download PDF
+        </div>
+        <p style="color: #6b7280; font-size: 0.9rem;">
+         Laporan arus kas
+        </p>
+       </div>
+
+       <div class="card" onclick="generateReport('semua')" style="cursor: pointer;">
+        <div class="card-header">
+         <span class="card-title">Paket Lengkap</span>
+         <i class="fas fa-file-archive" style="color: #f59e0b;"></i>
+        </div>
+        <div class="card-value">
+         Download ZIP
+        </div>
+        <p style="color: #6b7280; font-size: 0.9rem;">
+         Semua laporan
+        </p>
+       </div>
+      </div>
+
+      <!-- Laporan Custom -->
+      <div class="table-container">
+       <h3 style="margin-bottom: 20px; color: #1f2937;">
+        <i class="fas fa-cog"></i>Laporan Custom
+       </h3>
+       <div class="form-row">
+        <div class="form-group">
+         <label>Jenis Laporan</label>
+         <select id="reportType">
+          <option value="jurnal">
+           Jurnal Umum
+          </option>
+          <option value="buku-besar">
+           Buku Besar
+          </option>
+          <option value="neraca">
+           Neraca
+          </option>
+          <option value="labarugi">
+           Laba Rugi
+          </option>
+         </select>
+        </div>
+        <div class="form-group">
+         <label>Format</label>
+         <select id="reportFormat">
+          <option value="pdf">
+           PDF
+          </option>
+          <option value="excel">
+           Excel
+          </option>
+          <option value="csv">
+           CSV
+          </option>
+          <option value="print">
+           Print
+          </option>
+         </select>
+        </div>
+       </div>
+       <div class="form-row">
+        <div class="form-group">
+         <label>Dari Tanggal</label>
+         <input type="date" id="reportFrom" value="2024-02-01" />
+        </div>
+        <div class="form-group">
+         <label>Sampai Tanggal</label>
+         <input type="date" id="reportTo" value="2024-02-29" />
+        </div>
+       </div>
+       <button class="btn btn-primary" onclick="generateCustomReport()">
+        <i class="fas fa-download"></i>Generate Laporan
+                        </button>
+      </div>
+     </div>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+     <h3 class="sidebar-title">
+      <i class="fas fa-plus-circle"></i>Transaksi Cepat
      </h3>
-     <button class="action-btn close-modal">      <i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-     <div style="display: grid; gap: 15px;">
-      <div class="template-item" data-template="user">
-       <div style="font-weight: 600; margin-bottom: 5px;">
-        User Profile
+
+     <div class="form-group">
+      <label>Jenis Transaksi</label>
+      <select id="quickTransactionType">
+       <option value="penjualan">
+        Penjualan
+       </option>
+       <option value="pembelian">
+        Pembelian
+       </option>
+       <option value="pengeluaran">
+        Pengeluaran
+       </option>
+       <option value="penerimaan">
+        Penerimaan Kas
+       </option>
+      </select>
+     </div>
+
+     <div class="form-group">
+      <label>Jumlah</label>
+      <input type="number" id="quickAmount" placeholder="Rp 0" />
+     </div>
+
+     <div class="form-group">
+      <label>Keterangan</label>
+      <input type="text" id="quickDescription" placeholder="Deskripsi transaksi" />
+     </div>
+
+     <button class="btn btn-primary" onclick="addQuickTransaction()">
+      <i class="fas fa-check"></i>Simpan Transaksi
+                </button>
+
+     <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+      <h3 class="sidebar-title" style="font-size: 1rem;">
+       <i class="fas fa-chart-bar"></i>Rasio Keuangan
+      </h3>
+      <div style="margin-top: 15px;">
+       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span>Current Ratio</span>
+        <span style="font-weight: 600; color: #10b981;">2.85</span>
        </div>
-       <div style="font-size: 14px; color: #64748b;">
-        Standard user object with nested properties
+       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span>Debt to Equity</span>
+        <span style="font-weight: 600; color: #ef4444;">0.53</span>
+       </div>
+       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span>ROI</span>
+        <span style="font-weight: 600; color: #10b981;">18.7%</span>
+       </div>
+       <div style="display: flex; justify-content: space-between;">
+        <span>Gross Margin</span>
+        <span style="font-weight: 600; color: #10b981;">42.3%</span>
        </div>
       </div>
-      <div class="template-item" data-template="product">
-       <div style="font-weight: 600; margin-bottom: 5px;">
-        E-commerce Product
+     </div>
+    </aside>
+   </div>
+
+   <!-- Modal Tambah Jurnal -->
+   <div id="journalModal" class="modal">
+    <div class="modal-content">
+     <div class="modal-header">
+      <h3 style="color: #1f2937;">
+       <i class="fas fa-book"></i>Tambah Jurnal
+      </h3>
+      <button
+       onclick="closeJournalModal()"
+       style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;"
+      >
+       <i class="fas fa-times"></i>
+      </button>
+     </div>
+     <div class="modal-body">
+      <div class="form-group">
+       <label>Tanggal Transaksi</label>
+       <input type="date" id="journalDate" value="2024-02-29" />
+      </div>
+
+      <div class="form-group">
+       <label>No. Referensi</label>
+       <input type="text" id="journalRef" placeholder="INV-2024-001" />
+      </div>
+
+      <div class="form-group">
+       <label>Keterangan</label>
+       <textarea id="journalDescription" rows="3" placeholder="Deskripsi transaksi..."></textarea>
+      </div>
+
+      <h4 style="margin: 20px 0 10px 0; color: #4b5563;">
+       Entri Jurnal
+      </h4>
+
+      <div id="journalEntriesContainer">
+       <div class="form-row journal-entry">
+        <div class="form-group">
+         <label>Akun Debit</label>
+         <select class="debit-account">
+          <option value="">
+           Pilih akun...
+          </option>
+         </select>
+        </div>
+        <div class="form-group">
+         <label>Jumlah Debit</label>
+         <input type="number" class="debit-amount" placeholder="Rp 0" />
+        </div>
        </div>
-       <div style="font-size: 14px; color: #64748b;">
-        Product data with arrays and objects
+
+       <div class="form-row journal-entry">
+        <div class="form-group">
+         <label>Akun Kredit</label>
+         <select class="credit-account">
+          <option value="">
+           Pilih akun...
+          </option>
+         </select>
+        </div>
+        <div class="form-group">
+         <label>Jumlah Kredit</label>
+         <input type="number" class="credit-amount" placeholder="Rp 0" />
+        </div>
        </div>
       </div>
-      <div class="template-item" data-template="blog">
-       <div style="font-weight: 600; margin-bottom: 5px;">
-        Blog Post
-       </div>
-       <div style="font-size: 14px; color: #64748b;">
-        Blog article with comments array
-       </div>
-      </div>
+
+      <button class="btn btn-secondary" onclick="addJournalEntry()" style="margin-top: 10px;">
+       <i class="fas fa-plus"></i>Tambah Entri
+                    </button>
+     </div>
+     <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeJournalModal()">
+       Batal
+                    </button>
+      <button class="btn btn-primary" onclick="saveJournal()">
+       <i class="fas fa-save"></i>Simpan Jurnal
+                    </button>
      </div>
     </div>
    </div>
   </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast">
-   <i class="fas fa-check-circle"></i>
-   <span id="toastMessage">Operation successful</span>
-  </div>
+  <footer>
+   <p>
+    &copy; 2024 Smart Accounting System. Hak Cipta Dilindungi.
+   </p>
+   <p style="font-size: 0.8rem; margin-top: 5px;">
+    Versi 2.1.0 | Last Update: 29 Februari 2024
+   </p>
+  </footer>
 
   <script>
-   // State aplikasi
-   const state = {
-    nodes: [],
-    connections: [],
-    selectedNode: null,
-    selectedConnection: null,
-    toolMode: "select",
-    // select, add, connect, delete
-    canvasScale: 1,
-    canvasOffset: {
-     x: 0,
-     y: 0
+   // Data Akun Chart of Accounts
+   const chartOfAccounts = {
+    "1-1000": {
+     code: "1-1000",
+     name: "Kas dan Bank",
+     type: "asset",
+     category: "Aset Lancar"
     },
-    isPanning: false,
-    lastMousePos: {
-     x: 0,
-     y: 0
+    "1-1100": {
+     code: "1-1100",
+     name: "Kas Kecil",
+     type: "asset",
+     category: "Aset Lancar"
     },
-    isConnecting: false,
-    connectFromNode: null,
-    nextNodeId: 1,
-    nextConnectionId: 1
+    "1-1200": {
+     code: "1-1200",
+     name: "Bank BCA",
+     type: "asset",
+     category: "Aset Lancar"
+    },
+    "1-2000": {
+     code: "1-2000",
+     name: "Piutang Usaha",
+     type: "asset",
+     category: "Aset Lancar"
+    },
+    "1-3000": {
+     code: "1-3000",
+     name: "Persediaan",
+     type: "asset",
+     category: "Aset Lancar"
+    },
+    "1-4000": {
+     code: "1-4000",
+     name: "Perlengkapan",
+     type: "asset",
+     category: "Aset Lancar"
+    },
+    "2-1000": {
+     code: "2-1000",
+     name: "Tanah",
+     type: "asset",
+     category: "Aset Tetap"
+    },
+    "2-1100": {
+     code: "2-1100",
+     name: "Bangunan",
+     type: "asset",
+     category: "Aset Tetap"
+    },
+    "2-1200": {
+     code: "2-1200",
+     name: "Kendaraan",
+     type: "asset",
+     category: "Aset Tetap"
+    },
+    "2-1300": {
+     code: "2-1300",
+     name: "Peralatan Kantor",
+     type: "asset",
+     category: "Aset Tetap"
+    },
+    "3-1000": {
+     code: "3-1000",
+     name: "Hutang Usaha",
+     type: "liability",
+     category: "Liabilitas Jangka Pendek"
+    },
+    "3-1100": {
+     code: "3-1100",
+     name: "Hutang Bank",
+     type: "liability",
+     category: "Liabilitas Jangka Panjang"
+    },
+    "3-1200": {
+     code: "3-1200",
+     name: "Hutang Pajak",
+     type: "liability",
+     category: "Liabilitas Jangka Pendek"
+    },
+    "4-1000": {
+     code: "4-1000",
+     name: "Modal Pemilik",
+     type: "equity",
+     category: "Ekuitas"
+    },
+    "4-1100": {
+     code: "4-1100",
+     name: "Prive",
+     type: "equity",
+     category: "Ekuitas"
+    },
+    "4-1200": {
+     code: "4-1200",
+     name: "Laba Ditahan",
+     type: "equity",
+     category: "Ekuitas"
+    },
+    "5-1000": {
+     code: "5-1000",
+     name: "Penjualan",
+     type: "revenue",
+     category: "Pendapatan"
+    },
+    "5-1100": {
+     code: "5-1100",
+     name: "Pendapatan Jasa",
+     type: "revenue",
+     category: "Pendapatan"
+    },
+    "6-1000": {
+     code: "6-1000",
+     name: "Harga Pokok Penjualan",
+     type: "expense",
+     category: "Beban Pokok"
+    },
+    "6-2000": {
+     code: "6-2000",
+     name: "Beban Gaji",
+     type: "expense",
+     category: "Beban Operasional"
+    },
+    "6-2100": {
+     code: "6-2100",
+     name: "Beban Sewa",
+     type: "expense",
+     category: "Beban Operasional"
+    },
+    "6-2200": {
+     code: "6-2200",
+     name: "Beban Listrik",
+     type: "expense",
+     category: "Beban Operasional"
+    },
+    "6-2300": {
+     code: "6-2300",
+     name: "Beban Telepon",
+     type: "expense",
+     category: "Beban Operasional"
+    },
+    "6-2400": {
+     code: "6-2400",
+     name: "Beban Transportasi",
+     type: "expense",
+     category: "Beban Operasional"
+    },
+    "6-2500": {
+     code: "6-2500",
+     name: "Beban Penyusutan",
+     type: "expense",
+     category: "Beban Operasional"
+    }
    };
-   // Elemen DOM
+   // Data Transaksi Contoh
 
-   const canvas = document.getElementById("jsonCanvas");
+   const sampleTransactions = [ {
+    id: 1,
+    date: "2024-02-28",
+    desc: "Penjualan tunai produk A",
+    account: "Kas",
+    debit: 5e6,
+    credit: 0,
+    status: "paid"
+   }, {
+    id: 2,
+    date: "2024-02-27",
+    desc: "Pembelian bahan baku",
+    account: "Persediaan",
+    debit: 25e5,
+    credit: 0,
+    status: "paid"
+   }, {
+    id: 3,
+    date: "2024-02-26",
+    desc: "Bayar gaji karyawan",
+    account: "Beban Gaji",
+    debit: 0,
+    credit: 15e6,
+    status: "paid"
+   }, {
+    id: 4,
+    date: "2024-02-25",
+    desc: "Penerimaan piutang",
+    account: "Bank",
+    debit: 75e5,
+    credit: 0,
+    status: "paid"
+   }, {
+    id: 5,
+    date: "2024-02-24",
+    desc: "Bayar tagihan listrik",
+    account: "Beban Listrik",
+    debit: 0,
+    credit: 125e4,
+    status: "paid"
+   } ];
 
-   const ctx = canvas.getContext("2d");
-   // Inisialisasi canvas
+   const sampleJournalEntries = [ {
+    id: "J-2024-001",
+    date: "2024-02-01",
+    desc: "Pembelian peralatan kantor",
+    ref: "PO-001",
+    debitAcc: "Peralatan Kantor",
+    debit: 15e6,
+    creditAcc: "Bank",
+    credit: 15e6
+   }, {
+    id: "J-2024-002",
+    date: "2024-02-05",
+    desc: "Penjualan tunai",
+    ref: "INV-001",
+    debitAcc: "Kas",
+    debit: 25e6,
+    creditAcc: "Penjualan",
+    credit: 25e6
+   }, {
+    id: "J-2024-003",
+    date: "2024-02-10",
+    desc: "Pembayaran gaji",
+    ref: "SLIP-001",
+    debitAcc: "Beban Gaji",
+    debit: 125e5,
+    creditAcc: "Bank",
+    credit: 125e5
+   }, {
+    id: "J-2024-004",
+    date: "2024-02-15",
+    desc: "Pembelian persediaan",
+    ref: "PO-002",
+    debitAcc: "Persediaan",
+    debit: 85e5,
+    creditAcc: "Hutang Usaha",
+    credit: 85e5
+   }, {
+    id: "J-2024-005",
+    date: "2024-02-20",
+    desc: "Penyusutan peralatan",
+    ref: "DEP-001",
+    debitAcc: "Beban Penyusutan",
+    debit: 125e4,
+    creditAcc: "Akumulasi Penyusutan",
+    credit: 125e4
+   } ];
+   // Format Rupiah
 
-   function initCanvas() {
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-    // Event listeners untuk canvas
-    canvas.addEventListener("mousedown", handleCanvasMouseDown);
-    canvas.addEventListener("mousemove", handleCanvasMouseMove);
-    canvas.addEventListener("mouseup", handleCanvasMouseUp);
-    canvas.addEventListener("wheel", handleCanvasWheel);
-    canvas.addEventListener("dblclick", handleCanvasDoubleClick);
-    // Inisialisasi tools
-    initTools();
-    // Render initial
-    render();
+   function formatRupiah(amount) {
+    return new Intl.NumberFormat("id-ID", {
+     style: "currency",
+     currency: "IDR",
+     minimumFractionDigits: 0
+    }).format(amount);
    }
-   // Resize canvas
+   // Inisialisasi
 
-   function resizeCanvas() {
-    const container = canvas.parentElement;
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    render();
-   }
-   // Event handlers
+   document.addEventListener("DOMContentLoaded", function() {
+    loadRecentTransactions();
+    loadJournalEntries();
+    initializeAccountSelects();
+    loadBalanceSheet();
+    loadIncomeStatement();
+    loadCashFlowStatement();
+    loadEquityStatement();
+    // Tab navigation
+    document.querySelectorAll(".tab").forEach(tab => {
+     tab.addEventListener("click", function() {
+      const tabId = this.dataset.tab;
+      // Update active tab
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      this.classList.add("active");
+      // Show selected content
+      document.querySelectorAll(".tab-content").forEach(content => {
+       content.classList.add("hidden");
+      });
+      document.getElementById(tabId).classList.remove("hidden");
+     });
+    });
+    // Period selector
+    document.getElementById("periodSelect").addEventListener("change", function() {
+     updateReportsByPeriod(this.value);
+    });
+    // Ledger account selector
+    document.getElementById("ledgerAccountSelect").addEventListener("change", function() {
+     loadLedgerDetail(this.value);
+    });
+   });
+   // Load Recent Transactions
 
-   function handleCanvasMouseDown(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / state.canvasScale - state.canvasOffset.x;
-    const y = (e.clientY - rect.top) / state.canvasScale - state.canvasOffset.y;
-    if (state.toolMode === "select") {
-     // Cek apakah klik di node
-     let clickedNode = null;
-     for (let i = state.nodes.length - 1; i >= 0; i--) {
-      const node = state.nodes[i];
-      if (isPointInNode(x, y, node)) {
-       clickedNode = node;
-       break;
-      }
-     }
-     if (clickedNode) {
-      if (e.ctrlKey || e.metaKey) {
-       // Multi-select
-       clickedNode.selected = !clickedNode.selected;
-      } else {
-       // Single select
-       clearSelections();
-       clickedNode.selected = true;
-       selectNode(clickedNode);
-      }
-      // Mulai drag
-      clickedNode.isDragging = true;
-      clickedNode.dragOffset = {
-       x: x - clickedNode.x,
-       y: y - clickedNode.y
-      };
-     } else {
-      // Cek apakah klik di connection
-      let clickedConnection = null;
-      for (const conn of state.connections) {
-       if (isPointNearConnection(x, y, conn)) {
-        clickedConnection = conn;
-        break;
-       }
-      }
-      if (clickedConnection) {
-       clearSelections();
-       clickedConnection.selected = true;
-       state.selectedConnection = clickedConnection;
-      } else {
-       // Mulai panning atau clear selection
-       if (e.button === 1 || e.button === 0) {
-        state.isPanning = true;
-        state.lastMousePos = {
-         x: e.clientX,
-         y: e.clientY
-        };
-       }
-       clearSelections();
-      }
-     }
-    } else if (state.toolMode === "delete") {
-     // Delete mode
-     for (let i = state.nodes.length - 1; i >= 0; i--) {
-      const node = state.nodes[i];
-      if (isPointInNode(x, y, node)) {
-       deleteNode(node.id);
-       break;
-      }
-     }
-     for (let i = state.connections.length - 1; i >= 0; i--) {
-      const conn = state.connections[i];
-      if (isPointNearConnection(x, y, conn)) {
-       deleteConnection(conn.id);
-       break;
-      }
-     }
-    } else if (state.toolMode === "connect") {
-     // Connect mode
-     for (let i = state.nodes.length - 1; i >= 0; i--) {
-      const node = state.nodes[i];
-      if (isPointInNode(x, y, node)) {
-       if (!state.isConnecting) {
-        // Start connection
-        state.isConnecting = true;
-        state.connectFromNode = node;
-        node.connecting = true;
-       } else {
-        // Complete connection
-        if (node.id !== state.connectFromNode.id) {
-         addConnection(state.connectFromNode.id, node.id);
-        }
-        state.isConnecting = false;
-        state.connectFromNode.connecting = false;
-        state.connectFromNode = null;
-       }
-       break;
-      }
-     }
-    } else if (state.toolMode === "add") {
-     // Add mode - buat node baru
-     addNodeAtPosition(x, y);
-    }
-    render();
-   }
+   function loadRecentTransactions() {
+    const tbody = document.getElementById("recentTransactions");
+    tbody.innerHTML = "";
+    sampleTransactions.forEach(transaction => {
+     const row = document.createElement("tr");
+     let statusClass = "";
+     let statusText = "";
+     switch (transaction.status) {
+     case "paid":
+      statusClass = "status-paid";
+      statusText = "Lunas";
+      break;
 
-   function handleCanvasMouseMove(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / state.canvasScale - state.canvasOffset.x;
-    const y = (e.clientY - rect.top) / state.canvasScale - state.canvasOffset.y;
-    if (state.isPanning) {
-     const dx = e.clientX - state.lastMousePos.x;
-     const dy = e.clientY - state.lastMousePos.y;
-     state.canvasOffset.x += dx / state.canvasScale;
-     state.canvasOffset.y += dy / state.canvasScale;
-     state.lastMousePos = {
-      x: e.clientX,
-      y: e.clientY
-     };
-     render();
-    } else {
-     // Drag nodes
-     for (const node of state.nodes) {
-      if (node.isDragging) {
-       node.x = x - node.dragOffset.x;
-       node.y = y - node.dragOffset.y;
-       render();
-       break;
-      }
-     }
-    }
-   }
+     case "pending":
+      statusClass = "status-pending";
+      statusText = "Menunggu";
+      break;
 
-   function handleCanvasMouseUp() {
-    // Stop dragging dan panning
-    for (const node of state.nodes) {
-     node.isDragging = false;
-    }
-    state.isPanning = false;
-   }
-
-   function handleCanvasWheel(e) {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const zoomFactor = e.deltaY > 0 ? .9 : 1.1;
-    const newScale = Math.min(Math.max(state.canvasScale * zoomFactor, .5), 3);
-    // Adjust offset untuk zoom ke mouse position
-    state.canvasOffset.x = mouseX / newScale - (mouseX / state.canvasScale - state.canvasOffset.x);
-    state.canvasOffset.y = mouseY / newScale - (mouseY / state.canvasScale - state.canvasOffset.y);
-    state.canvasScale = newScale;
-    updateZoomDisplay();
-    render();
-   }
-
-   function handleCanvasDoubleClick(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / state.canvasScale - state.canvasOffset.x;
-    const y = (e.clientY - rect.top) / state.canvasScale - state.canvasOffset.y;
-    // Cek apakah double click di node
-    for (const node of state.nodes) {
-     if (isPointInNode(x, y, node)) {
-      // Edit node
-      editNode(node);
+     case "overdue":
+      statusClass = "status-overdue";
+      statusText = "Jatuh Tempo";
       break;
      }
+     row.innerHTML = `
+                       <td>${transaction.date}</td>
+                       <td>${transaction.desc}</td>
+                       <td>${transaction.account}</td>
+                       <td class="amount debit">${transaction.debit > 0 ? formatRupiah(transaction.debit) : ""}</td>
+                       <td class="amount credit">${transaction.credit > 0 ? formatRupiah(transaction.credit) : ""}</td>
+                       <td><span class="status ${statusClass}">${statusText}</span></td>
+                   `;
+     tbody.appendChild(row);
+    });
+   }
+   // Load Journal Entries
+
+   function loadJournalEntries() {
+    const tbody = document.getElementById("journalEntries");
+    tbody.innerHTML = "";
+    sampleJournalEntries.forEach(journal => {
+     const row = document.createElement("tr");
+     row.innerHTML = `
+                       <td>${journal.id}</td>
+                       <td>${journal.date}</td>
+                       <td>${journal.desc}</td>
+                       <td>${journal.ref}</td>
+                       <td>${journal.debitAcc}</td>
+                       <td class="amount debit">${formatRupiah(journal.debit)}</td>
+                       <td>${journal.creditAcc}</td>
+                       <td class="amount credit">${formatRupiah(journal.credit)}</td>
+                   `;
+     tbody.appendChild(row);
+    });
+   }
+   // Initialize Account Selects
+
+   function initializeAccountSelects() {
+    const ledgerSelect = document.getElementById("ledgerAccountSelect");
+    const debitSelects = document.querySelectorAll(".debit-account");
+    const creditSelects = document.querySelectorAll(".credit-account");
+    // Clear existing options
+    ledgerSelect.innerHTML = '<option value="">Pilih Akun...</option>';
+    // Add options from chart of accounts
+    Object.values(chartOfAccounts).forEach(account => {
+     const option = document.createElement("option");
+     option.value = account.code;
+     option.textContent = `${account.code} - ${account.name}`;
+     ledgerSelect.appendChild(option);
+     // Also add to debit and credit selects in modal
+     debitSelects.forEach(select => {
+      const debitOption = document.createElement("option");
+      debitOption.value = account.code;
+      debitOption.textContent = `${account.code} - ${account.name}`;
+      select.appendChild(debitOption.cloneNode(true));
+     });
+     creditSelects.forEach(select => {
+      const creditOption = document.createElement("option");
+      creditOption.value = account.code;
+      creditOption.textContent = `${account.code} - ${account.name}`;
+      select.appendChild(creditOption.cloneNode(true));
+     });
+    });
+   }
+   // Load Ledger Detail
+
+   function loadLedgerDetail(accountCode) {
+    const ledgerDetail = document.getElementById("ledgerDetail");
+    if (!accountCode) {
+     ledgerDetail.innerHTML = '<p style="text-align: center; color: #6b7280;">Pilih akun untuk melihat detail buku besar</p>';
+     return;
     }
+    const account = chartOfAccounts[accountCode];
+    const sampleLedgerEntries = [ {
+     date: "2024-02-01",
+     ref: "J-001",
+     desc: "Saldo Awal",
+     debit: 0,
+     credit: 0,
+     balance: 5e7
+    }, {
+     date: "2024-02-05",
+     ref: "J-002",
+     desc: "Penjualan tunai",
+     debit: 25e6,
+     credit: 0,
+     balance: 75e6
+    }, {
+     date: "2024-02-10",
+     ref: "J-003",
+     desc: "Pembayaran gaji",
+     debit: 0,
+     credit: 125e5,
+     balance: 625e5
+    }, {
+     date: "2024-02-15",
+     ref: "J-004",
+     desc: "Pembelian persediaan",
+     debit: 0,
+     credit: 85e5,
+     balance: 54e6
+    }, {
+     date: "2024-02-20",
+     ref: "J-005",
+     desc: "Penerimaan piutang",
+     debit: 15e6,
+     credit: 0,
+     balance: 69e6
+    } ];
+    let html = `
+                   <h4 style="margin-bottom: 20px; color: #4b5563;">
+                       Buku Besar: ${account.code} - ${account.name}
+                   </h4>
+                   <div style="margin-bottom: 20px;">
+                       <span class="badge ${getBadgeClass(account.type)}">${getAccountTypeName(account.type)}</span>
+                       <span style="margin-left: 10px; color: #6b7280;">${account.category}</span>
+                   </div>
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>Tanggal</th>
+                               <th>No. Ref</th>
+                               <th>Keterangan</th>
+                               <th>Debit</th>
+                               <th>Kredit</th>
+                               <th>Saldo</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+               `;
+    sampleLedgerEntries.forEach(entry => {
+     html += `
+                       <tr>
+                           <td>${entry.date}</td>
+                           <td>${entry.ref}</td>
+                           <td>${entry.desc}</td>
+                           <td class="amount debit">${entry.debit > 0 ? formatRupiah(entry.debit) : ""}</td>
+                           <td class="amount credit">${entry.credit > 0 ? formatRupiah(entry.credit) : ""}</td>
+                           <td class="amount" style="font-weight: 700;">${formatRupiah(entry.balance)}</td>
+                       </tr>
+                   `;
+    });
+    html += `
+                       </tbody>
+                       <tfoot>
+                           <tr>
+                               <td colspan="3" style="text-align: right; font-weight: 700;">Total:</td>
+                               <td class="amount debit">${formatRupiah(4e7)}</td>
+                               <td class="amount credit">${formatRupiah(21e6)}</td>
+                               <td class="amount" style="font-weight: 700;">${formatRupiah(69e6)}</td>
+                           </tr>
+                       </tfoot>
+                   </table>
+               `;
+    ledgerDetail.innerHTML = html;
    }
-   // Helper functions
+   // Load Balance Sheet
 
-   function isPointInNode(x, y, node) {
-    const nodeRight = node.x + node.width;
-    const nodeBottom = node.y + node.height;
-    return x >= node.x && x <= nodeRight && y >= node.y && y <= nodeBottom;
+   function loadBalanceSheet() {
+    const assetsDiv = document.getElementById("balanceSheetAssets");
+    const liabilitiesDiv = document.getElementById("balanceSheetLiabilities");
+    const equityDiv = document.getElementById("balanceSheetEquity");
+    // Sample data
+    const assets = [ {
+     name: "Kas dan Setara Kas",
+     amount: 32e7
+    }, {
+     name: "Piutang Usaha",
+     amount: 45e7
+    }, {
+     name: "Persediaan",
+     amount: 58e7
+    }, {
+     name: "Aset Lancar Lainnya",
+     amount: 125e6
+    }, {
+     name: "Peralatan",
+     amount: 65e7
+    }, {
+     name: "Kendaraan",
+     amount: 285e6
+    }, {
+     name: "Akumulasi Penyusutan",
+     amount: -86e6
+    } ];
+    const liabilities = [ {
+     name: "Hutang Usaha",
+     amount: 325e6
+    }, {
+     name: "Hutang Bank Jangka Pendek",
+     amount: 185e6
+    }, {
+     name: "Hutang Pajak",
+     amount: 75e6
+    }, {
+     name: "Hutang Bank Jangka Panjang",
+     amount: 265e6
+    } ];
+    const equity = [ {
+     name: "Modal Saham",
+     amount: 1e9
+    }, {
+     name: "Laba Ditahan",
+     amount: 45e7
+    }, {
+     name: "Laba Tahun Berjalan",
+     amount: 25e7
+    } ];
+    // Render Assets
+    let assetsHtml = "";
+    assets.forEach(asset => {
+     const amountClass = asset.amount < 0 ? "credit" : "debit";
+     assetsHtml += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                           <span>${asset.name}</span>
+                           <span class="amount ${amountClass}">${formatRupiah(Math.abs(asset.amount))}</span>
+                       </div>
+                   `;
+    });
+    assetsDiv.innerHTML = assetsHtml;
+    // Render Liabilities
+    let liabilitiesHtml = "";
+    liabilities.forEach(liability => {
+     liabilitiesHtml += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                           <span>${liability.name}</span>
+                           <span class="amount credit">${formatRupiah(liability.amount)}</span>
+                       </div>
+                   `;
+    });
+    liabilitiesDiv.innerHTML = liabilitiesHtml;
+    // Render Equity
+    let equityHtml = "";
+    equity.forEach(item => {
+     equityHtml += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                           <span>${item.name}</span>
+                           <span class="amount debit">${formatRupiah(item.amount)}</span>
+                       </div>
+                   `;
+    });
+    equityDiv.innerHTML = equityHtml;
    }
+   // Load Income Statement
 
-   function isPointNearConnection(x, y, connection) {
-    // Simplified - bisa diperbaiki dengan perhitungan jarak ke line
-    const fromNode = state.nodes.find(n => n.id === connection.from);
-    const toNode = state.nodes.find(n => n.id === connection.to);
-    if (!fromNode || !toNode) return false;
-    const centerX = (fromNode.x + toNode.x) / 2;
-    const centerY = (fromNode.y + toNode.y) / 2;
-    const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-    return distance < 10;
-   }
-   // Node functions
-
-   function addNodeAtPosition(x, y) {
-    const name = document.getElementById("nodeName").value || `Node_${state.nextNodeId}`;
-    const type = document.querySelector(".type-btn.active").dataset.type;
-    const value = document.getElementById("nodeValue").value || getDefaultValue(type);
-    const color = document.querySelector(".color-option.active").dataset.color;
-    const size = parseInt(document.getElementById("nodeSize").value);
-    const node = {
-     id: state.nextNodeId++,
-     name: name,
-     type: type,
-     value: value,
-     x: x,
-     y: y,
-     width: size,
-     height: 100,
-     color: color,
-     properties: [],
-     selected: false,
-     isDragging: false,
-     connecting: false
+   function loadIncomeStatement() {
+    const incomeStatementDiv = document.getElementById("incomeStatement");
+    const data = {
+     revenue: [ {
+      name: "Penjualan Produk",
+      amount: 875e6
+     }, {
+      name: "Pendapatan Jasa",
+      amount: 325e6
+     } ],
+     cogs: [ {
+      name: "Harga Pokok Penjualan",
+      amount: 525e6
+     } ],
+     expenses: [ {
+      name: "Beban Gaji",
+      amount: 185e6
+     }, {
+      name: "Beban Sewa",
+      amount: 45e6
+     }, {
+      name: "Beban Listrik & Air",
+      amount: 125e5
+     }, {
+      name: "Beban Transportasi",
+      amount: 185e5
+     }, {
+      name: "Beban Penyusutan",
+      amount: 325e5
+     }, {
+      name: "Beban Lain-lain",
+      amount: 15e6
+     } ]
     };
-    // Add properties untuk object dan array
-    if (type === "object") {
-     node.properties = [ {
-      key: "id",
-      type: "number",
-      value: state.nextNodeId
+    let html = `
+                   <div style="margin-bottom: 30px;">
+                       <h4 style="color: #10b981; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                           Pendapatan
+                       </h4>
+               `;
+    data.revenue.forEach(item => {
+     html += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                           <span>${item.name}</span>
+                           <span class="amount debit">${formatRupiah(item.amount)}</span>
+                       </div>
+                   `;
+    });
+    html += `
+                       <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                           <span>Total Pendapatan</span>
+                           <span>${formatRupiah(12e8)}</span>
+                       </div>
+                   </div>
+
+                   <div style="margin-bottom: 30px;">
+                       <h4 style="color: #ef4444; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                           Harga Pokok Penjualan
+                       </h4>
+               `;
+    data.cogs.forEach(item => {
+     html += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                           <span>${item.name}</span>
+                           <span class="amount credit">${formatRupiah(item.amount)}</span>
+                       </div>
+                   `;
+    });
+    html += `
+                       <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                           <span>Laba Kotor</span>
+                           <span>${formatRupiah(675e6)}</span>
+                       </div>
+                   </div>
+
+                   <div style="margin-bottom: 30px;">
+                       <h4 style="color: #f59e0b; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                           Beban Operasional
+                       </h4>
+               `;
+    data.expenses.forEach(item => {
+     html += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                           <span>${item.name}</span>
+                           <span class="amount credit">${formatRupiah(item.amount)}</span>
+                       </div>
+                   `;
+    });
+    html += `
+                       <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                           <span>Total Beban Operasional</span>
+                           <span>${formatRupiah(3e8)}</span>
+                       </div>
+                   </div>
+
+                   <div style="margin-top: 30px; padding-top: 20px; border-top: 3px double #e5e7eb;">
+                       <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
+                           <span>LABA BERSIH</span>
+                           <span style="color: #10b981;">${formatRupiah(375e6)}</span>
+                       </div>
+                   </div>
+               `;
+    incomeStatementDiv.innerHTML = html;
+   }
+   // Load Cash Flow Statement
+
+   function loadCashFlowStatement() {
+    const cashFlowDiv = document.getElementById("cashFlowStatement");
+    const data = {
+     operating: [ {
+      name: "Laba Bersih",
+      amount: 375e6
      }, {
-      key: "name",
-      type: "string",
-      value: "item"
-     } ];
-    } else if (type === "array") {
-     node.properties = [ {
-      key: "0",
-      type: "string",
-      value: "item1"
+      name: "Penyusutan",
+      amount: 325e5
      }, {
-      key: "1",
-      type: "string",
-      value: "item2"
-     } ];
-    }
-    state.nodes.push(node);
-    updateNodeCount();
-    render();
-    showToast(`Node "${name}" added`);
+      name: "Kenaikan Piutang",
+      amount: -85e6
+     }, {
+      name: "Kenaikan Persediaan",
+      amount: -125e6
+     }, {
+      name: "Kenaikan Hutang Usaha",
+      amount: 75e6
+     } ],
+     investing: [ {
+      name: "Pembelian Peralatan",
+      amount: -15e7
+     }, {
+      name: "Penjualan Aset",
+      amount: 45e6
+     } ],
+     financing: [ {
+      name: "Pinjaman Bank",
+      amount: 2e8
+     }, {
+      name: "Pembayaran Hutang",
+      amount: -85e6
+     }, {
+      name: "Prive Pemilik",
+      amount: -5e7
+     } ]
+    };
+    let html = `
+                   <div style="margin-bottom: 30px;">
+                       <h4 style="color: #3b82f6; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                           Aktivitas Operasi
+                       </h4>
+               `;
+    data.operating.forEach(item => {
+     const amountClass = item.amount >= 0 ? "debit" : "credit";
+     html += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                           <span>${item.name}</span>
+                           <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
+                       </div>
+                   `;
+    });
+    html += `
+                       <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                           <span>Arus Kas dari Operasi</span>
+                           <span>${formatRupiah(275e6)}</span>
+                       </div>
+                   </div>
+
+                   <div style="margin-bottom: 30px;">
+                       <h4 style="color: #8b5cf6; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                           Aktivitas Investasi
+                       </h4>
+               `;
+    data.investing.forEach(item => {
+     const amountClass = item.amount >= 0 ? "debit" : "credit";
+     html += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                           <span>${item.name}</span>
+                           <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
+                       </div>
+                   `;
+    });
+    html += `
+                       <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                           <span>Arus Kas dari Investasi</span>
+                           <span style="color: #ef4444;">${formatRupiah(-105e6)}</span>
+                       </div>
+                   </div>
+
+                   <div style="margin-bottom: 30px;">
+                       <h4 style="color: #10b981; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                           Aktivitas Pendanaan
+                       </h4>
+               `;
+    data.financing.forEach(item => {
+     const amountClass = item.amount >= 0 ? "debit" : "credit";
+     html += `
+                       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                           <span>${item.name}</span>
+                           <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
+                       </div>
+                   `;
+    });
+    html += `
+                       <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                           <span>Arus Kas dari Pendanaan</span>
+                           <span>${formatRupiah(65e6)}</span>
+                       </div>
+                   </div>
+
+                   <div style="margin-top: 30px; padding-top: 20px; border-top: 3px double #e5e7eb;">
+                       <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
+                           <span>KENAIKAN BERSIH KAS</span>
+                           <span style="color: #10b981;">${formatRupiah(235e6)}</span>
+                       </div>
+                       <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: 600;">
+                           <span>Saldo Kas Awal Periode</span>
+                           <span>${formatRupiah(85e6)}</span>
+                       </div>
+                       <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 1.3rem; font-weight: 700;">
+                           <span>SALDO KAS AKHIR PERIODE</span>
+                           <span style="color: #3b82f6;">${formatRupiah(32e7)}</span>
+                       </div>
+                   </div>
+               `;
+    cashFlowDiv.innerHTML = html;
+   }
+   // Load Equity Statement
+
+   function loadEquityStatement() {
+    const equityDiv = document.getElementById("equityStatement");
+    const data = {
+     beginning: [ {
+      name: "Modal Saham",
+      amount: 1e9
+     }, {
+      name: "Laba Ditahan",
+      amount: 285e6
+     } ],
+     changes: [ {
+      name: "Laba Bersih Periode",
+      amount: 375e6
+     }, {
+      name: "Prive Pemilik",
+      amount: -5e7
+     }, {
+      name: "Dividen",
+      amount: -16e7
+     } ]
+    };
+    let html = `
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>Keterangan</th>
+                               <th>Modal Saham</th>
+                               <th>Laba Ditahan</th>
+                               <th>Total</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <tr>
+                               <td>Saldo Awal Periode</td>
+                               <td class="amount">${formatRupiah(1e9)}</td>
+                               <td class="amount">${formatRupiah(285e6)}</td>
+                               <td class="amount" style="font-weight: 700;">${formatRupiah(1285e6)}</td>
+                           </tr>
+                           <tr>
+                               <td>Laba Bersih Periode</td>
+                               <td class="amount"></td>
+                               <td class="amount debit">${formatRupiah(375e6)}</td>
+                               <td class="amount debit">${formatRupiah(375e6)}</td>
+                           </tr>
+                           <tr>
+                               <td>Prive Pemilik</td>
+                               <td class="amount"></td>
+                               <td class="amount credit">${formatRupiah(5e7)}</td>
+                               <td class="amount credit">${formatRupiah(5e7)}</td>
+                           </tr>
+                           <tr>
+                               <td>Dividen</td>
+                               <td class="amount"></td>
+                               <td class="amount credit">${formatRupiah(16e7)}</td>
+                               <td class="amount credit">${formatRupiah(16e7)}</td>
+                           </tr>
+                           <tr style="border-top: 2px solid #e5e7eb;">
+                               <td style="font-weight: 700;">Saldo Akhir Periode</td>
+                               <td class="amount" style="font-weight: 700;">${formatRupiah(1e9)}</td>
+                               <td class="amount" style="font-weight: 700;">${formatRupiah(45e7)}</td>
+                               <td class="amount" style="font-weight: 700;">${formatRupiah(145e7)}</td>
+                           </tr>
+                       </tbody>
+                   </table>
+               `;
+    equityDiv.innerHTML = html;
+   }
+   // Modal Functions
+
+   function openJournalModal() {
+    document.getElementById("journalModal").style.display = "flex";
    }
 
-   function getDefaultValue(type) {
+   function closeJournalModal() {
+    document.getElementById("journalModal").style.display = "none";
+   }
+
+   function addJournalEntry() {
+    const container = document.getElementById("journalEntriesContainer");
+    const entryCount = container.querySelectorAll(".journal-entry").length + 1;
+    const entryDiv = document.createElement("div");
+    entryDiv.className = "journal-entry";
+    entryDiv.style.marginTop = "20px";
+    entryDiv.style.paddingTop = "20px";
+    entryDiv.style.borderTop = "1px dashed #e5e7eb";
+    entryDiv.innerHTML = `
+                   <div class="form-row">
+                       <div class="form-group">
+                           <label>Akun Debit (Entri ${entryCount})</label>
+                           <select class="debit-account">
+                               <option value="">Pilih akun...</option>
+                           </select>
+                       </div>
+                       <div class="form-group">
+                           <label>Jumlah Debit</label>
+                           <input type="number" class="debit-amount" placeholder="Rp 0">
+                       </div>
+                   </div>
+                   <div class="form-row">
+                       <div class="form-group">
+                           <label>Akun Kredit (Entri ${entryCount})</label>
+                           <select class="credit-account">
+                               <option value="">Pilih akun...</option>
+                           </select>
+                       </div>
+                       <div class="form-group">
+                           <label>Jumlah Kredit</label>
+                           <input type="number" class="credit-amount" placeholder="Rp 0">
+                       </div>
+                   </div>
+               `;
+    // Populate account options
+    Object.values(chartOfAccounts).forEach(account => {
+     const debitOption = document.createElement("option");
+     debitOption.value = account.code;
+     debitOption.textContent = `${account.code} - ${account.name}`;
+     entryDiv.querySelector(".debit-account").appendChild(debitOption.cloneNode(true));
+     const creditOption = document.createElement("option");
+     creditOption.value = account.code;
+     creditOption.textContent = `${account.code} - ${account.name}`;
+     entryDiv.querySelector(".credit-account").appendChild(creditOption.cloneNode(true));
+    });
+    container.appendChild(entryDiv);
+   }
+
+   function saveJournal() {
+    // Validasi
+    const date = document.getElementById("journalDate").value;
+    const ref = document.getElementById("journalRef").value;
+    const desc = document.getElementById("journalDescription").value;
+    if (!date || !desc) {
+     alert("Harap isi semua field yang diperlukan");
+     return;
+    }
+    // Hitung total debit dan kredit
+    let totalDebit = 0;
+    let totalCredit = 0;
+    document.querySelectorAll(".journal-entry").forEach(entry => {
+     const debitAmount = parseFloat(entry.querySelector(".debit-amount").value) || 0;
+     const creditAmount = parseFloat(entry.querySelector(".credit-amount").value) || 0;
+     totalDebit += debitAmount;
+     totalCredit += creditAmount;
+    });
+    if (totalDebit !== totalCredit) {
+     alert(`Total debit (${formatRupiah(totalDebit)}) harus sama dengan total kredit (${formatRupiah(totalCredit)})`);
+     return;
+    }
+    // Simpan jurnal (dalam implementasi nyata, ini akan dikirim ke server)
+    alert("Jurnal berhasil disimpan!");
+    closeJournalModal();
+    // Refresh tampilan jurnal
+    loadJournalEntries();
+   }
+   // Quick Transaction
+
+   function addQuickTransaction() {
+    const type = document.getElementById("quickTransactionType").value;
+    const amount = document.getElementById("quickAmount").value;
+    const desc = document.getElementById("quickDescription").value;
+    if (!amount || !desc) {
+     alert("Harap isi jumlah dan keterangan");
+     return;
+    }
+    // Simpan transaksi (dalam implementasi nyata, ini akan dikirim ke server)
+    alert(`Transaksi ${type} sebesar ${formatRupiah(parseFloat(amount))} berhasil disimpan!`);
+    // Reset form
+    document.getElementById("quickAmount").value = "";
+    document.getElementById("quickDescription").value = "";
+    // Refresh data
+    loadRecentTransactions();
+   }
+   // Report Generation
+
+   function generateReport(type) {
+    let message = "";
     switch (type) {
-    case "string":
-     return "value";
+    case "neraca":
+     message = "Laporan Neraca akan didownload dalam format PDF";
+     break;
 
-    case "number":
-     return "0";
+    case "labarugi":
+     message = "Laporan Laba Rugi akan didownload dalam format Excel";
+     break;
 
-    case "boolean":
-     return "true";
+    case "aruskas":
+     message = "Laporan Arus Kas akan didownload dalam format PDF";
+     break;
 
-    case "array":
-     return "[]";
+    case "semua":
+     message = "Paket lengkap semua laporan akan didownload dalam format ZIP";
+     break;
+    }
+    alert(message);
+    // Dalam implementasi nyata, ini akan memanggil API untuk generate report
+   }
 
-    case "object":
-     return "{}";
+   function generateCustomReport() {
+    const type = document.getElementById("reportType").value;
+    const format = document.getElementById("reportFormat").value;
+    const fromDate = document.getElementById("reportFrom").value;
+    const toDate = document.getElementById("reportTo").value;
+    alert(`Generating ${type} report in ${format} format from ${fromDate} to ${toDate}`);
+    // Dalam implementasi nyata, ini akan memanggil API untuk generate custom report
+   }
+   // Update Reports by Period
 
-    case "null":
-     return "null";
+   function updateReportsByPeriod(period) {
+    alert(`Memuat data untuk periode: ${period}`);
+    // Dalam implementasi nyata, ini akan memuat ulang data berdasarkan periode
+   }
+   // Helper Functions
+
+   function getBadgeClass(type) {
+    switch (type) {
+    case "asset":
+     return "badge-asset";
+
+    case "liability":
+     return "badge-liability";
+
+    case "equity":
+     return "badge-income";
+
+    case "revenue":
+     return "badge-income";
+
+    case "expense":
+     return "badge-expense";
 
     default:
      return "";
     }
    }
 
-   function selectNode(node) {
-    state.selectedNode = node;
-    // Update form dengan data node
-    document.getElementById("nodeName").value = node.name;
-    // Set type button
-    document.querySelectorAll(".type-btn").forEach(btn => {
-     btn.classList.remove("active");
-     if (btn.dataset.type === node.type) {
-      btn.classList.add("active");
-     }
-    });
-    document.getElementById("nodeValue").value = node.value;
-    // Set color
-    document.querySelectorAll(".color-option").forEach(opt => {
-     opt.classList.remove("active");
-     if (opt.dataset.color === node.color) {
-      opt.classList.add("active");
-     }
-    });
-    document.getElementById("nodeSize").value = node.width;
-    // Show update button
-    document.getElementById("addNodeBtn").style.display = "none";
-    document.getElementById("updateNodeBtn").style.display = "block";
-   }
-
-   function editNode(node) {
-    selectNode(node);
-   }
-
-   function updateSelectedNode() {
-    if (!state.selectedNode) return;
-    const node = state.selectedNode;
-    node.name = document.getElementById("nodeName").value || node.name;
-    node.type = document.querySelector(".type-btn.active").dataset.type;
-    node.value = document.getElementById("nodeValue").value || getDefaultValue(node.type);
-    node.color = document.querySelector(".color-option.active").dataset.color;
-    node.width = parseInt(document.getElementById("nodeSize").value);
-    render();
-    showToast(`Node "${node.name}" updated`);
-    // Reset form
-    resetNodeForm();
-   }
-
-   function resetNodeForm() {
-    document.getElementById("nodeName").value = "";
-    document.getElementById("nodeValue").value = "";
-    document.getElementById("addNodeBtn").style.display = "block";
-    document.getElementById("updateNodeBtn").style.display = "none";
-    // Reset type ke string
-    document.querySelectorAll(".type-btn").forEach(btn => {
-     btn.classList.remove("active");
-     if (btn.dataset.type === "string") {
-      btn.classList.add("active");
-     }
-    });
-    state.selectedNode = null;
-   }
-
-   function deleteNode(id) {
-    const nodeIndex = state.nodes.findIndex(n => n.id === id);
-    if (nodeIndex !== -1) {
-     const nodeName = state.nodes[nodeIndex].name;
-     state.nodes.splice(nodeIndex, 1);
-     // Hapus connections yang terkait
-     state.connections = state.connections.filter(conn => conn.from !== id && conn.to !== id);
-     updateNodeCount();
-     render();
-     showToast(`Node "${nodeName}" deleted`);
-     if (state.selectedNode && state.selectedNode.id === id) {
-      resetNodeForm();
-     }
-    }
-   }
-   // Connection functions
-
-   function addConnection(fromId, toId) {
-    const connection = {
-     id: state.nextConnectionId++,
-     from: fromId,
-     to: toId,
-     selected: false
-    };
-    state.connections.push(connection);
-    showToast(`Connection created between nodes`);
-   }
-
-   function deleteConnection(id) {
-    state.connections = state.connections.filter(conn => conn.id !== id);
-    render();
-    showToast(`Connection deleted`);
-   }
-
-   function clearSelections() {
-    for (const node of state.nodes) {
-     node.selected = false;
-    }
-    for (const conn of state.connections) {
-     conn.selected = false;
-    }
-    state.selectedNode = null;
-    state.selectedConnection = null;
-   }
-   // Render functions
-
-   function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Apply transform
-    ctx.save();
-    ctx.translate(state.canvasOffset.x * state.canvasScale, state.canvasOffset.y * state.canvasScale);
-    ctx.scale(state.canvasScale, state.canvasScale);
-    // Draw connections first
-    drawConnections();
-    // Draw nodes
-    drawNodes();
-    // Draw connecting line jika sedang connect mode
-    if (state.toolMode === "connect" && state.isConnecting && state.connectFromNode) {
-     drawConnectingLine();
-    }
-    ctx.restore();
-   }
-
-   function drawNodes() {
-    for (const node of state.nodes) {
-     // Draw node body
-     ctx.fillStyle = node.color;
-     ctx.globalAlpha = .1;
-     ctx.fillRect(node.x, node.y, node.width, node.height);
-     ctx.globalAlpha = 1;
-     // Draw border
-     ctx.strokeStyle = node.selected ? "#6366f1" : "#94a3b8";
-     ctx.lineWidth = node.selected ? 3 : 2;
-     ctx.strokeRect(node.x, node.y, node.width, node.height);
-     // Draw header
-     ctx.fillStyle = node.color;
-     ctx.globalAlpha = .2;
-     ctx.fillRect(node.x, node.y, node.width, 30);
-     ctx.globalAlpha = 1;
-     // Draw node name
-     ctx.fillStyle = "#1f2937";
-     ctx.font = "bold 14px Segoe UI";
-     ctx.textAlign = "left";
-     ctx.fillText(node.name, node.x + 10, node.y + 20);
-     // Draw node type badge
-     ctx.fillStyle = getTypeColor(node.type);
-     ctx.globalAlpha = .2;
-     ctx.fillRect(node.x + node.width - 70, node.y + 5, 60, 20);
-     ctx.globalAlpha = 1;
-     ctx.fillStyle = getTypeColor(node.type);
-     ctx.font = "600 11px Segoe UI";
-     ctx.textAlign = "center";
-     ctx.fillText(node.type.toUpperCase(), node.x + node.width - 40, node.y + 20);
-     // Draw value
-     ctx.fillStyle = "#4b5563";
-     ctx.font = "12px Segoe UI";
-     ctx.textAlign = "left";
-     let displayValue = node.value;
-     if (typeof displayValue === "object") {
-      displayValue = JSON.stringify(displayValue);
-     }
-     if (displayValue.length > 20) {
-      displayValue = displayValue.substring(0, 20) + "...";
-     }
-     ctx.fillText(`${node.type}: ${displayValue}`, node.x + 10, node.y + 50);
-     // Draw connecting indicator
-     if (node.connecting) {
-      ctx.fillStyle = "#f59e0b";
-      ctx.beginPath();
-      ctx.arc(node.x + node.width - 10, node.y + 15, 8, 0, Math.PI * 2);
-      ctx.fill();
-     }
-    }
-   }
-
-   function drawConnections() {
-    for (const conn of state.connections) {
-     const fromNode = state.nodes.find(n => n.id === conn.from);
-     const toNode = state.nodes.find(n => n.id === conn.to);
-     if (!fromNode || !toNode) continue;
-     const startX = fromNode.x + fromNode.width / 2;
-     const startY = fromNode.y + fromNode.height / 2;
-     const endX = toNode.x + toNode.width / 2;
-     const endY = toNode.y + toNode.height / 2;
-     // Draw connection line
-     ctx.strokeStyle = conn.selected ? "#6366f1" : "#94a3b8";
-     ctx.lineWidth = conn.selected ? 3 : 2;
-     ctx.lineCap = "round";
-     ctx.beginPath();
-     ctx.moveTo(startX, startY);
-     // Draw curved line
-     const midX = (startX + endX) / 2;
-     const midY = (startY + endY) / 2;
-     const cp1x = startX + (midX - startX) * .5;
-     const cp1y = startY;
-     const cp2x = midX + (endX - midX) * .5;
-     const cp2y = endY;
-     ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
-     ctx.stroke();
-     // Draw arrow head
-     const angle = Math.atan2(endY - midY, endX - midX);
-     const arrowSize = 10;
-     ctx.fillStyle = conn.selected ? "#6366f1" : "#94a3b8";
-     ctx.beginPath();
-     ctx.moveTo(endX, endY);
-     ctx.lineTo(endX - arrowSize * Math.cos(angle - Math.PI / 6), endY - arrowSize * Math.sin(angle - Math.PI / 6));
-     ctx.lineTo(endX - arrowSize * Math.cos(angle + Math.PI / 6), endY - arrowSize * Math.sin(angle + Math.PI / 6));
-     ctx.closePath();
-     ctx.fill();
-    }
-   }
-
-   function drawConnectingLine() {
-    const node = state.connectFromNode;
-    const rect = canvas.getBoundingClientRect();
-    ctx.strokeStyle = "#f59e0b";
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(node.x + node.width / 2, node.y + node.height / 2);
-    // Draw to current mouse position
-    const mouseX = state.lastMousePos.x - rect.left;
-    const mouseY = state.lastMousePos.y - rect.top;
-    const canvasX = mouseX / state.canvasScale - state.canvasOffset.x;
-    const canvasY = mouseY / state.canvasScale - state.canvasOffset.y;
-    ctx.lineTo(canvasX, canvasY);
-    ctx.stroke();
-   }
-
-   function getTypeColor(type) {
+   function getAccountTypeName(type) {
     switch (type) {
-    case "string":
-     return "#f59e0b";
+    case "asset":
+     return "Aset";
 
-    case "number":
-     return "#10b981";
+    case "liability":
+     return "Liabilitas";
 
-    case "boolean":
-     return "#6366f1";
+    case "equity":
+     return "Ekuitas";
 
-    case "array":
-     return "#ec4899";
+    case "revenue":
+     return "Pendapatan";
 
-    case "object":
-     return "#14b8a6";
-
-    case "null":
-     return "#64748b";
+    case "expense":
+     return "Beban";
 
     default:
-     return "#94a3b8";
+     return "Lainnya";
     }
    }
-   // Tool functions
+   // Print Functionality
 
-   function initTools() {
-    // Tool buttons
-    document.getElementById("selectTool").addEventListener("click", () => setToolMode("select"));
-    document.getElementById("addTool").addEventListener("click", () => setToolMode("add"));
-    document.getElementById("connectTool").addEventListener("click", () => setToolMode("connect"));
-    document.getElementById("deleteTool").addEventListener("click", () => setToolMode("delete"));
-    // Zoom buttons
-    document.getElementById("zoomIn").addEventListener("click", () => zoom(1.2));
-    document.getElementById("zoomOut").addEventListener("click", () => zoom(.8));
-    document.getElementById("zoomReset").addEventListener("click", resetZoom);
-    // Node form buttons
-    document.getElementById("addNodeBtn").addEventListener("click", () => {
-     const x = canvas.width / 2 / state.canvasScale - state.canvasOffset.x;
-     const y = canvas.height / 2 / state.canvasScale - state.canvasOffset.y;
-     addNodeAtPosition(x, y);
-    });
-    document.getElementById("updateNodeBtn").addEventListener("click", updateSelectedNode);
-    // JSON actions
-    document.getElementById("generateJsonBtn").addEventListener("click", generateJSON);
-    document.getElementById("copyJsonBtn").addEventListener("click", copyJSON);
-    // Canvas tools
-    document.getElementById("clearCanvasBtn").addEventListener("click", clearCanvas);
-    document.getElementById("autoLayoutBtn").addEventListener("click", autoLayout);
-    document.getElementById("exportImageBtn").addEventListener("click", exportImage);
-    document.getElementById("loadTemplateBtn").addEventListener("click", () => {
-     document.getElementById("templateModal").classList.add("active");
-    });
-    // Type buttons
-    document.querySelectorAll(".type-btn").forEach(btn => {
-     btn.addEventListener("click", () => {
-      document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-     });
-    });
-    // Color options
-    document.querySelectorAll(".color-option").forEach(opt => {
-     opt.addEventListener("click", () => {
-      document.querySelectorAll(".color-option").forEach(o => o.classList.remove("active"));
-      opt.classList.add("active");
-     });
-    });
-    // Modal close
-    document.querySelectorAll(".close-modal").forEach(btn => {
-     btn.addEventListener("click", () => {
-      document.getElementById("templateModal").classList.remove("active");
-     });
-    });
-    // Template items
-    document.querySelectorAll(".template-item").forEach(item => {
-     item.addEventListener("click", () => {
-      const template = item.dataset.template;
-      loadTemplate(template);
-      document.getElementById("templateModal").classList.remove("active");
-     });
-    });
-    // Set initial tool
-    setToolMode("select");
+   function printReport(reportId) {
+    const printContent = document.getElementById(reportId).innerHTML;
+    const originalContent = document.body.innerHTML;
+    document.body.innerHTML = `
+                   <html>
+                       <head>
+                           <title>Laporan Akuntansi</title>
+                           <style>
+                               body { font-family: Arial, sans-serif; }
+                               table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                               th, td { padding: 10px; border: 1px solid #ddd; }
+                               th { background-color: #f5f5f5; }
+                               .text-right { text-align: right; }
+                               .total { font-weight: bold; }
+                           </style>
+                       </head>
+                       <body>
+                           <h1 style="text-align: center;">Laporan Akuntansi</h1>
+                           <div>${printContent}</div>
+                       </body>
+                   </html>
+               `;
+    window.print();
+    document.body.innerHTML = originalContent;
+    location.reload();
    }
-
-   function setToolMode(mode) {
-    state.toolMode = mode;
-    // Update tool button states
-    document.getElementById("selectTool").classList.toggle("active", mode === "select");
-    document.getElementById("addTool").classList.toggle("active", mode === "add");
-    document.getElementById("connectTool").classList.toggle("active", mode === "connect");
-    document.getElementById("deleteTool").classList.toggle("active", mode === "delete");
-    // Reset connecting state
-    if (mode !== "connect") {
-     state.isConnecting = false;
-     if (state.connectFromNode) {
-      state.connectFromNode.connecting = false;
-      state.connectFromNode = null;
-     }
-    }
-    render();
-    showToast(`Switched to ${mode} mode`);
-   }
-   // JSON generation
-
-   function generateJSON() {
-    if (state.nodes.length === 0) {
-     showToast("Add nodes to generate JSON", "error");
-     return;
-    }
-    // Build JSON structure dari nodes dan connections
-    const json = {};
-    // Untuk sekarang, buat JSON sederhana dari nodes
-    state.nodes.forEach(node => {
-     let value;
-     switch (node.type) {
-     case "string":
-      value = node.value;
-      break;
-
-     case "number":
-      value = isNaN(Number(node.value)) ? 0 : Number(node.value);
-      break;
-
-     case "boolean":
-      value = node.value === "true";
-      break;
-
-     case "array":
-      value = node.properties ? node.properties.map(p => p.value) : [];
-      break;
-
-     case "object":
-      value = {};
-      if (node.properties) {
-       node.properties.forEach(prop => {
-        value[prop.key] = prop.value;
-       });
-      }
-      break;
-
-     case "null":
-      value = null;
-      break;
-     }
-     json[node.name] = value;
-    });
-    // Update preview dengan syntax highlighting
-    updateJSONPreview(json);
-    showToast("JSON generated successfully!");
-   }
-
-   function updateJSONPreview(json) {
-    const jsonString = JSON.stringify(json, null, 2);
-    const preview = document.getElementById("jsonPreview");
-    // Syntax highlighting sederhana
-    const highlighted = jsonString.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, match => {
-     if (/:$/.test(match)) {
-      return `<span class="json-key">${match}</span>`;
-     }
-     return `<span class="json-string">${match}</span>`;
-    }).replace(/\b(true|false|null)\b/g, match => `<span class="json-boolean">${match}</span>`).replace(/-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, match => `<span class="json-number">${match}</span>`);
-    preview.innerHTML = highlighted;
-   }
-
-   function copyJSON() {
-    const jsonString = JSON.stringify(state.jsonData || {}, null, 2);
-    navigator.clipboard.writeText(jsonString).then(() => {
-     showToast("JSON copied to clipboard!");
-    }).catch(err => {
-     showToast("Failed to copy JSON", "error");
-    });
-   }
-   // Canvas utilities
-
-   function clearCanvas() {
-    if (confirm("Clear all nodes and connections?")) {
-     state.nodes = [];
-     state.connections = [];
-     state.selectedNode = null;
-     state.selectedConnection = null;
-     resetNodeForm();
-     updateNodeCount();
-     render();
-     showToast("Canvas cleared");
-    }
-   }
-
-   function autoLayout() {
-    if (state.nodes.length === 0) return;
-    const centerX = canvas.width / 2 / state.canvasScale - state.canvasOffset.x;
-    const centerY = canvas.height / 2 / state.canvasScale - state.canvasOffset.y;
-    const radius = 200;
-    const angleStep = 2 * Math.PI / state.nodes.length;
-    state.nodes.forEach((node, index) => {
-     const angle = index * angleStep;
-     node.x = centerX + radius * Math.cos(angle) - node.width / 2;
-     node.y = centerY + radius * Math.sin(angle) - node.height / 2;
-    });
-    render();
-    showToast("Auto layout applied");
-   }
-
-   function exportImage() {
-    // Create temporary canvas dengan ukuran yang sesuai
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-    // Cari bounds dari semua nodes
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const node of state.nodes) {
-     minX = Math.min(minX, node.x);
-     minY = Math.min(minY, node.y);
-     maxX = Math.max(maxX, node.x + node.width);
-     maxY = Math.max(maxY, node.y + node.height);
-    }
-    // Tambah padding
-    const padding = 50;
-    minX -= padding;
-    minY -= padding;
-    maxX += padding;
-    maxY += padding;
-    // Set ukuran temporary canvas
-    tempCanvas.width = maxX - minX;
-    tempCanvas.height = maxY - minY;
-    // Draw ke temporary canvas
-    tempCtx.translate(-minX, -minY);
-    tempCtx.fillStyle = "#f8fafc";
-    tempCtx.fillRect(minX, minY, tempCanvas.width, tempCanvas.height);
-    // Draw nodes dan connections
-    drawNodesToContext(tempCtx);
-    drawConnectionsToContext(tempCtx);
-    // Export sebagai image
-    const link = document.createElement("a");
-    link.download = "json-canvas.png";
-    link.href = tempCanvas.toDataURL("image/png");
-    link.click();
-    showToast("Image exported successfully!");
-   }
-
-   function drawNodesToContext(context) {
-    for (const node of state.nodes) {
-     // Similar to drawNodes but menggunakan context yang diberikan
-     context.fillStyle = node.color;
-     context.globalAlpha = .1;
-     context.fillRect(node.x, node.y, node.width, node.height);
-     context.globalAlpha = 1;
-     context.strokeStyle = node.selected ? "#6366f1" : "#94a3b8";
-     context.lineWidth = node.selected ? 3 : 2;
-     context.strokeRect(node.x, node.y, node.width, node.height);
-     context.fillStyle = node.color;
-     context.globalAlpha = .2;
-     context.fillRect(node.x, node.y, node.width, 30);
-     context.globalAlpha = 1;
-     context.fillStyle = "#1f2937";
-     context.font = "bold 14px Segoe UI";
-     context.textAlign = "left";
-     context.fillText(node.name, node.x + 10, node.y + 20);
-    }
-   }
-
-   function drawConnectionsToContext(context) {
-    for (const conn of state.connections) {
-     const fromNode = state.nodes.find(n => n.id === conn.from);
-     const toNode = state.nodes.find(n => n.id === conn.to);
-     if (!fromNode || !toNode) continue;
-     const startX = fromNode.x + fromNode.width / 2;
-     const startY = fromNode.y + fromNode.height / 2;
-     const endX = toNode.x + toNode.width / 2;
-     const endY = toNode.y + toNode.height / 2;
-     context.strokeStyle = conn.selected ? "#6366f1" : "#94a3b8";
-     context.lineWidth = conn.selected ? 3 : 2;
-     context.lineCap = "round";
-     context.beginPath();
-     context.moveTo(startX, startY);
-     const midX = (startX + endX) / 2;
-     const midY = (startY + endY) / 2;
-     const cp1x = startX + (midX - startX) * .5;
-     const cp1y = startY;
-     const cp2x = midX + (endX - midX) * .5;
-     const cp2y = endY;
-     context.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
-     context.stroke();
-    }
-   }
-   // Zoom functions
-
-   function zoom(factor) {
-    const newScale = Math.min(Math.max(state.canvasScale * factor, .5), 3);
-    state.canvasScale = newScale;
-    updateZoomDisplay();
-    render();
-   }
-
-   function resetZoom() {
-    state.canvasScale = 1;
-    state.canvasOffset = {
-     x: 0,
-     y: 0
-    };
-    updateZoomDisplay();
-    render();
-   }
-
-   function updateZoomDisplay() {
-    document.getElementById("zoomLevel").textContent = `${Math.round(state.canvasScale * 100)}%`;
-   }
-
-   function updateNodeCount() {
-    document.getElementById("nodeCount").textContent = `${state.nodes.length} Nodes`;
-   }
-   // Template loading
-
-   function loadTemplate(templateName) {
-    clearCanvas();
-    let nodes;
-    switch (templateName) {
-    case "user":
-     nodes = [ {
-      x: 100,
-      y: 100,
-      name: "user",
-      type: "object",
-      value: "{}",
-      color: "#3b82f6"
-     }, {
-      x: 350,
-      y: 100,
-      name: "id",
-      type: "number",
-      value: "1",
-      color: "#10b981"
-     }, {
-      x: 350,
-      y: 250,
-      name: "name",
-      type: "string",
-      value: "John Doe",
-      color: "#3b82f6"
-     }, {
-      x: 350,
-      y: 400,
-      name: "email",
-      type: "string",
-      value: "john@example.com",
-      color: "#3b82f6"
-     }, {
-      x: 350,
-      y: 550,
-      name: "active",
-      type: "boolean",
-      value: "true",
-      color: "#6366f1"
-     } ];
-     break;
-
-    case "product":
-     nodes = [ {
-      x: 100,
-      y: 100,
-      name: "product",
-      type: "object",
-      value: "{}",
-      color: "#10b981"
-     }, {
-      x: 350,
-      y: 100,
-      name: "name",
-      type: "string",
-      value: "Smartphone",
-      color: "#3b82f6"
-     }, {
-      x: 350,
-      y: 250,
-      name: "price",
-      type: "number",
-      value: "699.99",
-      color: "#10b981"
-     }, {
-      x: 350,
-      y: 400,
-      name: "inStock",
-      type: "boolean",
-      value: "true",
-      color: "#6366f1"
-     }, {
-      x: 350,
-      y: 550,
-      name: "tags",
-      type: "array",
-      value: "[]",
-      color: "#ec4899"
-     } ];
-     break;
-
-    case "blog":
-     nodes = [ {
-      x: 100,
-      y: 100,
-      name: "post",
-      type: "object",
-      value: "{}",
-      color: "#8b5cf6"
-     }, {
-      x: 350,
-      y: 100,
-      name: "title",
-      type: "string",
-      value: "My Blog Post",
-      color: "#3b82f6"
-     }, {
-      x: 350,
-      y: 250,
-      name: "content",
-      type: "string",
-      value: "Blog content...",
-      color: "#3b82f6"
-     }, {
-      x: 350,
-      y: 400,
-      name: "comments",
-      type: "array",
-      value: "[]",
-      color: "#ec4899"
-     }, {
-      x: 600,
-      y: 100,
-      name: "author",
-      type: "object",
-      value: "{}",
-      color: "#14b8a6"
-     } ];
-     break;
-    }
-    nodes.forEach((nodeData, index) => {
-     const node = {
-      id: state.nextNodeId++,
-      name: nodeData.name,
-      type: nodeData.type,
-      value: nodeData.value,
-      x: nodeData.x,
-      y: nodeData.y,
-      width: 200,
-      height: 100,
-      color: nodeData.color,
-      properties: [],
-      selected: false,
-      isDragging: false,
-      connecting: false
-     };
-     state.nodes.push(node);
-     // Create connections untuk object properties
-     if (index > 0 && nodeData.x > 150) {
-      addConnection(state.nodes[0].id, node.id);
-     }
-    });
-    updateNodeCount();
-    render();
-    showToast(`Template "${templateName}" loaded`);
-   }
-   // Toast notification
-
-   function showToast(message, type = "success") {
-    const toast = document.getElementById("toast");
-    const toastMessage = document.getElementById("toastMessage");
-    toastMessage.textContent = message;
-    toast.className = `toast ${type}`;
-    toast.classList.add("show");
-    setTimeout(() => {
-     toast.classList.remove("show");
-    }, 3e3);
-   }
-   // Initialize aplikasi
-
-   document.addEventListener("DOMContentLoaded", () => {
-    initCanvas();
-    generateJSON(); // Generate initial preview
-   });
   </script>
  </body>
 </html>

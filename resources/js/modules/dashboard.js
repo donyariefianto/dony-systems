@@ -339,29 +339,147 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
     </div>`
   setTimeout(() => initChartDispatcher(chartId, widget, data, isFullscreen), 100)
  } else if (widget.type === 'stat') {
-  const item = data[0] || {}
-  const mainValue = item.value || item.total || item.count || '0'
-  const subLabel = item.label || widget.description || ''
-  const trend = item.trend || null
-  const sizeClass = isFullscreen ? 'text-6xl md:text-8xl' : 'text-3xl md:text-4xl'
+  const item =
+   Array.isArray(data) && data.length > 0 ? data[0] : widget.data_config?.static_data?.[0] || {}
+
+  const mainValue = item.value || widget.config?.value || '0'
+  const description = item.description || widget.config?.description || ''
+
+  const colorTheme = item.color || widget.config?.color || 'blue'
+  const labelName = item.name || widget.config?.name || widget.title || 'Metric'
 
   container.innerHTML = `
-    <div class="flex flex-col h-full justify-center items-center animate-in fade-in duration-500">
-        <div class="text-center">
-            <h2 class="${sizeClass} font-black text-gray-800 tracking-tight text-gradient">${mainValue}</h2>
-            <p class="text-sm md:text-xl font-medium text-gray-400 mt-2">${subLabel}</p>
+    <div class="h-full flex flex-col p-2 animate-in fade-in slide-in-from-left-4 duration-700 relative group">
+        <div class="flex flex-col justify-between h-full">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                    ${labelName}
+                </p>
+                <div class="flex items-baseline gap-1.5">
+                    ${widget.config?.prefix ? `<span class="text-xl font-bold text-slate-300">${widget.config.prefix}</span>` : ''}
+                    <h2 class="text-4xl md:text-5xl font-black text-slate-800 tracking-tighter leading-none">
+                        ${mainValue}
+                    </h2>
+                    ${widget.config?.suffix ? `<span class="text-sm font-bold text-slate-400 uppercase ml-1">${widget.config.suffix}</span>` : ''}
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center gap-3">
+                <div class="w-1 h-4 bg-${colorTheme}-500/20 rounded-full"></div>
+                <p class="text-[11px] text-slate-400 font-medium leading-relaxed line-clamp-2">
+                    ${description}
+                </p>
+            </div>
         </div>
-        ${trend ? `<div class="flex items-center gap-3 mt-6 pt-6 border-t border-dashed border-gray-200"><span class="${trend.includes('+') ? 'text-emerald-500 bg-emerald-50' : 'text-red-500 bg-red-50'} px-3 py-1.5 rounded-lg text-sm font-black uppercase tracking-wide">${trend}</span><span class="text-xs text-gray-400 font-bold uppercase">vs last month</span></div>` : ''}
+        <div class="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+            <div class="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+            <div class="flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+            </div>
+            </div>
+        </div>
     </div>`
  } else if (widget.type === 'table') {
-  container.innerHTML = `
-    <div class="overflow-hidden -mx-5 animate-in fade-in duration-500 h-full overflow-y-auto custom-scrollbar px-5">
-        <table class="w-full text-left">
-            <tbody class="divide-y divide-gray-100">
-                ${data.map((row) => `<tr class="hover:bg-blue-50/30 transition-colors group"><td class="px-5 py-4 text-sm font-bold text-gray-600 truncate group-hover:text-blue-600 transition-colors">${row.name || row.title || row._id || '-'}</td><td class="px-5 py-4 text-sm font-mono text-gray-400 text-right">${row.status || row.date || row.value || '-'}</td></tr>`).join('')}
-            </tbody>
-        </table>
+  const isStatic = widget.data_config?.source === 'static'
+
+  let columns = widget.table_options?.columns || []
+  if (columns.length === 0 && data.length > 0) {
+   columns = Object.keys(data[0]).map((key) => ({ header: key.toUpperCase(), field: key }))
+  }
+
+  let toolbarHtml = ''
+  let footerHtml = ''
+
+  if (!isStatic) {
+   toolbarHtml = `
+    <div class="flex justify-between items-center px-5 py-3 border-b border-slate-100 bg-white sticky top-0 z-20">
+        <div class="relative w-full max-w-xs">
+            <input type="text" 
+                onkeyup="drawerUI.handleTableSearch('${widget.id}', this.value)" 
+                placeholder="Cari data..." 
+                class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all">
+            <i class="fas fa-search absolute left-3 top-2 text-slate-400 text-xs"></i>
+        </div>
+        <div class="flex gap-2">
+            <button class="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="Reload"><i class="fas fa-sync-alt text-xs"></i></button>
+            <button class="p-1.5 text-slate-400 hover:text-emerald-600 transition-colors" title="Export Excel"><i class="fas fa-file-excel text-xs"></i></button>
+        </div>
     </div>`
+
+footerHtml = `
+    <div class="flex justify-between items-center px-5 py-3 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500">
+        <span>Showing <b class="text-slate-700">1-10</b> of <b class="text-slate-700">142</b></span>
+        <div class="flex gap-1">
+            <button class="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-50" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-100"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>`
+  }
+
+  const rowsHtml =
+   data.length > 0
+    ? data
+       .map((row, index) => {
+        return `
+            <tr class="hover:bg-blue-50/40 transition-colors group border-b border-slate-50 last:border-none">
+                ${columns
+                 .map((col) => {
+                  let cellVal = row[col.field] || '-'
+
+                  if (col.type === 'badge') {
+                   const badgeColor =
+                    cellVal === 'MASUK' ? 'emerald' : cellVal === 'KELUAR' ? 'rose' : 'slate'
+                   cellVal = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-${badgeColor}-100 text-${badgeColor}-600 uppercase">${cellVal}</span>`
+                  }
+
+                  return `<td class="px-5 py-3.5 text-xs text-slate-600 ${col.type === 'number' ? 'text-right font-mono' : ''}">${cellVal}</td>`
+                 })
+                 .join('')}
+            </tr>`
+       })
+       .join('')
+    : `<tr><td colspan="${columns.length}" class="px-5 py-8 text-center text-slate-400 text-xs italic">Tidak ada data ditemukan</td></tr>`
+
+  container.innerHTML = `
+        <div class="flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in duration-500">
+            ${toolbarHtml}
+
+            <div class="flex-1 overflow-auto custom-scrollbar relative">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            ${columns
+                             .map(
+                              (col) => `
+                                <th class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider ${col.type === 'number' ? 'text-right' : ''}">
+                                    ${col.header}
+                                </th>
+                            `
+                             )
+                             .join('')}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 bg-white">
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>
+
+            ${footerHtml}
+            <div class="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                <div class="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+                <div class="flex items-center gap-1.5">
+                    <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+                </div>
+                </div>
+            </div>
+        </div>`
  } else {
   container.innerHTML = `<div class="text-xs text-gray-400 p-2">Unsupported Type</div>`
  }

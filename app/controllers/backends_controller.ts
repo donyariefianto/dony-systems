@@ -7,8 +7,8 @@ import { SmartProjectionEngineService } from '#services/smart_projection_engine_
 import env from '#start/env'
 import jwt from 'jsonwebtoken'
 
-const ACCESS_SECRET:any = env.get('ACCESS_SECRET')
-const REFRESH_SECRET:any = env.get('REFRESH_SECRET')
+const ACCESS_SECRET: any = env.get('ACCESS_SECRET')
+const REFRESH_SECRET: any = env.get('REFRESH_SECRET')
 
 export default class BackendsController {
  async patchMenu({ response, request }: HttpContext) {

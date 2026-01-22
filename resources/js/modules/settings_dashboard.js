@@ -682,6 +682,10 @@ export function editWidgetConfig(index) {
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</label>
                     <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all">
                 </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Icon</label>
+                    <input type="text" id="conf-icon" value="${escapeHtml(widget.icon || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all">
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -778,6 +782,7 @@ export function applyWidgetChanges() {
 
  const title = document.getElementById('conf-title')?.value || ''
  const desc = document.getElementById('conf-desc')?.value || ''
+ const icon = document.getElementById('conf-icon')?.value || ''
  const width = document.getElementById('conf-width')?.value || 'half'
  const refresh = parseInt(document.getElementById('conf-refresh')?.value) || 0
  const source = document.getElementById('conf-source')?.value || 'static'
@@ -809,6 +814,7 @@ export function applyWidgetChanges() {
  const target = AppState.tempBuilderWidgets[currentEditingIndex]
  target.title = title
  target.description = desc
+ target.icon = icon
  target.width = width
  target.refresh_interval = refresh
  target.collection = collectionName
@@ -872,6 +878,7 @@ export async function saveDashboardBuilder() {
    subtype: w.subtype || 'basic',
    title: w.title || 'Untitled Widget',
    description: w.description || '',
+   icon: w.icon || 'fa-cube',
    width: w.width || 'half',
    position: index + 1,
    collection: w.collection || '',
