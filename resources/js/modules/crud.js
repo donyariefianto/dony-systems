@@ -168,6 +168,7 @@ export function renderTableView(config, container) {
  const searchableFields = fields.filter((f) =>
   ['text', 'textarea', 'number', 'currency', 'relation', 'select'].includes(f.type)
  )
+ const collectionName = config.config.collectionName || null
 
  container.innerHTML = `
     <div class="flex flex-col h-[calc(100vh-64px)] bg-slate-50 relative overflow-hidden animate-in fade-in duration-300 font-sans">
@@ -245,10 +246,15 @@ export function renderTableView(config, container) {
 
                 <button onclick="window.refreshTable()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
                     <i id="refresh-icon" class="fas fa-sync-alt text-slate-400 group-hover:text-blue-500 transition-colors"></i>
-                    <span class="hidden sm:inline">Refresh</span>
+                    <span class="hidden sm:inline"></span>
                 </button>
-                <button onclick="openCrudModal()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 active:scale-95">
-                    <i class="fas fa-plus"></i> <span>Create New</span>
+                <button onclick="window.dropCollections('${collectionName}')" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
+                    <i id="drop-collections" class="fas fa-trash text-slate-400 group-hover:text-pink-500 transition-colors"></i>
+                    <span class="hidden sm:inline"></span>
+                </button>
+                <button onclick="window.openCrudModal()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-lime-600 hover:border-lime-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
+                    <i id="open-crud-modal" class="fas fa-square-plus text-slate-400 group-hover:text-lime-500 transition-colors"></i>
+                    <span class="hidden sm:inline"></span>
                 </button>
             </div>
         </div>
@@ -491,8 +497,10 @@ export async function fetchTableData() {
   desktopBody.innerHTML = `<tr><td colspan="100%" class="p-8 text-center text-red-500 text-sm">Gagal memuat data.</td></tr>`
  } finally {
   if (loadingOverlay) {
-   loadingOverlay.classList.add('hidden')
-   loadingOverlay.classList.remove('flex')
+   setTimeout(() => {
+    loadingOverlay.classList.remove('flex')
+    loadingOverlay.classList.add('hidden')
+   }, 350)
   }
  }
 }
@@ -1211,4 +1219,51 @@ window.refreshTable = async function () {
   if (icon) icon.classList.remove('fa-spin')
   showToast('Data berhasil diperbarui', 'success')
  }, 500)
+}
+
+window.dropCollections = async function (collections) {
+ const icon = document.getElementById('drop-collections')
+ if (icon) icon.classList.add('fa-spin')
+ const isConfirmed = await showConfirmDialog({
+  title: 'Delete All?',
+  text: 'Data will be remove permanant.',
+  icon: 'warning',
+  confirmText: 'Delete',
+  dangerMode: true,
+ })
+ if (isConfirmed) {
+  const result = await dropCollectionsData(collections)
+  if (result.success) {
+   showToast(result.message, 'success')
+  } else {
+   showToast(result.message, 'error')
+  }
+ }
+ setTimeout(async () => {
+  if (icon) icon.classList.remove('fa-spin')
+  await fetchTableData()
+ }, 500)
+}
+
+async function dropCollectionsData(collectionsNames) {
+ try {
+  const url = `api/collections/${collectionsNames.toString()}`
+  const response = await apiFetch(url, { method: 'DELETE' })
+  if (response.ok) {
+   return {
+    success: true,
+    message: 'Collections data dropped successfully',
+   }
+  } else {
+   return {
+    success: false,
+    message: err.message || 'Failed to drop collections data',
+   }
+  }
+ } catch (err) {
+  return {
+   success: false,
+   message: err.message || 'Failed to drop collections data',
+  }
+ }
 }

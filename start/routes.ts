@@ -38,6 +38,7 @@ router
   router
    .delete('collections/:col/:id', '#controllers/backends_controller.deleteCollectionData')
    .use(middleware.smartProjectionEngine())
+  router.delete('collections/:col', '#controllers/backends_controller.deleteCollection')
 
   //   API Handling System
   router.get('/list-menu', '#controllers/backends_controller.listMenu')

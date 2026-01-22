@@ -26,7 +26,6 @@ export function decryptData(nonceHex, ciphertextHex) {
 }
 
 export async function logout() {
- //  localStorage.clear()
  const token = localStorage.getItem('auth_token')
  const response = await fetch('authentication/v2/logout', {
   method: 'DELETE',
@@ -36,8 +35,6 @@ export async function logout() {
   return showToast('SINI', 'failed')
  }
  console.log(response)
-
- //  window.location.href = '/login'
 }
 
 export function showToast(message, type = 'success') {
@@ -97,25 +94,50 @@ export async function showConfirmDialog({
  cancelText = 'Batal',
  dangerMode = false,
 }) {
- const confirmButtonColor = dangerMode ? '#ef4444' : '#2563eb'
- const cancelButtonColor = '#9ca3af'
+ const primaryColor = dangerMode
+  ? 'bg-rose-600 hover:bg-rose-700 focus:ring-rose-200'
+  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-200'
+ const iconColor = dangerMode ? '#e11d48' : '#2563eb'
 
  const result = await Swal.fire({
   title: title,
-  text: text,
+  html: `<span class="text-sm text-slate-500 font-medium leading-relaxed">${text}</span>`,
   icon: icon,
+  iconColor: iconColor,
+
+  focusCancel: dangerMode,
+
   showCancelButton: true,
-  confirmButtonColor: confirmButtonColor,
-  cancelButtonColor: cancelButtonColor,
   confirmButtonText: confirmText,
   cancelButtonText: cancelText,
   reverseButtons: true,
 
+  width: '26rem',
+  padding: '1.5rem',
+  background: '#ffffff',
+
+  backdrop: `
+        rgba(15, 23, 42, 0.4)
+        backdrop-filter: blur(4px)
+        left top
+        no-repeat
+    `,
+
   customClass: {
-   popup: 'rounded-2xl',
-   confirmButton: 'rounded-xl px-5 py-2.5 font-bold shadow-lg',
-   cancelButton: 'rounded-xl px-5 py-2.5 font-bold',
+   container: 'font-sans',
+   popup: 'rounded-3xl shadow-2xl border border-slate-100',
+   title: 'text-lg font-black text-slate-800 tracking-tight mb-2',
+   icon: 'text-xs',
+
+   confirmButton: `rounded-xl px-6 py-3 text-sm font-bold shadow-lg shadow-slate-200/50 text-white transition-all transform active:scale-95 ${primaryColor} outline-none focus:ring-4`,
+
+   cancelButton:
+    'rounded-xl px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors focus:bg-slate-50 outline-none mr-2',
+
+   actions: 'gap-2 mt-4',
   },
+
+  buttonsStyling: false,
  })
 
  return result.isConfirmed

@@ -288,6 +288,16 @@ export default class BackendsController {
    return response.status(500).send({ message: 'Error deleting data', error })
   }
  }
+ async deleteCollection({ params, response }: HttpContext) {
+  try {
+   const colName = params.col
+   const collections = database.data?.collection(colName)
+   const result = await collections?.drop()
+   return response.status(200).send({ message: 'Data deleted successfully', result })
+  } catch (error) {
+   return response.status(500).send({ message: 'Error deleting data', error })
+  }
+ }
  async login({ request, response }: HttpContext) {
   const { username } = request.all()
   return response.send({ token: `token`, user: { username, role: 'admin' } })

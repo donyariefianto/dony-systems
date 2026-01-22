@@ -966,21 +966,21 @@ export async function openAddDashboardModal() {
   title:
    '<div class="text-lg font-black text-gray-800 uppercase tracking-widest">Dashboard Baru</div>',
   html: `
-            <div class="flex flex-col gap-4 text-left mt-2">
-                <div class="space-y-1.5">
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
-                        Nama Dashboard <span class="text-red-500">*</span>
-                    </label>
-                    <input id="swal-dash-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-bold text-gray-800 outline-none transition-all placeholder-gray-400" placeholder="Contoh: Production Monitoring">
-                </div>
+    <div class="flex flex-col gap-4 text-left mt-2">
+        <div class="space-y-1.5">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
+                Nama Dashboard <span class="text-red-500">*</span>
+            </label>
+            <input id="swal-dash-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-bold text-gray-800 outline-none transition-all placeholder-gray-400" placeholder="Contoh: Production Monitoring">
+        </div>
 
-                <div class="space-y-1.5">
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
-                        Deskripsi Singkat
-                    </label>
-                    <textarea id="swal-dash-desc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400 resize-none" rows="2" placeholder="Jelaskan fungsi dashboard ini..."></textarea>
-                </div>
-            </div>`,
+        <div class="space-y-1.5">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
+                Deskripsi Singkat
+            </label>
+            <textarea id="swal-dash-desc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400 resize-none" rows="2" placeholder="Jelaskan fungsi dashboard ini..."></textarea>
+        </div>
+    </div>`,
   showCancelButton: true,
   confirmButtonColor: '#2563eb',
   cancelButtonColor: '#9ca3af',

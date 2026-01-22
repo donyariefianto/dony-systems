@@ -409,7 +409,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
         </div>
     </div>`
 
-footerHtml = `
+   footerHtml = `
     <div class="flex justify-between items-center px-5 py-3 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500">
         <span>Showing <b class="text-slate-700">1-10</b> of <b class="text-slate-700">142</b></span>
         <div class="flex gap-1">
@@ -453,11 +453,10 @@ footerHtml = `
                         <tr>
                             ${columns
                              .map(
-                              (col) => `
-                                <th class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider ${col.type === 'number' ? 'text-right' : ''}">
+                              (col) =>
+                               `<th class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider ${col.type === 'number' ? 'text-right' : ''}">
                                     ${col.header}
-                                </th>
-                            `
+                                </th>`
                              )
                              .join('')}
                         </tr>
