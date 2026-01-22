@@ -43,7 +43,7 @@ export function getSPEView() {
                     </button>
                     <div class="h-6 w-px bg-slate-200 mx-1"></div>
                     <div>
-                        <h1 class="text-sm font-bold text-slate-900" id="spe-builder-title">New Projection</h1>
+                        <h1 class="text-sm font-bold text-slate-900" id="spe-builder-title"></h1>
                         <p class="text-[10px] text-slate-400 font-mono hidden sm:block">Canvas Mode</p>
                     </div>
                 </div>
@@ -697,7 +697,6 @@ export function initSPEController() {
       .map((f) => `<option value="source.${f.name}">source.${f.name} (${f.type})</option>`)
       .join('')
    }
-
    els.drawerOverlay.classList.remove('hidden')
    setTimeout(() => {
     els.drawerOverlay.classList.remove('opacity-0')
@@ -1062,6 +1061,8 @@ export function initSPEController() {
     els.inputs.targetCol.value = config.engine_collection
     els.inputs.desc.value = config.description
     els.inputs.status.value = config.status
+    document.getElementById('spe-builder-title').textContent =
+     `Edit Projection: ${config.feature_name}`
 
     state.setup = config.trigger
     els.inputs.collection.value = config.trigger.collection
@@ -1148,6 +1149,7 @@ export function initSPEController() {
   },
 
   openBuilder: () => {
+   document.getElementById('spe-builder-title').textContent = `New Projection Engine`
    state.configId = null
    state.rules = []
    Object.values(els.inputs).forEach((el) => {
