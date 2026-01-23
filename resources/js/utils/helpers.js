@@ -4,7 +4,8 @@ import { sha256 } from '@noble/hashes/sha2.js'
 import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils.js'
 import { hexToBytes } from '@noble/hashes/utils.js'
 import { AppState } from '../core/state'
-import { apiFetch } from '../core/api'
+import { renderSidebar } from '../modules/auth.js'
+import { apiFetch } from '../core/api.js'
 
 function getKey() {
  const secret_key = String(AppState.app_key)
@@ -90,8 +91,8 @@ export async function showConfirmDialog({
  title,
  text,
  icon = 'warning',
- confirmText = 'Ya, Lanjutkan',
- cancelText = 'Batal',
+ confirmText = 'Yes, Proceed',
+ cancelText = 'Cancel',
  dangerMode = false,
 }) {
  const primaryColor = dangerMode
@@ -128,12 +129,9 @@ export async function showConfirmDialog({
    popup: 'rounded-3xl shadow-2xl border border-slate-100',
    title: 'text-lg font-black text-slate-800 tracking-tight mb-2',
    icon: 'text-xs',
-
    confirmButton: `rounded-xl px-6 py-3 text-sm font-bold shadow-lg shadow-slate-200/50 text-white transition-all transform active:scale-95 ${primaryColor} outline-none focus:ring-4`,
-
    cancelButton:
     'rounded-xl px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors focus:bg-slate-50 outline-none mr-2',
-
    actions: 'gap-2 mt-4',
   },
 
@@ -141,4 +139,32 @@ export async function showConfirmDialog({
  })
 
  return result.isConfirmed
+}
+
+export async function refreshSidebarMenu() {
+ const btn = document.getElementById('btn-refresh-menu')
+ const icon = btn.querySelector('i')
+ const menuContainer = document.getElementById('menu-container')
+
+ icon.classList.add('fa-spin', 'text-blue-600')
+ btn.disabled = true
+ menuContainer.classList.add('opacity-50', 'pointer-events-none')
+ try {
+  const response = await apiFetch('api/list-menu')
+  let data = await response.json()
+  data = decryptData(data.nonce, data.ciphertext)
+  data = JSON.parse(data)
+  renderSidebar(data.sidemenu)
+  showToast('Menu sidebar diperbarui', 'success')
+ } catch (error) {
+  console.log(error)
+
+  showToast('Gagal memperbarui menu', 'error')
+ } finally {
+  setTimeout(() => {
+   icon.classList.remove('fa-spin', 'text-blue-600')
+   btn.disabled = false
+   menuContainer.classList.remove('opacity-50', 'pointer-events-none')
+  }, 600)
+ }
 }

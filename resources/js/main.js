@@ -1,6 +1,6 @@
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'sweetalert2/dist/sweetalert2.min.css'
-import { initApp } from './modules/auth.js'
+import { initApp, renderSidebar } from './modules/auth.js'
 import { navigate } from './core/router.js'
 import { AppState } from './core/state.js'
 import {
@@ -36,7 +36,13 @@ import {
  triggerIconPickerSettingsDashboard,
 } from './modules/settings_dashboard.js'
 
-import { toggleSidebar, showToast, logout, closeModal } from './utils/helpers.js'
+import {
+ toggleSidebar,
+ showToast,
+ logout,
+ closeModal,
+ refreshSidebarMenu,
+} from './utils/helpers.js'
 
 document.addEventListener('DOMContentLoaded', () => {
  initApp()
@@ -49,6 +55,7 @@ document.addEventListener('submit', async function (e) {
  }
 })
 
+window.refreshSidebarMenu = refreshSidebarMenu
 window.navigate = navigate
 window.toggleSidebar = toggleSidebar
 window.logout = logout

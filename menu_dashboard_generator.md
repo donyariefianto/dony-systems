@@ -8,10 +8,10 @@ Modul ini bertanggung jawab untuk melakukan render komponen visual secara dinami
 
 ## 🚀 Fitur Utama
 
-* **Multi-Category Widgets**: Mendukung *Executive Summary*, *Data Intelligence*, dan *Graphic Charts*.
-* **Hybrid Data Source**: Mendukung data statis untuk *mockup* cepat dan data dinamis dari MongoDB/SPE.
-* **Responsive Grid System**: Layout yang menyesuaikan ukuran layar secara otomatis (Mobile, Tablet, Desktop).
-* **Interactive Tables**: Tabel dengan fitur pencarian Regex, paginasi, dan *sticky header*.
+- **Multi-Category Widgets**: Mendukung _Executive Summary_, _Data Intelligence_, dan _Graphic Charts_.
+- **Hybrid Data Source**: Mendukung data statis untuk _mockup_ cepat dan data dinamis dari MongoDB/SPE.
+- **Responsive Grid System**: Layout yang menyesuaikan ukuran layar secara otomatis (Mobile, Tablet, Desktop).
+- **Interactive Tables**: Tabel dengan fitur pencarian Regex, paginasi, dan _sticky header_.
 
 ## 🛠 Struktur Konfigurasi Widget
 
@@ -19,17 +19,16 @@ Setiap widget didefinisikan dalam objek JSON dengan skema berikut:
 
 ```json
 {
-  "id": "unique_widget_id",
-  "type": "stat | table | chart",
-  "subtype": "stat_card | data_grid | line_smooth",
-  "title": "Widget Display Name",
-  "width": "full | half | quarter",
-  "data_config": {
-    "source": "static | dynamic",
-    "static_data": [] 
-  }
+ "id": "unique_widget_id",
+ "type": "stat | table | chart",
+ "subtype": "stat_card | data_grid | line_smooth",
+ "title": "Widget Display Name",
+ "width": "full | half | quarter",
+ "data_config": {
+  "source": "static | dynamic",
+  "static_data": []
+ }
 }
-
 ```
 
 ## 📂 Kategori Widget (Registry)
@@ -43,15 +42,14 @@ Setiap widget didefinisikan dalam objek JSON dengan skema berikut:
 Untuk merender dashboard, gunakan fungsi `renderDashboard` yang akan melakukan iterasi pada registry:
 
 ```javascript
-import { WidgetRegistry } from './WidgetRegistry.js';
+import { WidgetRegistry } from './WidgetRegistry.js'
 
 // Contoh memanggil render berdasarkan tipe
 if (widget.type === 'stat') {
-    renderStatWidget(widget, container);
+ renderStatWidget(widget, container)
 } else if (widget.type === 'table') {
-    renderTableWidget(widget, container);
+ renderTableWidget(widget, container)
 }
-
 ```
 
 ---
@@ -62,10 +60,10 @@ Modul **Menu Generator** adalah inti dari navigasi sistem yang memungkinkan pemb
 
 ## 🚀 Fitur Utama
 
-* **Dynamic Routing**: Menu yang terhubung langsung dengan sistem navigasi SPA.
-* **Icon Library Integration**: Mendukung penuh **FontAwesome 6** untuk visualisasi menu yang profesional.
-* **Contextual Permissions**: Menampilkan atau menyembunyikan menu berdasarkan peran pengguna (*RBAC*).
-* **Smooth Transitions**: Animasi masuk dan keluar yang elegan pada sidebar.
+- **Dynamic Routing**: Menu yang terhubung langsung dengan sistem navigasi SPA.
+- **Icon Library Integration**: Mendukung penuh **FontAwesome 6** untuk visualisasi menu yang profesional.
+- **Contextual Permissions**: Menampilkan atau menyembunyikan menu berdasarkan peran pengguna (_RBAC_).
+- **Smooth Transitions**: Animasi masuk dan keluar yang elegan pada sidebar.
 
 ## 🏗 Struktur Registri Menu
 
@@ -73,29 +71,28 @@ Menu dikelola melalui file `MenuRegistry.js` untuk memudahkan pemeliharaan:
 
 ```javascript
 export const MenuRegistry = [
-  {
-    id: "m_inventory",
-    name: "Master Inventory",
-    icon: "fa-boxes-stacked",
-    path: "/inventory",
-    category: "Operations"
-  },
-  {
-    id: "m_analytics",
-    name: "Business Intelligence",
-    icon: "fa-chart-pie",
-    path: "/analytics",
-    category: "Reports"
-  }
-];
-
+ {
+  id: 'm_inventory',
+  name: 'Master Inventory',
+  icon: 'fa-boxes-stacked',
+  path: '/inventory',
+  category: 'Operations',
+ },
+ {
+  id: 'm_analytics',
+  name: 'Business Intelligence',
+  icon: 'fa-chart-pie',
+  path: '/analytics',
+  category: 'Reports',
+ },
+]
 ```
 
 ## 🎨 Standar Visual Menu
 
-* **Active State**: Menu yang sedang dibuka akan mendapatkan aksen warna (contoh: `bg-blue-50 text-blue-600`).
-* **Mobile Optimized**: Menu pada perangkat mobile akan berubah menjadi *bottom navigation* atau *hamburger menu* yang *touch-friendly*.
-* **Grouping**: Menu dikelompokkan berdasarkan kategori bisnis (misal: *F&B Ops*, *Finance*, *Settings*).
+- **Active State**: Menu yang sedang dibuka akan mendapatkan aksen warna (contoh: `bg-blue-50 text-blue-600`).
+- **Mobile Optimized**: Menu pada perangkat mobile akan berubah menjadi _bottom navigation_ atau _hamburger menu_ yang _touch-friendly_.
+- **Grouping**: Menu dikelompokkan berdasarkan kategori bisnis (misal: _F&B Ops_, _Finance_, _Settings_).
 
 ## 🛠 Cara Menambahkan Menu Baru
 
@@ -108,11 +105,11 @@ export const MenuRegistry = [
 
 ### Perbandingan Arsitektur
 
-| Fitur | Dashboard Generator | Menu Generator |
-| --- | --- | --- |
+| Fitur            | Dashboard Generator    | Menu Generator           |
+| ---------------- | ---------------------- | ------------------------ |
 | **Output Utama** | Widget, Chart, & Table | Sidebar & Navigation Bar |
-| **Pemicu Data** | SPE / MongoDB Query | User Permissions / Role |
-| **Tampilan** | Grid-based Layout | List / Tree-based Layout |
+| **Pemicu Data**  | SPE / MongoDB Query    | User Permissions / Role  |
+| **Tampilan**     | Grid-based Layout      | List / Tree-based Layout |
 
 ---
 

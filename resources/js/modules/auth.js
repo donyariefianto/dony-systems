@@ -37,10 +37,9 @@ export async function initApp() {
  }
 }
 
-function renderSidebar(menus) {
+export function renderSidebar(menus) {
  const container = document.getElementById('menu-container')
  if (!container) return
-
  container.innerHTML = menus
   .map((menu) => {
    if (menu.sub_sidemenu) {
