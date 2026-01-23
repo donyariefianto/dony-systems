@@ -12,7 +12,7 @@ class IconPickerSystem {
 
  getIconPrefix(iconName) {
   const brandsIcons = ['accessible-icon', 'apple', 'facebook', 'google', 'twitter', 'github']
-  return brandsIcons.some((b) => iconName.includes(b)) ? 'fa-brands' : 'fa-solid'
+  return brandsIcons.some((b) => iconName.includes(b)) ? 'fa-solid fa-brands' : 'fa-solid'
  }
 
  injectModalHtml() {
