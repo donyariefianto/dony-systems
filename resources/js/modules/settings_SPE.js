@@ -6,18 +6,19 @@ export function getSPEView() {
     <div class="h-full bg-slate-50 font-sans text-slate-800 relative overflow-hidden flex flex-col">
         
         <div id="spe-view-list" class="flex flex-col h-full animate-in fade-in slide-in-from-left-4 duration-300">
-             <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-20">
+            <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-20">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-indigo-200/50 shadow-lg">
+                    <div class="w-8 h-8 bg-zinc-600 rounded-lg flex items-center justify-center text-white shadow-zinc-200/50 shadow-lg">
                         <i class="fas fa-cubes text-sm"></i>
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-slate-900 leading-tight">SPE Manager</h1>
-                        <p class="text-[10px] text-slate-500 font-medium">Smart Projection Engine v3.0 (Pro)</p>
+                        <span class="px-1.5 py-px rounded text-[8px] md:text-[9px] font-bold bg-zinc-100 text-zinc-600 border border-zinc-200">Smart Projection Engine v3.0 (Pro)</span>
                     </div>
                 </div>
-                <button" id="spe-create-new" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all flex items-center gap-2">
-                    <i class="fas fa-plus"></i> New Projection
+                <button" id="spe-create-new" 
+                    class="h-8 md:h-9 px-4 md:px-5 bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg md:rounded-xl shadow-md shadow-slate-100 transition-all active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus"></i> Create New Engine
                 </button>
             </header>
 
@@ -48,10 +49,12 @@ export function getSPEView() {
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button id="spe-btn-delete-main" class="px-4 py-2 bg-white border border-red-200 text-red-500 text-xs font-bold rounded-lg hover:bg-red-50 transition-all flex items-center gap-2 hidden">
+                    <button id="spe-btn-delete-main" 
+                    class="h-8 md:h-9 px-3 flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-transparent hover:bg-slate-50 rounded-lg transition-all active:scale-95 hidden">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <button id="spe-btn-save" class="px-5 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-all flex items-center gap-2">
+                    <button id="spe-btn-save" 
+                    class="h-8 md:h-9 px-4 md:px-5 bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg md:rounded-xl shadow-md shadow-slate-100 transition-all active:scale-95 flex items-center gap-2">
                         <i class="fas fa-save"></i> Save Config
                     </button>
                 </div>
@@ -336,8 +339,8 @@ export function initSPEController() {
 
  const state = {
   configId: null,
-  configs: [],
-  pagination: { page: 1, limit: 3, total: 0, lastPage: 1 },
+  configs: null,
+  pagination: { page: 1, limit: 5, total: 0, lastPage: 1 },
   collections: [],
   sourceSchema: [],
   rules: [],
@@ -505,12 +508,10 @@ export function initSPEController() {
 
  const drawerUI = {
   generateDummyFromSchema: (isOld = false) => {
-   // Jika schema tidak ada, kembalikan object kosong
    if (!state.sourceSchema || !state.sourceSchema.length) return {}
 
    const dummy = {}
    state.sourceSchema.forEach((field) => {
-    // Tentukan nilai default berdasarkan tipe data field
     let defaultValue = ''
     const type = (field.type || 'string').toLowerCase()
 
@@ -518,7 +519,7 @@ export function initSPEController() {
      case 'number':
      case 'int':
      case 'float':
-      defaultValue = isOld ? 500 : 1000 // Bedakan nilai old & source untuk testing
+      defaultValue = isOld ? 500 : 1000
       break
      case 'boolean':
       defaultValue = true
@@ -877,7 +878,6 @@ export function initSPEController() {
    document.getElementById('test-input-source').classList.toggle('hidden', !isSrc)
    document.getElementById('test-input-old').classList.toggle('hidden', isSrc)
 
-   // Update styling tab aktif
    const btnSrc = document.getElementById('tab-btn-source')
    const btnOld = document.getElementById('tab-btn-old')
 
@@ -920,14 +920,12 @@ export function initSPEController() {
     const old = oldStr === 'null' ? null : JSON.parse(oldStr)
     const startTime = performance.now()
 
-    // Tampilkan Loading
     outputContainer.innerHTML = `
     <div class="flex flex-col items-center justify-center h-full text-emerald-500">
         <i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i>
         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Executing...</span>
     </div>`
 
-    // Request ke Backend SPE
     const response = await apiFetch('api/test-formula', {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
@@ -939,12 +937,10 @@ export function initSPEController() {
 
     const duration = Math.round(performance.now() - startTime)
 
-    // Tampilkan Indikator Status
     statusIndicator.classList.remove('opacity-0')
     timeText.textContent = `${duration}ms`
 
     if (data.success) {
-     // Tampilan SUKSES
      statusText.textContent = 'SUCCESS'
      statusText.className = 'text-[10px] font-bold text-emerald-700'
      statusIndicator.querySelector('div').className =
@@ -959,7 +955,6 @@ export function initSPEController() {
             <pre class="p-4 bg-slate-900 text-emerald-400 rounded-xl border border-slate-800 font-mono text-xs overflow-auto max-h-[350px] shadow-inner">${JSON.stringify(data.result, null, 2)}</pre>
         </div>`
     } else {
-     // Tampilan GAGAL
      statusText.textContent = 'FAILED'
      statusText.className = 'text-[10px] font-bold text-rose-700'
      statusIndicator.querySelector('div').className =
@@ -992,16 +987,24 @@ export function initSPEController() {
   fetchList: async () => {
    try {
     els.listContainer.innerHTML = `<div class="p-12 text-center text-xs text-slate-400 animate-pulse">Syncing...</div>`
+    let query_search = ''
+    if (els.inputs.search.value) {
+     query_search = JSON.stringify({
+      feature_name: els.inputs.search.value.trim(),
+      description: els.inputs.search.value.trim(),
+      engine_collection: els.inputs.search.value.trim(),
+      status: els.inputs.search.value.trim(),
+     })
+    }
     const params = new URLSearchParams({
      page: state.pagination.page,
-     limit: 10,
-     search: els.inputs.search.value,
+     limit: state.pagination.limit,
+     search: query_search,
     })
     const res = await apiFetch(`api/collections/smart_projection_engine?${params}`)
     const json = await res.json()
     const data = json.ciphertext ? JSON.parse(decryptData(json.nonce, json.ciphertext)) : json
-
-    state.configs = data.data || []
+    state.configs = data || []
     ui.renderList()
    } catch (err) {
     els.listContainer.innerHTML = 'Error loading data.'
@@ -1175,7 +1178,7 @@ export function initSPEController() {
    }
   },
   renderList: () => {
-   if (!state.configs || state.configs.length === 0) {
+   if (!state.configs || state.configs.total === 0) {
     els.listContainer.innerHTML = `
         <div class="text-center py-12 bg-white rounded-xl border border-dashed border-slate-300 animate-in fade-in zoom-in duration-300">
             <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -1190,13 +1193,20 @@ export function initSPEController() {
     document.getElementById('spe-btn-empty-create').onclick = actions.openBuilder
     return
    }
-   els.listContainer.innerHTML = state.configs
+
+   const page = state.pagination.page
+   const limit = state.pagination.limit
+   const totalItems = state.configs.total
+   const totalPages = Math.ceil(totalItems / limit)
+   const startIndex = (page - 1) * limit
+   const endIndex = Math.min(startIndex + limit, totalItems)
+   const paginatedItems = state.configs.data
+   const listHTML = paginatedItems
     .map((conf) => {
      const safeId = conf.id || conf._id
      if (!safeId) console.warn('Item tanpa ID ditemukan:', conf)
      let statusClass = 'bg-slate-100 text-slate-400'
      let statusIcon = 'fa-pause'
-
      if (conf.status === 'active') {
       statusClass = 'bg-emerald-100 text-emerald-600'
       statusIcon = 'fa-bolt'
@@ -1204,7 +1214,6 @@ export function initSPEController() {
       statusClass = 'bg-amber-100 text-amber-600'
       statusIcon = 'fa-pencil-ruler'
      }
-
      const displayName = conf.feature_name || conf.name || 'Untitled Engine'
      const displayColl = conf.trigger?.collection || conf.collection || '-'
      const displayCollTarget = conf.engine_collection || '-'
@@ -1212,7 +1221,7 @@ export function initSPEController() {
      const rulesCount = conf.mapping ? conf.mapping.length : conf.rules_count || 0
 
      return `
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group animate-in fade-in slide-in-from-bottom-2 duration-300 mb-3">
             <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-lg ${statusClass} flex items-center justify-center font-bold text-lg shrink-0 shadow-sm">
                     <i class="fas ${statusIcon}"></i>
@@ -1221,7 +1230,7 @@ export function initSPEController() {
                 <div>
                     <h3 class="text-sm font-bold text-slate-800 tracking-tight">${displayName}</h3>
                     <div class="flex flex-wrap items-center gap-2 sm:gap-3 mt-1.5 text-[10px] text-slate-500 font-medium uppercase tracking-wide">
-                        <span class="flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 truncate max-w-[140px]" title="Collection: ${displayCollTarget}">
+                        <span class="flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 truncate max-w-[140px]" title="Target: ${displayCollTarget}">
                             <i class="fas fa-database text-indigo-400"></i> ${displayCollTarget}
                         </span>
                         <span class="flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -1238,18 +1247,65 @@ export function initSPEController() {
             </div>
             
             <div class="flex items-center gap-2 pl-14 sm:pl-0">
-                <button class="btn-edit w-8 h-8 flex items-center justify-center text-slate-400 hover:text-yellow-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100 active:scale-95" onclick="document.dispatchEvent(new CustomEvent('spe:edit', {detail: '${conf.id || conf._id}'}))" data-id="${safeId}">
-                    <i class="fas fa-edit pointer-events-none"></i> <span class="hidden sm:inline pointer-events-none"></span>
+                <button class="btn-edit w-8 h-8 flex items-center justify-center text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded-lg transition-all border border-transparent hover:border-yellow-100 active:scale-95" onclick="document.dispatchEvent(new CustomEvent('spe:edit', {detail: '${safeId}'}))">
+                    <i class="fas fa-edit pointer-events-none"></i>
                 </button>
                 
-                <button class="btn-delete w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100 active:scale-95" data-id="${safeId}" onclick="document.dispatchEvent(new CustomEvent('spe:delete', {detail: '${conf.id || conf._id}'}))" title="Hapus">
+                <button class="btn-delete w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100 active:scale-95" onclick="document.dispatchEvent(new CustomEvent('spe:delete', {detail: '${safeId}'}))">
                     <i class="fas fa-trash-alt pointer-events-none"></i>
                 </button>
             </div>
-        </div>
-        `
+        </div>`
     })
     .join('')
+
+   const paginationHTML =
+    totalItems > limit
+     ? `
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t border-slate-100 text-xs font-medium text-slate-500">
+        <div class="order-2 sm:order-1">
+            Showing <span class="font-bold text-slate-800">${startIndex + 1}</span> to <span class="font-bold text-slate-800">${endIndex}</span> of <span class="font-bold text-slate-800">${totalItems}</span> results
+        </div>
+        <div class="flex items-center gap-2 order-1 sm:order-2">
+            <button id="spe-page-prev" ${page === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm">
+                <i class="fas fa-chevron-left text-[10px]"></i> Prev
+            </button>
+            
+            <div class="px-2 font-bold text-slate-700">
+                Page ${page} / ${totalPages}
+            </div>
+
+            <button id="spe-page-next" ${page === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-sm">
+                Next <i class="fas fa-chevron-right text-[10px]"></i>
+            </button>
+        </div>
+    </div>`
+     : ''
+
+   els.listContainer.innerHTML = listHTML + paginationHTML
+
+   if (totalItems > limit) {
+    const btnPrev = document.getElementById('spe-page-prev')
+    const btnNext = document.getElementById('spe-page-next')
+
+    if (btnPrev) {
+     btnPrev.onclick = () => {
+      if (state.pagination.page > 1) {
+       state.pagination.page--
+       actions.fetchList()
+      }
+     }
+    }
+
+    if (btnNext) {
+     btnNext.onclick = () => {
+      if (state.pagination.page < totalPages) {
+       state.pagination.page++
+       actions.fetchList()
+      }
+     }
+    }
+   }
   },
  }
 
@@ -1267,7 +1323,6 @@ export function initSPEController() {
  els.prop.btnDelete.onclick = drawerUI.delete
  els.prop.btnClose.onclick = drawerUI.close
  els.drawerOverlay.onclick = drawerUI.close
-
  els.btnSave.onclick = actions.saveConfig
  els.btnEmptyAndCreate.onclick = actions.openBuilder
  els.btnTestFormula.addEventListener('click', function (event) {

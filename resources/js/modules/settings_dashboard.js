@@ -191,20 +191,38 @@ function dragElement(elmnt) {
 function renderEditorPanel() {
  return `
         <div id="panel-editor" class="w-full flex-1 flex-col bg-gray-100/50 h-full hidden lg:flex relative z-10 min-w-0">
-            <div class="h-12 bg-white border-b border-gray-200 flex justify-between items-center px-4 shadow-[0_2px_4px_rgba(0,0,0,0.02)] z-30 shrink-0">
+            <header class="h-12 md:h-14 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 md:px-5 flex items-center justify-between shrink-0 z-30 sticky top-0 transition-all">
+    
                 <div class="flex items-center gap-3 min-w-0">
-                    <h2 id="editing-dashboard-name" class="text-xs font-black text-gray-800 uppercase tracking-wide truncate max-w-[200px]">Select Dashboard</h2>
-                    <div class="h-4 w-px bg-gray-300"></div>
+                    <div class="w-8 h-8 md:w-9 md:h-9 bg-slate-900 rounded-lg flex items-center justify-center text-white shrink-0 shadow-sm shadow-slate-100">
+                        <i class="fas fa-chart-pie text-xs md:text-sm"></i>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] hidden lg:block shrink-0">Editor</span>
+                        <div class="h-3 w-px bg-slate-200 hidden lg:block"></div>
+                        <h1 id="editing-dashboard-name" class="text-sm md:text-base font-bold text-slate-800 tracking-tight truncate">
+                            Select Dashboard
+                        </h1>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="previewConfig()" class="h-7 px-3 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase hover:bg-gray-50 hover:text-gray-900 transition-colors">
-                        <i class="fas fa-code mr-1"></i> JSON
+
+                <div class="flex items-center gap-1.5 md:gap-2">
+                    <button onclick="previewConfig()" 
+                        class="h-8 md:h-9 px-3 flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-transparent hover:bg-slate-50 rounded-lg transition-all active:scale-95">
+                        <i class="fas fa-code text-[10px] opacity-60"></i> 
+                        <span class="hidden sm:inline uppercase tracking-widest">JSON</span>
                     </button>
-                    <button onclick="saveDashboardBuilder()" class="h-7 px-4 bg-gray-900 text-white rounded text-[10px] font-bold uppercase hover:bg-black shadow-md flex items-center gap-2 transition-transform active:scale-95">
-                        <i class="fas fa-save"></i> Save
+
+                    <div class="w-px h-4 bg-slate-100 mx-1"></div>
+
+                    <button onclick="saveDashboardBuilder()" 
+                        class="h-8 md:h-9 px-4 md:px-5 bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg md:rounded-xl shadow-md shadow-slate-100 transition-all active:scale-95 flex items-center gap-2">
+                        <i class="fas fa-cloud-upload-alt text-[10px]"></i> 
+                        <span>Save</span>
                     </button>
                 </div>
-            </div>
+            </header>
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 relative" 
                  style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px; background-color: #f8fafc;">
@@ -275,28 +293,28 @@ function renderMobileNavigation() {
 
 function renderWidgetConfigModal() {
  return `
-        <div id="widget-config-modal" class="fixed top-24 right-4 md:right-8 lg:right-10 z-[100] w-[90vw] md:w-[380px] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[80vh] transition-all duration-200 animate-in fade-in zoom-in-95">
-            
-            <div id="widget-config-header" class="h-12 border-b border-gray-100 flex justify-between items-center px-5 bg-gray-50 rounded-t-2xl shrink-0 cursor-move select-none group">
-                <div class="flex items-center gap-2 pointer-events-none">
-                    <div class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
-                        <i class="fas fa-sliders-h text-[10px]"></i>
-                    </div>
-                    <h3 class="font-bold text-gray-700 text-xs uppercase tracking-widest group-hover:text-blue-600 transition-colors">Properties</h3>
+    <div id="widget-config-modal" class="fixed top-24 right-4 md:right-8 lg:right-10 z-[100] w-[90vw] md:w-[380px] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[80vh] transition-all duration-200 animate-in fade-in zoom-in-95">
+        
+        <div id="widget-config-header" class="h-12 border-b border-gray-100 flex justify-between items-center px-5 bg-gray-50 rounded-t-2xl shrink-0 cursor-move select-none group">
+            <div class="flex items-center gap-2 pointer-events-none">
+                <div class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center">
+                    <i class="fas fa-sliders-h text-[10px]"></i>
                 </div>
-                <button onclick="closeWidgetConfigModal()" class="w-7 h-7 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
+                <h3 class="font-bold text-gray-700 text-xs uppercase tracking-widest group-hover:text-blue-600 transition-colors">Properties</h3>
             </div>
-            
-            <div id="widget-config-form" class="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-white"></div>
-            
-            <div class="p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))] lg:pb-5">
-                <button onclick="applyWidgetChanges()" class="w-full py-2.5 bg-gray-900 hover:bg-black text-white rounded-lg font-bold uppercase text-[10px] tracking-widest shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
-                    <i class="fas fa-check-circle"></i> Apply Changes
-                </button>
-            </div>
+            <button onclick="closeWidgetConfigModal()" class="w-7 h-7 rounded-full bg-white border border-gray-100 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm">
+                <i class="fas fa-times text-xs"></i>
+            </button>
         </div>
+        
+        <div id="widget-config-form" class="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar bg-white"></div>
+        
+        <div class="p-5 border-t border-gray-100 bg-gray-50 rounded-b-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))] lg:pb-5">
+            <button onclick="applyWidgetChanges()" class="w-full py-2.5 bg-gray-900 hover:bg-black text-white rounded-lg font-bold uppercase text-[10px] tracking-widest shadow-lg active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+                <i class="fas fa-check-circle"></i> Apply Changes
+            </button>
+        </div>
+    </div>
     `
 }
 

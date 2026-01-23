@@ -42,10 +42,13 @@ import {
  logout,
  closeModal,
  refreshSidebarMenu,
+ toggleTheme,
+ initTheme
 } from './utils/helpers.js'
 
 document.addEventListener('DOMContentLoaded', () => {
  initApp()
+ initTheme()
 })
 
 document.addEventListener('submit', async function (e) {
@@ -55,6 +58,7 @@ document.addEventListener('submit', async function (e) {
  }
 })
 
+window.toggleTheme = toggleTheme
 window.refreshSidebarMenu = refreshSidebarMenu
 window.navigate = navigate
 window.toggleSidebar = toggleSidebar

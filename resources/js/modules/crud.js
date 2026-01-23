@@ -27,7 +27,7 @@ const DropdownManager = {
   wrapper.innerHTML = `
     <div class="relative group w-full" id="wrap_${uniqueId}">
         <button type="button" onclick="DropdownManager.toggle('${uniqueId}')" 
-            class="w-full text-left bg-white border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-all text-xs font-medium flex justify-between items-center h-[38px]">
+            class="w-full text-left bg-white border border-gray-200 text-gray-700 py-2 px-3 rounded-lg focus:outline-none focus:border-zinc-500 transition-all text-xs font-medium flex justify-between items-center h-[38px]">
             <span id="label_${uniqueId}" class="truncate block w-full text-gray-400 select-none">-- Pilih --</span>
             <i class="fas fa-chevron-down text-gray-400 text-[10px]"></i>
         </button>
@@ -36,7 +36,7 @@ const DropdownManager = {
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
                     <input type="text" oninput="DropdownManager.handleSearch('${uniqueId}', this.value)" 
-                        class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-500" placeholder="Cari...">
+                        class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none focus:border-zinc-500" placeholder="Cari...">
                 </div>
             </div>
             <ul id="ul_${uniqueId}" onscroll="DropdownManager.handleScroll('${uniqueId}')" class="max-h-48 overflow-y-auto custom-scrollbar p-1 space-y-0.5">
@@ -112,7 +112,7 @@ const DropdownManager = {
      const val = item[state.keyField]
      const label = item[state.displayField] || '-'
      window.labelCache[`${state.collection}_${val}`] = label
-     return `<li onclick="DropdownManager.select('${uid}', '${val}', '${label.replace(/'/g, "\\'")}')" class="px-3 py-2 hover:bg-blue-50 text-gray-700 text-xs rounded cursor-pointer transition-colors flex justify-between items-center"><span class="truncate">${label}</span>${String(state.initialValue) === String(val) ? '<i class="fas fa-check text-blue-600"></i>' : ''}</li>`
+     return `<li onclick="DropdownManager.select('${uid}', '${val}', '${label.replace(/'/g, "\\'")}')" class="px-3 py-2 hover:bg-zinc-50 text-gray-700 text-xs rounded cursor-pointer transition-colors flex justify-between items-center"><span class="truncate">${label}</span>${String(state.initialValue) === String(val) ? '<i class="fas fa-check text-zinc-600"></i>' : ''}</li>`
     })
     .join('') +
    (state.hasMore
@@ -192,10 +192,10 @@ export function renderTableView(config, container) {
             <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                 <div class="relative group w-full md:w-[340px] transition-all duration-300 z-50">
                     
-                    <div class="flex items-center bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-300 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all">
-                        <button id="search-filter-btn" onclick="window.toggleSearchFilter()" class="pl-3 pr-2 py-2.5 flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors cursor-pointer outline-none border-r border-transparent hover:bg-slate-50 rounded-l-xl group/btn">
+                    <div class="flex items-center bg-white border border-slate-200 rounded-xl shadow-sm hover:border-zinc-300 focus-within:border-zinc-500 focus-within:ring-4 focus-within:ring-zinc-500/10 transition-all">
+                        <button id="search-filter-btn" onclick="window.toggleSearchFilter()" class="pl-3 pr-2 py-2.5 flex items-center gap-1.5 text-slate-500 hover:text-zinc-600 transition-colors cursor-pointer outline-none border-r border-transparent hover:bg-slate-50 rounded-l-xl group/btn">
                             <i class="fas fa-sliders-h text-xs"></i>
-                            <div id="filter-active-dot" class="${AppState.searchFields && AppState.searchFields.length > 0 ? '' : 'hidden'} w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-sm shadow-blue-500/50"></div>
+                            <div id="filter-active-dot" class="${AppState.searchFields && AppState.searchFields.length > 0 ? '' : 'hidden'} w-1.5 h-1.5 rounded-full bg-zinc-500 animate-pulse shadow-sm shadow-zinc-500/50"></div>
                             <i class="fas fa-chevron-down text-[8px] opacity-50 ml-0.5 group-hover/btn:translate-y-0.5 transition-transform"></i>
                         </button>
                         <div class="w-px h-5 bg-slate-200 mx-1"></div>
@@ -218,13 +218,13 @@ export function renderTableView(config, container) {
 
                               return `
                                 <div class="search-option-item cursor-pointer px-3 py-2.5 rounded-xl hover:bg-slate-50 flex items-center justify-between text-xs font-medium text-slate-600 transition-all group/item select-none 
-                                     ${isSelected ? 'bg-blue-50/50 text-blue-700' : ''}" 
+                                     ${isSelected ? 'bg-zinc-50/50 text-zinc-700' : ''}" 
                                      data-field="${f.name}" 
                                      onclick="window.toggleSearchField('${f.name}')">
                                     
                                     <div class="flex items-center gap-2.5">
                                         <div class="checkbox-box w-4 h-4 rounded border 
-                                            ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-300 bg-white group-hover/item:border-blue-400'} 
+                                            ${isSelected ? 'bg-zinc-500 border-zinc-500' : 'border-slate-300 bg-white group-hover/item:border-zinc-400'} 
                                             flex items-center justify-center transition-colors">
                                             <i class="fas fa-check text-white text-[8px] ${isSelected ? '' : 'hidden'}"></i>
                                         </div>
@@ -245,8 +245,8 @@ export function renderTableView(config, container) {
                     </div>
                 </div>
 
-                <button onclick="window.refreshTable()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
-                    <i id="refresh-icon" class="fas fa-sync-alt text-slate-400 group-hover:text-blue-500 transition-colors"></i>
+                <button onclick="window.refreshTable()" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-zinc-600 hover:border-zinc-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
+                    <i id="refresh-icon" class="fas fa-sync-alt text-slate-400 group-hover:text-zinc-500 transition-colors"></i>
                 </button>
                 <button onclick="window.dropCollections('${collectionName}')" class="w-full sm:w-auto px-4 py-2.5 bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-300 rounded-xl text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 group active:scale-95">
                     <i id="drop-collections" class="fas fa-trash text-slate-400 group-hover:text-pink-500 transition-colors"></i>
@@ -279,8 +279,8 @@ export function renderTableView(config, container) {
             </div>
             <div id="table-data-body-mobile" class="md:hidden flex-1 overflow-y-auto p-4 space-y-4 pb-24 bg-slate-50"></div>
             <div id="loading-state" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex-col items-center justify-center">
-                <div class="w-10 h-10 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-3 shadow-lg"></div>
-                <span class="text-xs font-bold text-slate-500 uppercase animate-pulse">Memuat Data...</span>
+                <div class="w-10 h-10 border-4 border-slate-200 border-t-zinc-600 rounded-full animate-spin mb-3 shadow-lg"></div>
+                <span class="text-xs font-bold text-slate-500 uppercase animate-pulse">Loading ...</span>
             </div>
         </div>
         <div id="pagination-container" class="shrink-0 bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]"></div>
@@ -311,7 +311,7 @@ export function renderTableView(config, container) {
 
  setTimeout(() => {
   if (typeof renderSearchUI === 'function') renderSearchUI()
- }, 0)
+ }, 100)
 }
 
 export async function fetchTableData() {
@@ -379,8 +379,8 @@ export async function fetchTableData() {
    desktopBody.innerHTML = data
     .map(
      (item, idx) => `
-        <tr class="group hover:bg-blue-50/30 transition-colors border-b border-slate-100 last:border-0">
-            <td class="p-4 text-center text-xs font-mono text-slate-400 group-hover:text-blue-500">
+        <tr class="group hover:bg-zinc-50/30 transition-colors border-b border-slate-100 last:border-0">
+            <td class="p-4 text-center text-xs font-mono text-slate-400 group-hover:text-zinc-500">
                 ${(AppState.currentPage - 1) * AppState.pageSize + (idx + 1)}
             </td>
             
@@ -437,9 +437,9 @@ export async function fetchTableData() {
              })
              .join('')}
 
-            <td class="p-3 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-blue-50/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.03)] border-b border-slate-100 z-10">
+            <td class="p-3 text-right whitespace-nowrap sticky right-0 bg-white group-hover:bg-zinc-50/30 transition-colors shadow-[-10px_0_15px_-3px_rgba(0,0,0,0.03)] border-b border-slate-100 z-10">
                 <div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="editData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-all"><i class="fas fa-pen text-xs"></i></button>
+                    <button onclick="editData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-zinc-600 hover:bg-zinc-50 border border-transparent hover:border-zinc-200 transition-all"><i class="fas fa-pen text-xs"></i></button>
                     <button onclick="deleteData('${item._id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all"><i class="fas fa-trash-alt text-xs"></i></button>
                 </div>
             </td>
@@ -459,7 +459,7 @@ export async function fetchTableData() {
                             <h4 class="font-bold text-slate-800 text-sm line-clamp-1">${item[displayFields[0].name] || 'Item Data'}</h4>
                         </div>
                         <div class="flex gap-1">
-                            <button onclick="editData('${item._id}')" class="p-1.5 text-blue-600 bg-blue-50 rounded"><i class="fas fa-pen text-[10px]"></i></button>
+                            <button onclick="editData('${item._id}')" class="p-1.5 text-zinc-600 bg-zinc-50 rounded"><i class="fas fa-pen text-[10px]"></i></button>
                             <button onclick="deleteData('${item._id}')" class="p-1.5 text-red-500 bg-red-50 rounded"><i class="fas fa-trash text-[10px]"></i></button>
                         </div>
                     </div>
@@ -492,7 +492,7 @@ export async function fetchTableData() {
   }
  } catch (err) {
   console.error(err)
-  desktopBody.innerHTML = `<tr><td colspan="100%" class="p-8 text-center text-red-500 text-sm">Gagal memuat data.</td></tr>`
+  desktopBody.innerHTML = `<tr><td colspan="100%" class="p-8 text-center text-red-500 text-sm">Load data failed.</td></tr>`
  } finally {
   if (loadingOverlay) {
    setTimeout(() => {
@@ -524,7 +524,7 @@ export async function openCrudModal(existingData = null) {
  }
 
  modal.classList.remove('hidden')
- form.innerHTML = `<div class="flex-1 flex items-center justify-center"><div class="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div></div>`
+ form.innerHTML = `<div class="flex-1 flex items-center justify-center"><div class="w-8 h-8 border-4 border-gray-200 border-t-zinc-600 rounded-full animate-spin"></div></div>`
  setTimeout(() => {
   backdrop.classList.remove('opacity-0')
   panel.classList.remove('translate-y-full', 'md:translate-x-full')
@@ -539,7 +539,7 @@ export async function openCrudModal(existingData = null) {
   const renderedFields = fields.map((field) => {
    let val = existingData ? existingData[field.name] : field.defaultValue || ''
    const isReadOnly = field.ui?.readonly ? 'readonly' : ''
-   const baseClass = `w-full px-4 py-3 bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium outline-none ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`
+   const baseClass = `w-full px-4 py-3 bg-white border border-gray-200 focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 rounded-xl text-sm font-medium outline-none ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`
    const labelHtml = `<label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>`
 
    if (field.type === 'icon') {
@@ -559,10 +559,10 @@ export async function openCrudModal(existingData = null) {
                            value="${value}"
                            readonly
                            onclick="triggerIconPicker('${field.name}')"
-                           class="${baseClass} pl-4 pr-9 cursor-pointer hover:bg-white hover:border-blue-400 hover:ring-4 hover:ring-blue-500/10 transition-all placeholder:font-normal"
+                           class="${baseClass} pl-4 pr-9 cursor-pointer hover:bg-white hover:border-zinc-400 hover:ring-4 hover:ring-zinc-500/10 transition-all placeholder:font-normal"
                            placeholder="Pilih ikon widget...">
                     
-                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-blue-500 transition-colors">
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-zinc-500 transition-colors">
                         <i class="fas fa-search text-xs"></i>
                     </div>
                 </div>
@@ -620,7 +620,7 @@ export async function openCrudModal(existingData = null) {
     window.formDynamicState[field.name] = initialData
     setTimeout(() => window.renderRepeater(field.name), 0)
 
-    return `<div class="col-span-full space-y-2 mt-2">${labelHtml}<div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-3 md:p-4"><div class="overflow-x-auto custom-scrollbar rounded-lg border border-gray-200 bg-white"><table class="w-full text-left border-collapse min-w-[600px]"><thead class="bg-gray-100 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200"><tr><th class="w-10 text-center bg-gray-50 p-2">#</th>${subFields.map((sf) => `<th class="p-3 whitespace-nowrap min-w-[150px]">${sf.label}</th>`).join('')}<th class="w-10 text-center bg-gray-50"></th></tr></thead><tbody id="repeater_${field.name}_body"></tbody></table></div><button type="button" onclick="window.addRepeaterItem('${field.name}')" class="mt-3 w-full py-2 bg-white border border-dashed border-gray-300 text-gray-500 hover:text-blue-600 rounded-lg text-xs font-bold flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Tambah Baris</button></div><input type="hidden" name="${field.name}"></div>`
+    return `<div class="col-span-full space-y-2 mt-2">${labelHtml}<div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-3 md:p-4"><div class="overflow-x-auto custom-scrollbar rounded-lg border border-gray-200 bg-white"><table class="w-full text-left border-collapse min-w-[600px]"><thead class="bg-gray-100 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200"><tr><th class="w-10 text-center bg-gray-50 p-2">#</th>${subFields.map((sf) => `<th class="p-3 whitespace-nowrap min-w-[150px]">${sf.label}</th>`).join('')}<th class="w-10 text-center bg-gray-50"></th></tr></thead><tbody id="repeater_${field.name}_body"></tbody></table></div><button type="button" onclick="window.addRepeaterItem('${field.name}')" class="mt-3 w-full py-2 bg-white border border-dashed border-gray-300 text-gray-500 hover:text-zinc-600 rounded-lg text-xs font-bold flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Tambah Baris</button></div><input type="hidden" name="${field.name}"></div>`
    }
 
    if (field.type === 'select') {
@@ -645,7 +645,7 @@ export async function openCrudModal(existingData = null) {
 
   form.innerHTML = `
     <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar bg-gray-50/30"><div class="grid grid-cols-1 md:grid-cols-2 gap-5">${renderedFields.join('')}</div></div>
-    <div class="p-5 border-t border-gray-100 bg-white shrink-0 flex gap-3"><button type="button" onclick="window.closeModal()" class="flex-1 py-3 bg-white border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-xs hover:bg-gray-50">Cancel</button><button type="submit" class="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold uppercase text-xs flex items-center justify-center gap-2"><i class="fas fa-save"></i> Save</button></div>`
+    <div class="p-5 border-t border-gray-100 bg-white shrink-0 flex gap-3"><button type="button" onclick="window.closeModal()" class="flex-1 py-3 bg-white border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-xs hover:bg-gray-50">Cancel</button><button type="submit" class="flex-[2] py-3 bg-zinc-600 hover:bg-zinc-700 text-white rounded-xl font-bold uppercase text-xs flex items-center justify-center gap-2"><i class="fas fa-save"></i> Save</button></div>`
  } catch (err) {
   console.error(err)
   form.innerHTML = `<div class="flex-1 flex items-center justify-center text-red-500 font-bold text-xs">Error loading form</div>`
@@ -872,7 +872,7 @@ function getDynamicBadgeColor(text) {
  }
 
  const palettes = [
-  'bg-blue-50 text-blue-700 border-blue-100',
+  'bg-zinc-50 text-zinc-700 border-zinc-100',
   'bg-emerald-50 text-emerald-700 border-emerald-100',
   'bg-purple-50 text-purple-700 border-purple-100',
   'bg-amber-50 text-amber-700 border-amber-100',
@@ -929,13 +929,13 @@ window.resetSearchFilter = function () {
  if (dropdown) {
   const options = dropdown.querySelectorAll('.search-option-item')
   options.forEach((el) => {
-   el.classList.remove('bg-blue-50/50', 'text-blue-700')
+   el.classList.remove('bg-zinc-50/50', 'text-zinc-700')
    el.classList.add('text-slate-600')
 
    const box = el.querySelector('.checkbox-box')
    if (box) {
-    box.classList.remove('bg-blue-500', 'border-blue-500')
-    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+    box.classList.remove('bg-zinc-500', 'border-zinc-500')
+    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-zinc-400')
 
     const icon = box.querySelector('i')
     if (icon) icon.classList.add('hidden')
@@ -966,14 +966,14 @@ window.renderSearchUI = function () {
    const icon = box.querySelector('i')
 
    if (isSelected) {
-    el.classList.add('bg-blue-50/50', 'text-blue-700')
-    box.classList.remove('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
-    box.classList.add('bg-blue-500', 'border-blue-500')
+    el.classList.add('bg-zinc-50/50', 'text-zinc-700')
+    box.classList.remove('border-slate-300', 'bg-white', 'group-hover/item:border-zinc-400')
+    box.classList.add('bg-zinc-500', 'border-zinc-500')
     icon.classList.remove('hidden')
    } else {
-    el.classList.remove('bg-blue-50/50', 'text-blue-700')
-    box.classList.remove('bg-blue-500', 'border-blue-500')
-    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+    el.classList.remove('bg-zinc-50/50', 'text-zinc-700')
+    box.classList.remove('bg-zinc-500', 'border-zinc-500')
+    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-zinc-400')
     icon.classList.add('hidden')
    }
   })
@@ -995,7 +995,7 @@ window.toggleSearchField = function (fieldName) {
   current.splice(idx, 1)
  } else {
   if (current.length >= 3) {
-   showToast('Maksimal 3 kolom pencarian', 'warning')
+   showToast('3 Fields Max', 'warning')
    return
   }
   current.push(fieldName)
@@ -1028,19 +1028,19 @@ window.renderSearchUI = function () {
    const icon = box.querySelector('i')
 
    if (isSelected) {
-    el.classList.add('bg-blue-50/50', 'text-blue-700')
+    el.classList.add('bg-zinc-50/50', 'text-zinc-700')
     el.classList.remove('text-slate-600')
 
-    box.classList.remove('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
-    box.classList.add('bg-blue-500', 'border-blue-500')
+    box.classList.remove('border-slate-300', 'bg-white', 'group-hover/item:border-zinc-400')
+    box.classList.add('bg-zinc-500', 'border-zinc-500')
 
     icon.classList.remove('hidden')
    } else {
-    el.classList.remove('bg-blue-50/50', 'text-blue-700')
+    el.classList.remove('bg-zinc-50/50', 'text-zinc-700')
     el.classList.add('text-slate-600')
 
-    box.classList.remove('bg-blue-500', 'border-blue-500')
-    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-blue-400')
+    box.classList.remove('bg-zinc-500', 'border-zinc-500')
+    box.classList.add('border-slate-300', 'bg-white', 'group-hover/item:border-zinc-400')
 
     icon.classList.add('hidden')
    }
@@ -1080,7 +1080,7 @@ window.renderRepeater = function (fieldName) {
  tbody.innerHTML = data
   .map(
    (item, idx) => `
-        <tr class="border-b border-gray-50 text-xs hover:bg-blue-50/20 transition-colors group">
+        <tr class="border-b border-gray-50 text-xs hover:bg-zinc-50/20 transition-colors group">
             <td class="p-2 text-center text-gray-400 font-mono">${idx + 1}</td>
             ${schema
              .map((col) => {
@@ -1102,7 +1102,7 @@ window.renderRepeater = function (fieldName) {
     <td class="p-2">
         <input type="datetime-local" step="1" value="${dateVal}" 
             onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" 
-            class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none text-xs" 
+            class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-zinc-500 outline-none text-xs" 
             ${isReadOnly}>
     </td>`
               }
@@ -1117,7 +1117,7 @@ window.renderRepeater = function (fieldName) {
               const type = col.type === 'currency' || col.type === 'number' ? 'number' : 'text'
               if (col.type === 'currency' && col.ui?.readonly)
                return `<td class="p-2"><div class="px-2 py-1.5 bg-gray-50 border border-transparent rounded text-right font-mono text-gray-600">Rp ${(Number(cellVal) || 0).toLocaleString('id-ID')}</div></td>`
-              return `<td class="p-2"><input type="${type}" value="${cellVal}" onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-blue-500 outline-none ${col.type === 'currency' ? 'text-right font-mono' : ''}" ${isReadOnly}></td>`
+              return `<td class="p-2"><input type="${type}" value="${cellVal}" onchange="window.handleRepeaterInputChange(this, '${fieldName}', ${idx}, '${col.name}')" class="w-full border border-gray-200 rounded px-2 py-1.5 focus:border-zinc-500 outline-none ${col.type === 'currency' ? 'text-right font-mono' : ''}" ${isReadOnly}></td>`
              })
              .join('')}
             <td class="p-2 text-center align-middle">
@@ -1299,7 +1299,7 @@ window.triggerIconPicker = async (fieldName) => {
   const previewEl = document.getElementById(`preview-${fieldName}`)
   if (previewEl) {
    previewEl.innerHTML = `<i class="${selectedIcon}"></i>`
-   previewEl.classList.add('bg-blue-50', 'border-blue-200')
+   previewEl.classList.add('bg-zinc-50', 'border-zinc-200')
   }
  })
 }

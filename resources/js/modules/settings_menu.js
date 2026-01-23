@@ -201,46 +201,53 @@ export function renderSideMenuTab(settings) {
   }
  }, 100)
  return `
-        <div class="w-full h-[calc(100vh-100px)] flex flex-col gap-4 relative overflow-hidden">
+        <div class="w-full h-[calc(100vh-100px)] flex flex-col gap-2 relative overflow-hidden">
             
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex justify-between items-center shrink-0 z-10">
-                <div>
-                    <h2 class="text-base lg:text-lg font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-sitemap text-blue-600"></i>
-                        Menu Builder
-                    </h2>
+            <header class="h-14 md:h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 md:px-6 flex items-center justify-between shrink-0 z-30 sticky top-0 transition-all">
+    
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-zinc-50 rounded-lg md:rounded-xl flex items-center justify-center text-zinc-600 shrink-0 ring-1 ring-zinc-100 shadow-sm">
+                        <i class="fas fa-sitemap text-sm md:text-lg"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h1 class="text-sm md:text-base font-bold text-slate-800 tracking-tight leading-none truncate">Menu Builder</h1>
+                        <p class="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-wider hidden sm:block">Structure Configuration</p>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2.5">
+
+                <div class="flex items-center gap-1.5 md:gap-2">
+                    
                     <button onclick="window.resetMenuBuilder()" 
-                        class="group h-10 w-10 lg:w-auto lg:px-4 flex items-center justify-center gap-2 text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-xl transition-all duration-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700 active:scale-95 shadow-sm">
-                        <i class="fas fa-undo transition-transform group-hover:-rotate-45"></i> 
-                        <span class="hidden lg:inline tracking-wide uppercase">Reset</span>
+                        class="h-8 md:h-9 px-3 flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-transparent hover:bg-slate-50 rounded-lg transition-all active:scale-95">
+                        <i class="fas fa-undo text-[10px] opacity-60"></i> 
+                        <span class="hidden lg:inline uppercase tracking-wide">Reset</span>
                     </button>
 
                     <button onclick="window.exportMenuJSON()" 
-                        class="group h-10 w-10 lg:w-auto lg:px-4 flex items-center justify-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50/50 border border-emerald-100 rounded-xl transition-all duration-200 hover:bg-emerald-50 hover:border-emerald-200 active:scale-95 shadow-sm">
-                        <i class="fas fa-code transition-transform group-hover:scale-110"></i> 
-                        <span class="hidden lg:inline tracking-wide uppercase">JSON</span>
+                        class="h-8 md:h-9 px-3 flex items-center gap-2 text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-transparent hover:bg-slate-50 rounded-lg transition-all active:scale-95">
+                        <i class="fas fa-code text-[10px] opacity-60"></i> 
+                        <span class="hidden sm:inline uppercase tracking-widest">JSON</span>
                     </button>
 
                     <button onclick="saveMenuSettings()" 
-                        class="group h-10 w-10 lg:w-auto lg:px-5 flex items-center justify-center gap-2 text-xs font-bold text-white bg-blue-600 rounded-xl transition-all duration-200 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 -translate-y-[1px] active:translate-y-0 active:scale-95 shadow-md shadow-blue-100">
-                        <i class="fas fa-save transition-transform group-hover:scale-110"></i> 
-                        <span class="hidden lg:inline tracking-wide uppercase">Save Changes</span>
+                        class="h-8 md:h-9 px-4 md:px-5 bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg md:rounded-xl shadow-md shadow-slate-100 transition-all active:scale-95 flex items-center gap-2">
+                        <i class="fas fa-cloud-upload-alt text-[10px]"></i> 
+                        <span>Save</span>
                     </button>
                 </div>
-            </div>
+            </header>
 
-            <div class="flex-1 flex lg:gap-4 min-h-0 relative">
+            <div class="flex-1 flex lg:gap-4 min-h-0 relative p-2">
                 
                 <div class="w-full lg:w-1/2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
                     <div class="p-3 border-b border-gray-100 bg-gray-50 rounded-t-xl flex justify-between items-center">
                         <h3 class="font-bold text-gray-700 text-sm">Structure</h3>
                         <div class="flex gap-2">
-                            <button onclick="window.addTemplateItem('tableview', 'Table', 'fas fa-table')" class="text-[10px] font-bold bg-white text-gray-600 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-300 hover:text-blue-600 shadow-sm flex items-center gap-1 transition-all active:scale-95">
+                            <button onclick="window.addTemplateItem('tableview', 'Table', 'fas fa-table')" class="text-[10px] font-bold bg-white text-gray-600 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-zinc-300 hover:text-zinc-600 shadow-sm flex items-center gap-1 transition-all active:scale-95">
                                 <i class="fas fa-plus"></i> Table
                             </button>
-                            <button onclick="window.addRootItem()" class="text-[10px] font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 shadow-sm flex items-center gap-1 transition-all active:scale-95">
+                            <button onclick="window.addRootItem()" 
+                            class="h-8 md:h-9 px-4 md:px-5 bg-slate-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-lg md:rounded-xl shadow-md shadow-slate-100 transition-all active:scale-95 flex items-center gap-2">
                                 <i class="fas fa-folder-plus"></i> Folder
                             </button>
                         </div>
@@ -285,13 +292,13 @@ export function renderSideMenuTab(settings) {
                     </button>
                     <div class="flex-1 min-w-0">
                         <h2 class="text-sm font-black text-gray-800 tracking-tight flex items-center gap-2 truncate">
-                            <i class="fas fa-database text-blue-600"></i>
+                            <i class="fas fa-database text-zinc-600"></i>
                             <span class="truncate">Table Config</span>
                         </h2>
                         <p id="overlay-subtitle" class="text-[10px] text-gray-500 truncate">Editing...</p>
                     </div>
                 </div>
-                <button onclick="window.closeTableConfig()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-sm text-xs flex items-center gap-2">
+                <button onclick="window.closeTableConfig()" class="px-4 py-2 bg-zinc-600 text-white font-bold rounded-lg shadow-sm text-xs flex items-center gap-2">
                     <i class="fas fa-check"></i> <span class="hidden sm:inline">Done</span>
                 </button>
             </div>
@@ -307,7 +314,7 @@ export function renderSideMenuTab(settings) {
                     <button onclick="document.getElementById('json-output-modal').classList.add('hidden')"><i class="fas fa-times"></i></button>
                 </div>
                 <textarea id="json-output-textarea" class="flex-1 bg-gray-900 text-green-400 p-4 rounded-lg text-xs font-mono resize-none"></textarea>
-                <div class="mt-4 text-right"><button onclick="copyJSON()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Copy</button></div>
+                <div class="mt-4 text-right"><button onclick="copyJSON()" class="bg-zinc-600 text-white px-4 py-2 rounded-lg text-xs font-bold">Copy</button></div>
             </div>
         </div>
     `
@@ -338,14 +345,14 @@ function renderPropertiesPanel() {
             
             <div class="border-b border-gray-100">
                 <div class="px-5 py-3 bg-gray-50/50 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span class="w-2 h-2 rounded-full bg-zinc-500"></span>
                     <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">General Information</h4>
                 </div>
                 <div class="p-5 space-y-4">
                      <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Label Name</label>
                         <input type="text" value="${item.name}" oninput="window.updateProperty('name', this.value)"
-                               class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow">
+                               class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 transition-shadow">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -356,7 +363,7 @@ function renderPropertiesPanel() {
                                     <i id="conf-icon-value" class="${item.icon}"></i>
                                 </div>
                                 <input id="conf-icon" type="text" value="${item.icon}" onclick="window.triggerIconPickerSettingsmenu('conf-icon')"
-                                    class="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500">
+                                    class="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-zinc-500">
                             </div>
                         </div>
                         ${
@@ -365,7 +372,7 @@ function renderPropertiesPanel() {
                         <div>
                             <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Route Path</label>
                             <input type="text" value="${item.path || ''}" onchange="window.updateProperty('path', this.value)"
-                                   class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500 placeholder-gray-300" placeholder="e.g. data/users">
+                                   class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-zinc-500 placeholder-gray-300" placeholder="e.g. data/users">
                         </div>`
                           : '<div></div>'
                         }
@@ -373,7 +380,7 @@ function renderPropertiesPanel() {
                      <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Access Permissions</label>
                         <input type="text" value="${(item.permissions || []).join(', ')}" placeholder="e.g. admin, manager" onchange="window.updateProperty('permissions', this.value)"
-                               class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-blue-500">
+                               class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:border-zinc-500">
                         <p class="text-[9px] text-gray-400 mt-1">Comma separated roles. Leave empty for public.</p>
                      </div>
                 </div>
@@ -382,15 +389,15 @@ function renderPropertiesPanel() {
             ${
              isTable
               ? `
-            <div class="p-5 bg-blue-50 border-t border-b border-blue-100 text-center">
+            <div class="p-5 bg-zinc-50 border-t border-b border-zinc-100 text-center">
                 <div class="mb-3">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto text-blue-600 shadow-sm mb-2">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto text-zinc-600 shadow-sm mb-2">
                         <i class="fas fa-table text-xl"></i>
                     </div>
                     <h3 class="text-sm font-bold text-gray-800">Table Configuration</h3>
                     <p class="text-xs text-gray-500 mt-1 px-4">Manage fields, validation rules, and data sources in a wide editor.</p>
                 </div>
-                <button onclick="window.openTableConfig()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-200 font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                <button onclick="window.openTableConfig()" class="w-full py-3 bg-zinc-600 hover:bg-zinc-700 text-white rounded-xl shadow-lg shadow-zinc-200 font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2">
                     <i class="fas fa-pen-to-square"></i> Open Field Editor
                 </button>
                 <div class="mt-3 text-[10px] text-gray-400 font-mono">
@@ -403,7 +410,7 @@ function renderPropertiesPanel() {
             
             <div class="mt-auto p-4 bg-gray-50 border-t border-gray-200">
                 <details>
-                    <summary class="text-[10px] font-bold text-gray-400 cursor-pointer hover:text-blue-600 text-center list-none select-none">
+                    <summary class="text-[10px] font-bold text-gray-400 cursor-pointer hover:text-zinc-600 text-center list-none select-none">
                         <i class="fas fa-bug mr-1"></i> Debug Raw Config
                     </summary>
                     <pre class="mt-3 text-[9px] bg-gray-800 text-green-400 p-3 rounded-lg overflow-auto max-h-32 custom-scrollbar border border-gray-700">${JSON.stringify(item.config || {}, null, 2)}</pre>
@@ -426,13 +433,13 @@ function renderTableConfigOverlay(item) {
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">API Endpoint</label>
                     <input type="text" value="${config.endpoint || ''}" placeholder="/api/v1/resource" 
                             onchange="window.updateTableConfig('endpoint', this.value)"
-                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
+                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-zinc-500 transition-colors">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Collection Name</label>
                     <input type="text" value="${config.collectionName || ''}" 
                             onchange="window.updateTableConfig('collectionName', this.value)"
-                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-blue-500 transition-colors">
+                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-mono focus:bg-white focus:border-zinc-500 transition-colors">
                 </div>
             </div>
         </div>
@@ -443,11 +450,11 @@ function renderTableConfigOverlay(item) {
                     ${fields.length} Fields
                 </span>
                 <div class="h-4 w-px bg-gray-300 mx-1"></div>
-                <button onclick="window.toggleAllFields(true)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-expand-alt text-xs"></i></button>
-                <button onclick="window.toggleAllFields(false)" class="p-1.5 bg-white border rounded hover:text-blue-600 text-gray-500"><i class="fas fa-compress-alt text-xs"></i></button>
+                <button onclick="window.toggleAllFields(true)" class="p-1.5 bg-white border rounded hover:text-zinc-600 text-gray-500"><i class="fas fa-expand-alt text-xs"></i></button>
+                <button onclick="window.toggleAllFields(false)" class="p-1.5 bg-white border rounded hover:text-zinc-600 text-gray-500"><i class="fas fa-compress-alt text-xs"></i></button>
             </div>
             
-            <button onclick="window.addNewField()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase rounded shadow-sm flex items-center gap-1">
+            <button onclick="window.addNewField()" class="px-3 py-1.5 bg-zinc-600 hover:bg-zinc-700 text-white text-[10px] font-bold uppercase rounded shadow-sm flex items-center gap-1">
                 <i class="fas fa-plus"></i> Add Field
             </button>
         </div>
@@ -479,7 +486,7 @@ function renderFieldCard(field, idx) {
  const isNumeric = ['number', 'currency'].includes(field.type)
 
  const cardBorderColor = isRepeater ? 'border-purple-200' : 'border-gray-200'
- const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-blue-500/20'
+ const activeRing = isRepeater ? 'focus-within:ring-purple-500/20' : 'focus-within:ring-zinc-500/20'
 
  const safeOptions = Array.isArray(field.options) ? field.options : []
 
@@ -493,7 +500,7 @@ function renderFieldCard(field, idx) {
     <div class="bg-white border ${cardBorderColor} rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col group relative overflow-hidden mb-3 focus-within:ring-4 ${activeRing} animate-in fade-in slide-in-from-bottom-2 duration-300">
         
         <div class="flex items-center gap-2 p-2 bg-gray-50/80 border-b ${cardBorderColor} select-none">
-            <button onclick="window.toggleFieldCollapse(${idx})" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-blue-600 transition-all active:scale-90">
+            <button onclick="window.toggleFieldCollapse(${idx})" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm text-gray-400 hover:text-zinc-600 transition-all active:scale-90">
                 <i class="fas fa-chevron-down transition-transform duration-300 ${isCollapsed ? '-rotate-90' : 'rotate-0'}"></i>
             </button>
             
@@ -504,15 +511,15 @@ function renderFieldCard(field, idx) {
             <div class="flex-1 min-w-0">
                 <input type="text" value="${field.label || ''}" 
                     oninput="window.updateField(${idx}, 'label', this.value)" 
-                    class="bg-transparent font-bold text-xs md:text-sm text-gray-800 w-full outline-none focus:text-blue-600 placeholder-gray-400 truncate transition-colors" 
+                    class="bg-transparent font-bold text-xs md:text-sm text-gray-800 w-full outline-none focus:text-zinc-600 placeholder-gray-400 truncate transition-colors" 
                     placeholder="Label Field (Contoh: Nama Produk)">
             </div>
             
             <div class="flex items-center gap-1">
-                <button onclick="window.moveField(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 active:scale-90 transition-all"'} title="Naik"><i class="fas fa-arrow-up text-[10px]"></i></button>
-                <button onclick="window.moveField(${idx}, 1)" ${idx === totalFields - 1 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-blue-600 active:scale-90 transition-all"'} title="Turun"><i class="fas fa-arrow-down text-[10px]"></i></button>
+                <button onclick="window.moveField(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-zinc-600 active:scale-90 transition-all"'} title="Naik"><i class="fas fa-arrow-up text-[10px]"></i></button>
+                <button onclick="window.moveField(${idx}, 1)" ${idx === totalFields - 1 ? 'disabled class="opacity-30 cursor-not-allowed w-7 h-7 flex items-center justify-center text-gray-400"' : 'class="w-7 h-7 flex items-center justify-center rounded hover:bg-white hover:shadow-sm text-gray-500 hover:text-zinc-600 active:scale-90 transition-all"'} title="Turun"><i class="fas fa-arrow-down text-[10px]"></i></button>
                 <div class="w-px h-4 bg-gray-300 mx-1"></div>
-                <button onclick="window.duplicateField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-blue-50 hover:text-blue-600 text-gray-400 transition-colors" title="Duplikat"><i class="fas fa-copy text-[10px]"></i></button>
+                <button onclick="window.duplicateField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-zinc-50 hover:text-zinc-600 text-gray-400 transition-colors" title="Duplikat"><i class="fas fa-copy text-[10px]"></i></button>
                 <button onclick="window.removeField(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 hover:text-red-600 text-gray-400 transition-colors" title="Hapus"><i class="fas fa-trash text-[10px]"></i></button>
             </div>
         </div>
@@ -523,7 +530,7 @@ function renderFieldCard(field, idx) {
                 <div class="md:col-span-7">
                     <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
                     <div class="relative">
-                        <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:bg-white focus:border-blue-500 outline-none appearance-none font-medium text-gray-700 transition-colors shadow-sm">
+                        <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:bg-white focus:border-zinc-500 outline-none appearance-none font-medium text-gray-700 transition-colors shadow-sm">
                             <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text (Singkat)</option>
                             <option value="number" ${field.type === 'number' ? 'selected' : ''}>Number (Angka)</option>
                             <option value="currency" ${field.type === 'currency' ? 'selected' : ''}>Currency (Uang)</option>
@@ -548,12 +555,12 @@ function renderFieldCard(field, idx) {
             ${
              isSelect
               ? `
-            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 space-y-2 animate-in slide-in-from-top-1">
+            <div class="bg-zinc-50 p-3 rounded-lg border border-zinc-100 space-y-2 animate-in slide-in-from-top-1">
                 <div class="flex justify-between items-center">
-                    <label class="text-[10px] font-bold text-blue-600 uppercase"><i class="fas fa-list-ul mr-1"></i> Static Options</label>
-                    <span class="text-[9px] text-blue-400 bg-white px-1.5 rounded border border-blue-100">Pisahkan koma</span>
+                    <label class="text-[10px] font-bold text-zinc-600 uppercase"><i class="fas fa-list-ul mr-1"></i> Static Options</label>
+                    <span class="text-[9px] text-zinc-400 bg-white px-1.5 rounded border border-zinc-100">Pisahkan koma</span>
                 </div>
-                <textarea rows="2" onchange="window.updateFieldOptions(${idx}, this.value)" class="w-full px-3 py-2 border border-blue-200 rounded-lg text-xs font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none placeholder-blue-300" placeholder="Pcs, Box, Pack">${safeOptions.join(', ')}</textarea>
+                <textarea rows="2" onchange="window.updateFieldOptions(${idx}, this.value)" class="w-full px-3 py-2 border border-zinc-200 rounded-lg text-xs font-medium focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 outline-none placeholder-zinc-300" placeholder="Pcs, Box, Pack">${safeOptions.join(', ')}</textarea>
             </div>`
               : ''
             }
@@ -616,18 +623,18 @@ function renderFieldCard(field, idx) {
 
             <div class="flex flex-wrap items-center gap-4 pt-4 mt-2 border-t border-gray-100">
                 <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
-                    <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 border-gray-300">
-                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-blue-600 uppercase transition-colors">Wajib Diisi</span>
+                    <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="rounded text-zinc-600 focus:ring-zinc-500 w-4 h-4 border-gray-300">
+                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-zinc-600 uppercase transition-colors">Wajib Diisi</span>
                 </label>
                 
                 <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
-                    <input type="checkbox" ${field.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'ui.readonly', this.checked)" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 border-gray-300">
-                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-blue-600 uppercase transition-colors">Read Only</span>
+                    <input type="checkbox" ${field.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'ui.readonly', this.checked)" class="rounded text-zinc-600 focus:ring-zinc-500 w-4 h-4 border-gray-300">
+                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-zinc-600 uppercase transition-colors">Read Only</span>
                 </label>
 
                 <div class="ml-auto flex items-center gap-2">
                     <span class="text-[10px] font-bold text-gray-400 uppercase">Lebar:</span>
-                    <select onchange="window.updateField(${idx}, 'width', this.value)" class="text-[10px] font-bold border border-gray-200 rounded-lg px-2 py-1 bg-white outline-none focus:border-blue-500 transition-colors">
+                    <select onchange="window.updateField(${idx}, 'width', this.value)" class="text-[10px] font-bold border border-gray-200 rounded-lg px-2 py-1 bg-white outline-none focus:border-zinc-500 transition-colors">
                         <option value="50">50% (Setengah)</option>
                         <option value="100" ${field.width === '100' ? 'selected' : ''}>100% (Penuh)</option>
                         <option value="33" ${field.width === '33' ? 'selected' : ''}>33% (Sepertiga)</option>
@@ -643,7 +650,7 @@ function renderSelectConfig(field, idx) {
  return `
     <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-1.5">
         <label class="text-[10px] font-bold text-gray-500 uppercase">Opsi Pilihan (Pisahkan dengan koma)</label>
-        <textarea onchange="window.updateFieldOptions(${idx}, this.value)" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none resize-none" placeholder="Contoh: Tunai, Transfer, Kredit">${(field.options || []).join(', ')}</textarea>
+        <textarea onchange="window.updateFieldOptions(${idx}, this.value)" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/10 outline-none resize-none" placeholder="Contoh: Tunai, Transfer, Kredit">${(field.options || []).join(', ')}</textarea>
     </div>`
 }
 
@@ -793,25 +800,25 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
   extraConfig = `
         <div class="mt-2 pt-2 border-t border-dashed border-gray-200">
             <label class="text-[9px] font-bold text-gray-400 uppercase">Opsi Pilihan (Pisahkan Koma)</label>
-            <input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 focus:border-blue-500 outline-none" placeholder="Contoh: Pcs, Box, Kg">
+            <input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 focus:border-zinc-500 outline-none" placeholder="Contoh: Pcs, Box, Kg">
         </div>`
  }
 
  return `
-    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative group hover:border-blue-400 transition-all mb-3">
+    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative group hover:border-zinc-400 transition-all mb-3">
         <div class="flex flex-col gap-3">
             <div class="flex items-center gap-2">
                 <div class="w-6 h-6 bg-gray-100 rounded text-[10px] font-bold flex items-center justify-center text-gray-500 select-none">${sIdx + 1}</div>
                 
                 <div class="flex-1">
                     <input value="${sf.label || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'label', this.value)" 
-                        class="w-full text-xs font-bold border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none bg-transparent placeholder-gray-300 transition-colors" 
+                        class="w-full text-xs font-bold border-b border-transparent hover:border-gray-300 focus:border-zinc-500 outline-none bg-transparent placeholder-gray-300 transition-colors" 
                         placeholder="Label Kolom (Misal: Qty)">
                 </div>
                 
                 <div class="flex items-center bg-gray-50 rounded p-0.5 border border-gray-100">
-                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled class="opacity-30"' : ''} class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-white rounded transition-all"><i class="fas fa-chevron-up text-[9px]"></i></button>
-                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, 1)" ${sIdx === totalSubs - 1 ? 'disabled class="opacity-30"' : ''} class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-white rounded transition-all"><i class="fas fa-chevron-down text-[9px]"></i></button>
+                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, -1)" ${sIdx === 0 ? 'disabled class="opacity-30"' : ''} class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-zinc-600 hover:bg-white rounded transition-all"><i class="fas fa-chevron-up text-[9px]"></i></button>
+                    <button onclick="window.moveSubField(${fIdx}, ${sIdx}, 1)" ${sIdx === totalSubs - 1 ? 'disabled class="opacity-30"' : ''} class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-zinc-600 hover:bg-white rounded transition-all"><i class="fas fa-chevron-down text-[9px]"></i></button>
                 </div>
 
                 <button onclick="window.removeSubField(${fIdx}, ${sIdx})" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Hapus Kolom"><i class="fas fa-times"></i></button>
@@ -820,11 +827,11 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">DB Key</label>
-                    <input value="${sf.name || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'name', this.value)" class="w-full text-[10px] font-mono border border-gray-300 rounded px-2 py-1.5 bg-gray-50 focus:bg-white focus:border-blue-500 outline-none" placeholder="field_name">
+                    <input value="${sf.name || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'name', this.value)" class="w-full text-[10px] font-mono border border-gray-300 rounded px-2 py-1.5 bg-gray-50 focus:bg-white focus:border-zinc-500 outline-none" placeholder="field_name">
                 </div>
                 <div>
                     <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
-                    <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'type', this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 bg-white focus:border-blue-500 outline-none">
+                    <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'type', this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 bg-white focus:border-zinc-500 outline-none">
                         <option value="text" ${sf.type === 'text' ? 'selected' : ''}>Text</option>
                         <option value="date" ${sf.type === 'date' ? 'selected' : ''}>Datetime</option>
                         <option value="number" ${sf.type === 'number' ? 'selected' : ''}>Number</option>
@@ -837,7 +844,7 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
             
             <div class="flex items-center gap-3 border-t border-dashed border-gray-100 pt-2">
                  <label class="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input type="checkbox" ${sf.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'ui.readonly', this.checked)" class="rounded text-blue-600 focus:ring-0 w-3.5 h-3.5 border-gray-300">
+                    <input type="checkbox" ${sf.ui?.readonly ? 'checked' : ''} onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'ui.readonly', this.checked)" class="rounded text-zinc-600 focus:ring-0 w-3.5 h-3.5 border-gray-300">
                     <span class="text-[9px] font-bold text-gray-500 uppercase">ReadOnly</span>
                 </label>
                 <div class="ml-auto flex items-center gap-1">
@@ -977,12 +984,12 @@ function renderTree(items, level = 0, parentId = null) {
               return `
                 <li class="relative">
                     <div class="flex items-center gap-2 p-2.5 rounded-lg border transition-all cursor-pointer group touch-manipulation
-                        ${isSelected ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500 shadow-sm z-10' : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm'}"
+                        ${isSelected ? 'bg-zinc-50 border-zinc-500 ring-1 ring-zinc-500 shadow-sm z-10' : 'bg-white border-gray-200 hover:border-zinc-300 hover:shadow-sm'}"
                         onclick="window.selectMenuItem('${item.id}')"
                     >
                         <div class="text-gray-300 cursor-move hover:text-gray-500 px-1"><i class="fas fa-grip-vertical text-xs"></i></div>
                         
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSelected ? 'bg-blue-100 text-blue-600' : 'bg-gray-50 text-gray-400 group-hover:text-blue-500'}">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${isSelected ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-50 text-gray-400 group-hover:text-zinc-500'}">
                             <i class="${item.icon || 'fas fa-circle'} text-xs"></i>
                         </div>
                         
@@ -994,12 +1001,12 @@ function renderTree(items, level = 0, parentId = null) {
                         <div class="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-white/80 backdrop-blur-sm rounded-lg px-1 shadow-sm absolute right-2 border border-gray-100 lg:border-none">
                              
                              <button onclick="event.stopPropagation(); window.moveItemUp('${item.id}')" 
-                                     class="p-2 lg:p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-blue-600 transition-colors">
+                                     class="p-2 lg:p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-zinc-600 transition-colors">
                                 <i class="fas fa-arrow-up text-[10px]"></i>
                              </button>
                              
                              <button onclick="event.stopPropagation(); window.moveItemDown('${item.id}')" 
-                                     class="p-2 lg:p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-blue-600 transition-colors">
+                                     class="p-2 lg:p-1.5 hover:bg-gray-100 rounded-md text-gray-500 hover:text-zinc-600 transition-colors">
                                 <i class="fas fa-arrow-down text-[10px]"></i>
                              </button>
                              
@@ -1247,11 +1254,11 @@ window.switchTab = function (btn, tabId) {
 
  const buttons = btn.parentElement.querySelectorAll('button')
  buttons.forEach((b) => {
-  b.classList.remove('border-blue-600', 'text-blue-600')
+  b.classList.remove('border-zinc-600', 'text-zinc-600')
   b.classList.add('border-transparent')
  })
  btn.classList.remove('border-transparent')
- btn.classList.add('border-blue-600', 'text-blue-600')
+ btn.classList.add('border-zinc-600', 'text-zinc-600')
 
  const parts = tabId.split('-')
  const tabName = parts[0]
@@ -1390,8 +1397,8 @@ function cleanMenuData(items) {
 
 window.saveMenuSettings = async () => {
  const isConfirmed = await showConfirmDialog({
-  title: 'Simpan Perubahan?',
-  text: 'Struktur menu akan diperbarui untuk seluruh user.',
+  title: 'Save?',
+  text: 'Configuration will be updated for all users.',
   icon: 'warning',
   confirmText: 'Ya, Simpan',
   cancelText: 'Batal',
@@ -1575,8 +1582,8 @@ window.initMenuBuilder = async function () {
   if (treeContainer) {
    treeContainer.innerHTML = `
     <div class="p-4 text-center text-red-500 text-xs">
-        <p class="font-bold">Gagal memuat data</p>
-        <button onclick="window.initMenuBuilder()" class="mt-2 text-blue-600 underline">Coba Lagi</button>
+        <p class="font-bold">Failed to load data</p>
+        <button onclick="window.initMenuBuilder()" class="mt-2 text-zinc-600 underline">Try Again</button>
     </div>`
   }
  }

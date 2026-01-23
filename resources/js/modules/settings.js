@@ -56,7 +56,7 @@ export async function renderSettingsView(config, container) {
         </div>
 
         <div class="flex-1 min-h-0 relative w-full bg-gray-50/50">
-            <div id="tab-content-sidemenu" class="hidden h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6 pb-20">
+            <div id="tab-content-sidemenu" class="hidden h-full w-full overflow-hidden">
                 ${renderSideMenuTab(settings)}
             </div>
 

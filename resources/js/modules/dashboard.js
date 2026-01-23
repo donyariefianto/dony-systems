@@ -69,7 +69,7 @@ export async function renderDashboardView(config, container) {
     <div class="min-h-full w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 py-8 space-y-8 animate-in fade-in zoom-in-95 duration-300 pb-32">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-200/60 pb-6">
             <div class="flex items-start gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] text-blue-600 shrink-0">
+                <div class="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.03)] text-zinc-600 shrink-0">
                     <i class="fas fa-chart-pie text-2xl"></i>
                 </div>
                 <div>
@@ -77,7 +77,7 @@ export async function renderDashboardView(config, container) {
                     <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
                         <span id="current-time" class="bg-gray-100 px-2 py-1 rounded-md">...</span>
                         <span class="text-gray-300">/</span>
-                        <button onclick="openDashboardSelector()" class="group flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-colors">
+                        <button onclick="openDashboardSelector()" class="group flex items-center gap-1.5 text-zinc-600 hover:text-zinc-700 transition-colors">
                             <span>Ganti Dashboard</span> 
                             <i class="fas fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                         </button>
@@ -85,10 +85,7 @@ export async function renderDashboardView(config, container) {
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                 <button onclick="openAddDashboardModal()" class="h-11 px-5 bg-white border border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600 rounded-xl text-xs font-bold uppercase tracking-widest shadow-sm transition-all flex items-center gap-2 active:scale-95">
-                    <i class="fas fa-plus"></i> <span class="hidden sm:inline">New</span>
-                </button>
-                <button onclick="refreshAllWidgets()" class="h-11 px-5 bg-blue-600 text-white hover:bg-blue-700 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 group">
+                <button onclick="refreshAllWidgets()" class="h-11 px-5 bg-zinc-600 text-white hover:bg-zinc-700 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-zinc-200 transition-all flex items-center gap-2 active:scale-95 group">
                     <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> 
                     <span class="hidden sm:inline">Sync Data</span>
                 </button>
@@ -111,7 +108,7 @@ export async function renderDashboardView(config, container) {
             <div class="flex items-center justify-between px-4 border-b border-gray-200 shadow-sm" 
                  style="height: 64px; background-color: #ffffff; flex-shrink: 0; position: relative; z-index: 9999;">
                 <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm shrink-0 border border-blue-100">
+                    <div class="w-10 h-10 rounded-xl bg-zinc-50 text-zinc-600 flex items-center justify-center shadow-sm shrink-0 border border-zinc-100">
                         <i class="fas fa-cube"></i>
                     </div>
                     <div class="min-w-0 flex-1">
@@ -138,23 +135,23 @@ export async function renderDashboardView(config, container) {
         <div id="selector-panel" class="absolute inset-x-0 bottom-0 top-10 md:inset-y-0 md:left-auto md:right-0 md:w-[500px] bg-white shadow-2xl rounded-t-2xl md:rounded-none transform transition-transform duration-300 ease-out translate-y-full md:translate-y-0 md:translate-x-full flex flex-col border-l border-gray-100">
             <div class="h-16 border-b border-gray-100 flex justify-between items-center px-6 bg-white shrink-0 rounded-t-2xl md:rounded-none z-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-th-large"></i></div>
-                    <h3 class="font-black text-gray-800 text-sm uppercase tracking-widest">Pilih Dashboard</h3>
+                    <div class="w-8 h-8 rounded-lg bg-zinc-50 text-zinc-600 flex items-center justify-center"><i class="fas fa-th-large"></i></div>
+                    <h3 class="font-black text-gray-800 text-sm uppercase tracking-widest">Select Dashboard</h3>
                 </div>
                 <button onclick="closeDashboardSelector()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><i class="fas fa-times"></i></button>
             </div>
             <div class="p-4 border-b border-gray-50 bg-gray-50/50">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-3.5 text-gray-400 text-xs"></i>
-                    <input type="text" id="dash-search-input" oninput="handleSelectorSearch(this.value)" class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all placeholder-gray-400" placeholder="Cari dashboard...">
+                    <input type="text" id="dash-search-input" oninput="handleSelectorSearch(this.value)" class="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 outline-none focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 transition-all placeholder-gray-400" placeholder="Cari dashboard...">
                 </div>
             </div>
             <div id="dash-list-container" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar bg-white relative"></div>
             <div class="p-4 border-t border-gray-100 bg-white shrink-0 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:pb-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)] z-10 flex justify-between items-center">
                  <span class="text-[10px] font-bold text-gray-400" id="dash-pagination-info">...</span>
                  <div class="flex gap-2">
-                    <button id="btn-prev" onclick="changeSelectorPage(-1)" class="h-8 px-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:hover:bg-transparent text-xs font-bold transition-all"><i class="fas fa-chevron-left"></i></button>
-                    <button id="btn-next" onclick="changeSelectorPage(1)" class="h-8 px-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-40 disabled:hover:bg-transparent text-xs font-bold transition-all"><i class="fas fa-chevron-right"></i></button>
+                    <button id="btn-prev" onclick="changeSelectorPage(-1)" class="h-8 px-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-zinc-600 disabled:opacity-40 disabled:hover:bg-transparent text-xs font-bold transition-all"><i class="fas fa-chevron-left"></i></button>
+                    <button id="btn-next" onclick="changeSelectorPage(1)" class="h-8 px-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-zinc-600 disabled:opacity-40 disabled:hover:bg-transparent text-xs font-bold transition-all"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>
@@ -200,19 +197,19 @@ async function loadDashboardConfig(dashboardId) {
     <div id="widget-container-${widget.id}" class="${colSpanClass} bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col hover-card group transition-all duration-300">
         <div class="flex justify-between items-start mb-4">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-zinc-50 text-zinc-600 flex items-center justify-center text-xs shadow-sm">
                     <i class="${widget.icon || 'fa-cube'}"></i>
                 </div>
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-tight truncate max-w-[150px] md:max-w-xs">${widget.title}</h3>
             </div>
             <div class="flex items-center gap-2">
-                <div id="loader-${widget.id}" class="opacity-0 transition-opacity duration-300 text-blue-400 text-[10px]"><i class="fas fa-circle-notch fa-spin"></i></div>
+                <div id="loader-${widget.id}" class="opacity-0 transition-opacity duration-300 text-zinc-400 text-[10px]"><i class="fas fa-circle-notch fa-spin"></i></div>
                 
                 <button onclick="refreshSingleWidget('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-green-600 hover:bg-green-50 transition-colors" title="Refresh Data">
                     <i class="fas fa-sync-alt text-xs"></i>
                 </button>
                 
-                <button onclick="openWidgetFullscreen('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Fullscreen">
+                <button onclick="openWidgetFullscreen('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-zinc-600 hover:bg-zinc-50 transition-colors" title="Fullscreen">
                     <i class="fas fa-expand text-xs"></i>
                 </button>
             </div>
@@ -226,7 +223,7 @@ async function loadDashboardConfig(dashboardId) {
 
   widgetList.forEach((widget) => initWidgetDataFetcher(widget))
  } catch (err) {
-  gridContainer.innerHTML = `<div class="col-span-full p-10 text-center bg-red-50 rounded-2xl border border-red-100"><i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i><p class="text-red-600 font-bold text-sm">Dashboard tidak ditemukan.</p><div class="mt-4 flex gap-2 justify-center"><button onclick="openDashboardSelector()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">Pilih Lain</button></div></div>`
+  gridContainer.innerHTML = `<div class="col-span-full p-10 text-center bg-red-50 rounded-2xl border border-red-100"><i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i><p class="text-red-600 font-bold text-sm">Dashboard not found.</p><div class="mt-4 flex gap-2 justify-center"><button onclick="openDashboardSelector()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">Choose another options</button></div></div>`
  }
 }
 
@@ -345,7 +342,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
   const mainValue = item.value || widget.config?.value || '0'
   const description = item.description || widget.config?.description || ''
 
-  const colorTheme = item.color || widget.config?.color || 'blue'
+  const colorTheme = item.color || widget.config?.color || 'zinc'
   const labelName = item.name || widget.config?.name || widget.title || 'Metric'
 
   container.innerHTML = `
@@ -400,11 +397,11 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
             <input type="text" 
                 onkeyup="drawerUI.handleTableSearch('${widget.id}', this.value)" 
                 placeholder="Cari data..." 
-                class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all">
+                class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-zinc-500 focus:bg-white outline-none transition-all">
             <i class="fas fa-search absolute left-3 top-2 text-slate-400 text-xs"></i>
         </div>
         <div class="flex gap-2">
-            <button class="p-1.5 text-slate-400 hover:text-blue-600 transition-colors" title="Reload"><i class="fas fa-sync-alt text-xs"></i></button>
+            <button class="p-1.5 text-slate-400 hover:text-zinc-600 transition-colors" title="Reload"><i class="fas fa-sync-alt text-xs"></i></button>
             <button class="p-1.5 text-slate-400 hover:text-emerald-600 transition-colors" title="Export Excel"><i class="fas fa-file-excel text-xs"></i></button>
         </div>
     </div>`
@@ -424,7 +421,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
     ? data
        .map((row, index) => {
         return `
-            <tr class="hover:bg-blue-50/40 transition-colors group border-b border-slate-50 last:border-none">
+            <tr class="hover:bg-zinc-50/40 transition-colors group border-b border-slate-50 last:border-none">
                 ${columns
                  .map((col) => {
                   let cellVal = row[col.field] || '-'
@@ -881,9 +878,9 @@ async function fetchAndRenderDashboards() {
     .map((dash) => {
      const isActive = dash._id === AppState.dashboard.activeId
      const wrapperClass = isActive
-      ? 'bg-blue-50 border-blue-200 shadow-sm'
-      : 'bg-white border-gray-100 hover:border-blue-300 hover:shadow-md hover:bg-gray-50'
-     return `<div onclick="switchDashboard('${dash._id}')" class="cursor-pointer p-4 rounded-xl border transition-all duration-200 group relative select-none ${wrapperClass}"><div class="flex justify-between items-start"><div class="flex items-start gap-3 overflow-hidden"><div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center text-sm ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-blue-500 transition-colors'}"><i class="fas fa-chart-pie"></i></div><div class="flex flex-col"><h4 class="font-bold text-gray-800 text-sm group-hover:text-blue-600 transition-colors flex items-center gap-2">${dash.name} ${isActive ? '<i class="fas fa-check-circle text-blue-500 text-xs"></i>' : ''}</h4><p class="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">${dash.description || 'Dashboard pemantauan sistem.'}</p></div></div><div class="flex items-center gap-1 text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100"><i class="fas fa-cube text-gray-300"></i> ${dash.widgets ? dash.widgets.length : 0}</div></div></div>`
+      ? 'bg-zinc-50 border-zinc-200 shadow-sm'
+      : 'bg-white border-gray-100 hover:border-zinc-300 hover:shadow-md hover:bg-gray-50'
+     return `<div onclick="switchDashboard('${dash._id}')" class="cursor-pointer p-4 rounded-xl border transition-all duration-200 group relative select-none ${wrapperClass}"><div class="flex justify-between items-start"><div class="flex items-start gap-3 overflow-hidden"><div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center text-sm ${isActive ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-zinc-500 transition-colors'}"><i class="fas fa-chart-pie"></i></div><div class="flex flex-col"><h4 class="font-bold text-gray-800 text-sm group-hover:text-zinc-600 transition-colors flex items-center gap-2">${dash.name} ${isActive ? '<i class="fas fa-check-circle text-zinc-500 text-xs"></i>' : ''}</h4><p class="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">${dash.description || 'Dashboard pemantauan sistem.'}</p></div></div><div class="flex items-center gap-1 text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100"><i class="fas fa-cube text-gray-300"></i> ${dash.widgets ? dash.widgets.length : 0}</div></div></div>`
     })
     .join('')
   }
