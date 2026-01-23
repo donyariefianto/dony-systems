@@ -13,7 +13,7 @@ let dashboardListState = {
  search: '',
  totalPages: 1,
 }
-const MAX_WIDGET_LIMIT = 7
+const MAX_WIDGET_LIMIT = 10
 let currentEditingIndex = null
 
 function escapeHtml(text) {
@@ -541,7 +541,7 @@ export function renderWidgetLibrary() {
                     <div onclick="addWidgetToBuilder('${w.key}'); switchMobileTab('editor');" 
                             class="widget-item flex items-center gap-3 p-2 bg-white border border-gray-100 hover:border-blue-400 hover:shadow-sm rounded-lg cursor-pointer transition-all group active:scale-95">
                         <div class="w-8 h-8 shrink-0 rounded-md ${cat.bg} ${cat.color} flex items-center justify-center text-xs shadow-sm">
-                            <i class="fas ${w.icon}"></i>
+                            <i class="${w.icon}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <h5 class="text-[10px] font-bold text-gray-700 group-hover:text-blue-700 truncate">${w.name}</h5>
@@ -634,16 +634,46 @@ export function renderBuilderWidgets() {
    const totalWidgets = AppState.tempBuilderWidgets.length
    let accent = 'border-gray-200'
    let iconColor = 'text-gray-400'
-
-   if (w.type === 'stat') {
-    accent = 'border-l-4 border-l-emerald-400 border-y border-r border-gray-200'
-    iconColor = 'text-emerald-500'
+   if (w.type === 'label' || w.type === 'table') {
+    accent = 'border-l-4 border-l-orange-300 border-y border-r border-gray-200'
+    iconColor = 'text-orange-500'
    } else if (w.type === 'chart') {
-    accent = 'border-l-4 border-l-blue-400 border-y border-r border-gray-200'
-    iconColor = 'text-blue-500'
+    let borderClass = 'border-l-emerald-300'
+    let textClass = 'text-emerald-500'
+    if (w.subtype.includes('line')) {
+     borderClass = 'border-l-blue-300'
+     textClass = 'text-blue-500'
+    } else if (w.subtype.includes('bar')) {
+     borderClass = 'border-l-emerald-300'
+     textClass = 'text-emerald-500'
+    } else if (w.subtype.includes('pie')) {
+     borderClass = 'border-l-yellow-300'
+     textClass = 'text-yellow-500'
+    } else if (w.subtype.includes('scatter')) {
+     borderClass = 'border-l-lime-300'
+     textClass = 'text-lime-500'
+    } else if (w.subtype.includes('radar')) {
+     borderClass = 'border-l-indigo-300'
+     textClass = 'text-indigo-500'
+    }
+    if (w.subtype.includes('tree') || w.subtype.includes('sankey')) {
+     borderClass = 'border-l-purple-300'
+     textClass = 'text-purple-500'
+    }
+    if (
+     w.subtype == 'bar3d_dataset' ||
+     w.subtype == 'bar3d_simplex' ||
+     w.subtype == 'scatter3d_basic' ||
+     w.subtype == 'line3d_ortho'
+    ) {
+     borderClass = 'border-l-rose-300'
+     textClass = 'text-rose-500'
+    }
+    accent = `border-y border-r border-l-4 border-y-gray-200 border-r-gray-200 ${borderClass}`
+    iconColor = textClass
    } else {
-    accent = 'border-l-4 border-l-purple-400 border-y border-r border-gray-200'
-    iconColor = 'text-purple-500'
+    accent = 'border-l-4 border-l-emerald-400 border-y border-r border-gray-300'
+    iconColor = 'text-emerald-500'
    }
 
    return `

@@ -338,7 +338,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
     </div>
     </div>`
   setTimeout(() => initChartDispatcher(chartId, widget, data, isFullscreen), 100)
- } else if (widget.type === 'stat') {
+ } else if (widget.type === 'label') {
   const item =
    Array.isArray(data) && data.length > 0 ? data[0] : widget.data_config?.static_data?.[0] || {}
 
@@ -917,7 +917,6 @@ window.switchDashboard = (id) => {
  if (id === AppState.dashboard.activeId) return
  setTimeout(() => loadDashboardConfig(id), 300)
 }
-
 window.openWidgetFullscreen = function (widgetId) {
  const modal = document.getElementById('widget-fullscreen-modal')
 
@@ -952,7 +951,6 @@ window.openWidgetFullscreen = function (widgetId) {
   modal.style.zIndex = '2147483647'
  }
 }
-
 window.closeWidgetFullscreen = function () {
  const modal = document.getElementById('widget-fullscreen-modal')
  const body = document.getElementById('fs-content-body')
@@ -973,7 +971,6 @@ window.closeWidgetFullscreen = function () {
   }, 300)
  }
 }
-
 function clearActiveIntervals() {
  AppState.dashboard.intervals.forEach((id) => clearTimeout(id))
  AppState.dashboard.intervals = []

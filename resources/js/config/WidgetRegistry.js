@@ -4,58 +4,58 @@ export const WidgetRegistry = {
  categories: {
   'simple': {
    name: 'Tabel & Labels',
-   icon: 'fa-chart-simple',
-   color: 'text-violet-500',
-   bg: 'bg-violet-200',
+   icon: 'fa-solid fa-chart-simple',
+   color: 'text-orange-500',
+   bg: 'bg-orange-100',
   },
   'line': {
    name: 'Line Charts',
-   icon: 'fa-chart-line',
+   icon: 'fa-solid fa-chart-line',
    color: 'text-blue-600',
    bg: 'bg-blue-50',
   },
   'bar': {
    name: 'Bar Charts',
-   icon: 'fa-chart-bar',
+   icon: 'fa-solid fa-chart-bar',
    color: 'text-emerald-600',
    bg: 'bg-emerald-50',
   },
   'pie': {
    name: 'Pie & Donut',
-   icon: 'fa-chart-pie',
+   icon: 'fa-solid fa-chart-pie',
    color: 'text-yellow-500',
    bg: 'bg-yellow-100',
   },
   'scatter': {
    name: 'Scatter & Plot',
-   icon: 'fa-braille',
+   icon: 'fa-solid fa-braille',
    color: 'text-lime-600',
    bg: 'bg-lime-200',
   },
   'radar': {
    name: 'Radar & Gauge',
-   icon: 'fa-compass',
+   icon: 'fa-solid fa-compass',
    color: 'text-indigo-500',
    bg: 'bg-indigo-100',
   },
   'flow': {
    name: 'Tree & Flow',
-   icon: 'fa-project-diagram',
-   color: 'text-purple-800',
-   bg: 'bg-purple-200',
+   icon: 'fa-solid fa-project-diagram',
+   color: 'text-purple-600',
+   bg: 'bg-purple-100',
   },
   '3d': {
    name: '3D Visualization',
-   icon: 'fa-cubes',
-   color: 'text-rose-250',
-   bg: 'bg-rose-200',
+   icon: 'fa-solid fa-cubes',
+   color: 'text-rose-500',
+   bg: 'bg-rose-100',
   },
  },
 
  widgets: {
   line_smooth: {
    name: 'Smoothed Line',
-   icon: 'fa-bezier-curve',
+   icon: 'fa-solid fa-bezier-curve',
    category: 'line',
    desc: 'Curved line chart for trends',
    defaultConfig: {
@@ -63,7 +63,7 @@ export const WidgetRegistry = {
     subtype: 'line_smooth',
     width: 'half',
     title: 'Smooth Trend',
-    icon: 'fa-bezier-curve',
+    icon: 'fa-solid fa-bezier-curve',
     echarts_options: {
      xAxis: {
       type: 'category',
@@ -89,7 +89,7 @@ export const WidgetRegistry = {
   },
   line_stacked: {
    name: 'Stacked Line',
-   icon: 'fa-layer-group',
+   icon: 'fa-solid fa-layer-group',
    category: 'line',
    desc: 'Stacked areas showing total',
    defaultConfig: {
@@ -97,7 +97,7 @@ export const WidgetRegistry = {
     subtype: 'line_stacked',
     width: 'half',
     title: 'Stacked Growth',
-    icon: 'fa-layer-group',
+    icon: 'fa-solid fa-layer-group',
     echarts_options: {
      tooltip: {
       trigger: 'axis',
@@ -191,7 +191,7 @@ export const WidgetRegistry = {
   },
   line_area_large: {
    name: 'Large Scale Area',
-   icon: 'fa-chart-area',
+   icon: 'fa-solid fa-chart-area',
    category: 'line',
    desc: 'Optimized for big data',
    defaultConfig: {
@@ -199,7 +199,7 @@ export const WidgetRegistry = {
     subtype: 'line_area_large',
     width: 'full',
     title: 'Big Data View',
-    icon: 'fa-chart-area',
+    icon: 'fa-solid fa-chart-area',
     echarts_options: {
      toolbox: {
       feature: {
@@ -275,7 +275,7 @@ export const WidgetRegistry = {
   },
   line_multi_x: {
    name: 'Multiple X Axes',
-   icon: 'fa-arrows-alt-h',
+   icon: 'fa-solid fa-arrows-alt-h',
    category: 'line',
    desc: 'Dual top/bottom axes',
    defaultConfig: {
@@ -283,7 +283,7 @@ export const WidgetRegistry = {
     subtype: 'line_multi_x',
     width: 'half',
     title: 'Dual Axis Comparison',
-    icon: 'fa-arrows-alt-h',
+    icon: 'fa-solid fa-arrows-alt-h',
     echarts_options: {
      xAxis: [
       {
@@ -395,7 +395,7 @@ export const WidgetRegistry = {
   },
   line_race: {
    name: 'Line Race',
-   icon: 'fa-running',
+   icon: 'fa-solid fa-running',
    category: 'line',
    desc: 'Animated racing lines',
    defaultConfig: {
@@ -403,7 +403,7 @@ export const WidgetRegistry = {
     subtype: 'line_race',
     width: 'full',
     title: 'Live Race',
-    icon: 'fa-running',
+    icon: 'fa-solid fa-running',
     echarts_options: {
      legend: {
       bottom: 0,
@@ -477,7 +477,7 @@ export const WidgetRegistry = {
 
   bar_large: {
    name: 'Large Scale Bar',
-   icon: 'fa-chart-bar',
+   icon: 'fa-solid fa-chart-bar',
    category: 'bar',
    desc: 'High performance bars',
    defaultConfig: {
@@ -485,7 +485,7 @@ export const WidgetRegistry = {
     subtype: 'bar_large',
     width: 'full',
     title: 'Massive Bar Data',
-    icon: 'fa-chart-bar',
+    icon: 'fa-solid fa-chart-bar',
     echarts_options: {
      tooltip: { trigger: 'axis' },
      toolbox: {
@@ -720,7 +720,7 @@ export const WidgetRegistry = {
   },
   bar_race: {
    name: 'Bar Race',
-   icon: 'fa-forward',
+   icon: 'fa-solid fa-forward',
    category: 'bar',
    desc: 'Dynamic ranking bars',
    defaultConfig: {
@@ -728,7 +728,7 @@ export const WidgetRegistry = {
     subtype: 'bar_race',
     width: 'half',
     title: 'Ranking Race',
-    icon: 'fa-forward',
+    icon: 'fa-solid fa-forward',
     echarts_options: {
      xAxis: {},
      yAxis: {
@@ -773,7 +773,7 @@ export const WidgetRegistry = {
   },
   bar_multi_y: {
    name: 'Multiple Y Axes',
-   icon: 'fa-ruler-vertical',
+   icon: 'fa-solid fa-ruler-vertical',
    category: 'bar',
    desc: 'Mixed units (Sales vs %)',
    defaultConfig: {
@@ -781,7 +781,7 @@ export const WidgetRegistry = {
     subtype: 'bar_multi_y',
     width: 'half',
     title: 'Sales vs Margin',
-    icon: 'fa-ruler-vertical',
+    icon: 'fa-solid fa-ruler-vertical',
     echarts_options: {
      tooltip: { trigger: 'axis' },
      legend: { data: [] },
@@ -830,7 +830,7 @@ export const WidgetRegistry = {
   },
   mixed_line_bar: {
    name: 'Mixed Line & Bar',
-   icon: 'fa-chart-area',
+   icon: 'fa-solid fa-chart-area',
    category: 'bar',
    desc: 'Combine line and bars',
    defaultConfig: {
@@ -838,7 +838,7 @@ export const WidgetRegistry = {
     subtype: 'mixed_line_bar',
     width: 'half',
     title: 'Mixed View',
-    icon: 'fa-chart-area',
+    icon: 'fa-solid fa-chart-area',
     echarts_options: {
      tooltip: {
       trigger: 'axis',
@@ -894,7 +894,7 @@ export const WidgetRegistry = {
 
   pie_doughnut_rounded: {
    name: 'Rounded Doughnut',
-   icon: 'fa-circle-notch',
+   icon: 'fa-solid fa-circle-notch',
    category: 'pie',
    desc: 'Modern doughnut chart',
    defaultConfig: {
@@ -902,7 +902,7 @@ export const WidgetRegistry = {
     subtype: 'pie_doughnut_rounded',
     width: 'quarter',
     title: 'Distribution',
-    icon: 'fa-circle-notch',
+    icon: 'fa-solid fa-circle-notch',
     echarts_options: {
      tooltip: {
       trigger: 'item',
@@ -952,7 +952,7 @@ export const WidgetRegistry = {
   },
   pie_scroll: {
    name: 'Scrollable Legend',
-   icon: 'fa-list-ul',
+   icon: 'fa-solid fa-list-ul',
    category: 'pie',
    desc: 'Pie for many categories',
    defaultConfig: {
@@ -960,7 +960,7 @@ export const WidgetRegistry = {
     subtype: 'pie_scroll',
     width: 'half',
     title: 'Category Breakdown',
-    icon: 'fa-list-ul',
+    icon: 'fa-solid fa-list-ul',
     echarts_options: {
      tooltip: {
       trigger: 'item',
@@ -1252,7 +1252,7 @@ export const WidgetRegistry = {
 
   scatter_basic: {
    name: 'Basic Scatter',
-   icon: 'fa-braille',
+   icon: 'fa-solid fa-braille',
    category: 'scatter',
    desc: 'XY Distribution plot',
    defaultConfig: {
@@ -1260,7 +1260,7 @@ export const WidgetRegistry = {
     subtype: 'scatter_basic',
     width: 'half',
     title: 'Correlation',
-    icon: 'fa-braille',
+    icon: 'fa-solid fa-braille',
     echarts_options: { xAxis: {}, yAxis: {}, series: [{ type: 'scatter', symbolSize: 20 }] },
     data_config: WidgetConfigBuilder.staticData({
      data: [
@@ -1292,7 +1292,7 @@ export const WidgetRegistry = {
   },
   scatter_aggregate: {
    name: 'Aggregate to Bar',
-   icon: 'fa-chart-bar',
+   icon: 'fa-solid fa-chart-bar',
    category: 'scatter',
    desc: 'Clustered visual map',
    defaultConfig: {
@@ -1300,7 +1300,7 @@ export const WidgetRegistry = {
     subtype: 'scatter_aggregate',
     width: 'half',
     title: 'Aggregated View',
-    icon: 'fa-chart-bar',
+    icon: 'fa-solid fa-chart-bar',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
      data: [
@@ -1827,7 +1827,7 @@ export const WidgetRegistry = {
   },
   scatter_cluster: {
    name: 'Clustering',
-   icon: 'fa-project-diagram',
+   icon: 'fa-solid fa-project-diagram',
    category: 'scatter',
    desc: 'Grouped data points',
    defaultConfig: {
@@ -1835,7 +1835,7 @@ export const WidgetRegistry = {
     subtype: 'scatter_cluster',
     width: 'half',
     title: 'Data Clusters',
-    icon: 'fa-project-diagram',
+    icon: 'fa-solid fa-project-diagram',
     echarts_options: {
      timeline: {
       top: 'center',
@@ -1942,7 +1942,7 @@ export const WidgetRegistry = {
 
   radar_basic: {
    name: 'Basic Radar',
-   icon: 'fa-spider',
+   icon: 'fa-solid fa-spider',
    category: 'radar',
    desc: 'Multivariate comparison',
    defaultConfig: {
@@ -1950,7 +1950,7 @@ export const WidgetRegistry = {
     subtype: 'radar',
     width: 'half',
     title: 'Performance',
-    icon: 'fa-spider',
+    icon: 'fa-solid fa-spider',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
      legend: {
@@ -1979,7 +1979,7 @@ export const WidgetRegistry = {
   },
   gauge_multi: {
    name: 'Gauge',
-   icon: 'fa-tachometer-alt',
+   icon: 'fa-solid fa-tachometer-alt',
    category: 'radar',
    desc: 'Detailed gauge info',
    defaultConfig: {
@@ -1987,7 +1987,7 @@ export const WidgetRegistry = {
     subtype: 'gauge_multi',
     width: 'quarter',
     title: 'Speed',
-    icon: 'fa-tachometer-alt',
+    icon: 'fa-solid fa-tachometer-alt',
     echarts_options: {
      series: [
       {
@@ -2067,7 +2067,7 @@ export const WidgetRegistry = {
   },
   gauge_grade: {
    name: 'Gauge Grade',
-   icon: 'fa-clock',
+   icon: 'fa-solid fa-clock',
    category: 'radar',
    desc: 'Detailed gauge info',
    defaultConfig: {
@@ -2075,7 +2075,7 @@ export const WidgetRegistry = {
     subtype: 'gauge_grade',
     width: 'quarter',
     title: 'Gauge Grade',
-    icon: 'fa-clock',
+    icon: 'fa-solid fa-clock',
     echarts_options: {
      series: [],
      tooltip: {
@@ -2160,7 +2160,7 @@ export const WidgetRegistry = {
 
   tree_lr: {
    name: 'L-to-R Tree',
-   icon: 'fa-sitemap',
+   icon: 'fa-solid fa-sitemap',
    category: 'flow',
    desc: 'Horizontal hierarchy',
    defaultConfig: {
@@ -2168,7 +2168,7 @@ export const WidgetRegistry = {
     subtype: 'tree_lr',
     width: 'full',
     title: 'Organization L-to-R Tree',
-    icon: 'fa-sitemap',
+    icon: 'fa-solid fa-sitemap',
     echarts_options: {
      tooltip: {},
      series: [
@@ -2237,7 +2237,7 @@ export const WidgetRegistry = {
   },
   tree_rl: {
    name: 'R-to-L Tree',
-   icon: 'fa-sitemap',
+   icon: 'fa-solid fa-sitemap',
    category: 'flow',
    desc: 'Horizontal hierarchy',
    defaultConfig: {
@@ -2245,7 +2245,7 @@ export const WidgetRegistry = {
     subtype: 'tree_rl',
     width: 'full',
     title: 'Organization R-to-L Tree',
-    icon: 'fa-sitemap',
+    icon: 'fa-solid fa-sitemap',
     echarts_options: {
      tooltip: {},
      series: [
@@ -2314,7 +2314,7 @@ export const WidgetRegistry = {
   },
   tree_multi: {
    name: 'Multiple Trees',
-   icon: 'fa-network-wired',
+   icon: 'fa-solid fa-network-wired',
    category: 'flow',
    desc: 'Forest view',
    defaultConfig: {
@@ -2322,7 +2322,7 @@ export const WidgetRegistry = {
     subtype: 'tree_multi',
     width: 'full',
     title: 'Multi Hierarchy',
-    icon: 'fa-network-wired',
+    icon: 'fa-solid fa-network-wired',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
      tooltip: {
@@ -2336,11 +2336,11 @@ export const WidgetRegistry = {
       data: [
        {
         name: 'tree1',
-        icon: 'rectangle',
+        icon: 'fa-solid rectangle',
        },
        {
         name: 'tree2',
-        icon: 'rectangle',
+        icon: 'fa-solid rectangle',
        },
       ],
       borderColor: '#c23531',
@@ -2556,7 +2556,7 @@ export const WidgetRegistry = {
   },
   sankey_basic: {
    name: 'Basic Sankey',
-   icon: 'fa-stream',
+   icon: 'fa-solid fa-stream',
    category: 'flow',
    desc: 'Flow visualization',
    defaultConfig: {
@@ -2564,7 +2564,7 @@ export const WidgetRegistry = {
     subtype: 'sankey_basic',
     width: 'half',
     title: 'Data Flow',
-    icon: 'fa-stream',
+    icon: 'fa-solid fa-stream',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
      tooltip: {
@@ -2609,7 +2609,7 @@ export const WidgetRegistry = {
   },
   sankey_levels: {
    name: 'Sankey Levels',
-   icon: 'fa-indent',
+   icon: 'fa-solid fa-indent',
    category: 'flow',
    desc: 'Flow with levels',
    defaultConfig: {
@@ -2617,7 +2617,7 @@ export const WidgetRegistry = {
     subtype: 'sankey_levels',
     width: 'half',
     title: 'Level Flow',
-    icon: 'fa-indent',
+    icon: 'fa-solid fa-indent',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
      tooltip: {
@@ -2694,7 +2694,7 @@ export const WidgetRegistry = {
 
   bar3d_dataset: {
    name: '3D Bar Dataset',
-   icon: 'fa-cubes',
+   icon: 'fa-solid fa-cubes',
    category: '3d',
    desc: 'Requires WebGL',
    defaultConfig: {
@@ -2702,7 +2702,7 @@ export const WidgetRegistry = {
     subtype: 'bar3d_dataset',
     width: 'half',
     title: '3D Volume',
-    icon: 'fa-cubes',
+    icon: 'fa-solid fa-cubes',
     is3D: true,
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
@@ -2773,7 +2773,7 @@ export const WidgetRegistry = {
   },
   bar3d_transparent: {
    name: 'Bar3D Noise',
-   icon: 'fa-icicles',
+   icon: 'fa-solid fa-icicles',
    category: '3d',
    desc: '3D Transparent visual',
    defaultConfig: {
@@ -2781,7 +2781,7 @@ export const WidgetRegistry = {
     subtype: 'bar3d_simplex',
     width: 'half',
     title: 'Noise Map',
-    icon: 'fa-icicles',
+    icon: 'fa-solid fa-icicles',
     is3D: true,
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
@@ -3386,7 +3386,7 @@ export const WidgetRegistry = {
   },
   scatter3d_basic: {
    name: 'Scatter 3D',
-   icon: 'fa-snowflake',
+   icon: 'fa-solid fa-snowflake',
    category: '3d',
    desc: 'XYZ Points',
    defaultConfig: {
@@ -3394,7 +3394,7 @@ export const WidgetRegistry = {
     subtype: 'scatter3d_basic',
     width: 'half',
     title: '3D Plot',
-    icon: 'fa-snowflake',
+    icon: 'fa-solid fa-snowflake',
     is3D: true,
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
@@ -3766,7 +3766,7 @@ export const WidgetRegistry = {
   },
   line3d_ortho: {
    name: '3D Line Ortho',
-   icon: 'fa-route',
+   icon: 'fa-solid fa-route',
    category: '3d',
    desc: 'Orthographic view',
    defaultConfig: {
@@ -3774,7 +3774,7 @@ export const WidgetRegistry = {
     subtype: 'line3d_ortho',
     width: 'half',
     title: '3D Path',
-    icon: 'fa-route',
+    icon: 'fa-solid fa-route',
     is3D: true,
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({
@@ -4049,7 +4049,7 @@ export const WidgetRegistry = {
 
   simple_table: {
    name: 'Table',
-   icon: 'fa-solid fa-table',
+   icon: 'fa-solid fa-solid fa-table',
    category: 'simple',
    desc: 'Table view',
    defaultConfig: {
@@ -4057,7 +4057,7 @@ export const WidgetRegistry = {
     subtype: 'table',
     width: 'half',
     title: 'Data table',
-    icon: 'fa-solid fa-table',
+    icon: 'fa-solid fa-solid fa-table',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData([
      {
@@ -4086,7 +4086,7 @@ export const WidgetRegistry = {
   },
   label: {
    name: 'Label',
-   icon: 'fa-solid fa-tag',
+   icon: 'fa-solid fa-solid fa-tag',
    category: 'simple',
    desc: 'Label view',
    defaultConfig: {
@@ -4094,7 +4094,7 @@ export const WidgetRegistry = {
     subtype: 'label',
     width: 'half',
     title: 'Data Label',
-    icon: 'fa-solid fa-tag',
+    icon: 'fa-solid fa-solid fa-tag',
     echarts_options: {},
     data_config: WidgetConfigBuilder.staticData({}),
    },
