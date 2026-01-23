@@ -218,5 +218,3 @@ await (async () => {
 3. **Padankan Tipe**: Jika guna `lookupList`, pastikan **Type** di Drawer UI adalah **Array**. Jika `lookup`, pastikan **Type** adalah **Object**.
 
 _© 2026 Smart Projection Engine - High Performance Data Transformation_
-
-Apakah ada bagian spesifik dari `lookupList` yang ingin Anda pertegas lagi, misalnya cara membatasi jumlah data (_limit_) atau pengurutan (_sorting_)?
