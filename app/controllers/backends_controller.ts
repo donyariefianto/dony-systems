@@ -13,7 +13,7 @@ const REFRESH_SECRET: any = env.get('REFRESH_SECRET')
 export default class BackendsController {
  async patchMenu({ response, request }: HttpContext) {
   let body = request.all()
-  const collections = database.data?.collection('menu_systems')
+  const collections = database.data?.collection('systems')
   const existingDoc = await collections?.findOne({ id: 'fixed_menu' })
   let data
   if (existingDoc) {
@@ -35,8 +35,8 @@ export default class BackendsController {
    return response.send(data)
   }
   try {
-   const collections = database.data?.collection('menu_systems')
-   let data = await collections?.findOne({})
+   const collections = database.data?.collection('systems')
+   let data = await collections?.findOne({ id: 'fixed_menu' })
    let result = {},
     FIXED_DASHBOARD = {
      id: 'fixed_dashboard',
