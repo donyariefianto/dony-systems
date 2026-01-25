@@ -848,7 +848,7 @@ function renderPaginationControls(totalPages, totalItems, currentPage) {
   totalItems === 0
    ? ''
    : `
-    <div class="text-xs font-bold text-gray-700">Halaman ${currentPage} / ${totalPages}</div>
+    <div class="text-xs font-bold text-gray-700">Pages ${currentPage} / ${totalPages}</div>
     <div class="flex gap-2">
         <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Prev</button>
         <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-100 rounded text-xs font-bold">Next</button>

@@ -78,7 +78,7 @@ export async function renderDashboardView(config, container) {
                         <span id="current-time" class="bg-gray-100 px-2 py-1 rounded-md">...</span>
                         <span class="text-gray-300">/</span>
                         <button onclick="openDashboardSelector()" class="group flex items-center gap-1.5 text-zinc-600 hover:text-zinc-700 transition-colors">
-                            <span>Ganti Dashboard</span> 
+                            <span>Select Dashboard</span> 
                             <i class="fas fa-chevron-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                         </button>
                     </div>
