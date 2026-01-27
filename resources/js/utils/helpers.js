@@ -173,54 +173,54 @@ export async function refreshSidebarMenu() {
  * Fungsi Helper untuk sinkronisasi tampilan tombol theme
  */
 const updateThemeUI = (isDark) => {
-    const btn = document.getElementById('btn-theme-toggle');
-    if (!btn) return;
+ const btn = document.getElementById('btn-theme-toggle')
+ if (!btn) return
 
-    const icon = btn.querySelector('i');
-    if (!icon) return;
+ const icon = btn.querySelector('i')
+ if (!icon) return
 
-    if (isDark) {
-        // Tampilkan Matahari saat mode gelap aktif
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-        btn.classList.add('text-yellow-400', 'border-yellow-500/50');
-        btn.classList.remove('text-slate-500');
-    } else {
-        // Tampilkan Bulan saat mode terang aktif
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
-        btn.classList.remove('text-yellow-400', 'border-yellow-500/50');
-        btn.classList.add('text-slate-500');
-    }
-};
+ if (isDark) {
+  // Tampilkan Matahari saat mode gelap aktif
+  icon.classList.remove('fa-moon')
+  icon.classList.add('fa-sun')
+  btn.classList.add('text-yellow-400', 'border-yellow-500/50')
+  btn.classList.remove('text-slate-500')
+ } else {
+  // Tampilkan Bulan saat mode terang aktif
+  icon.classList.remove('fa-sun')
+  icon.classList.add('fa-moon')
+  btn.classList.remove('text-yellow-400', 'border-yellow-500/50')
+  btn.classList.add('text-slate-500')
+ }
+}
 
-export const toggleTheme = function() {
-    const html = document.documentElement;
-    const isDark = html.classList.toggle('dark');
-    console.log("Mode Gelap Aktif:", isDark);
-    // 1. Simpan preferensi
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    
-    // 2. Update tampilan tombol
-    updateThemeUI(isDark);
-    
-    // 3. Beritahu sistem (termasuk ECharts) bahwa tema berubah
-    window.dispatchEvent(new Event('themeChanged'));
-};
+export const toggleTheme = function () {
+ const html = document.documentElement
+ const isDark = html.classList.toggle('dark')
+ console.log('Mode Gelap Aktif:', isDark)
+ // 1. Simpan preferensi
+ localStorage.setItem('theme', isDark ? 'dark' : 'light')
+
+ // 2. Update tampilan tombol
+ updateThemeUI(isDark)
+
+ // 3. Beritahu sistem (termasuk ECharts) bahwa tema berubah
+ window.dispatchEvent(new Event('themeChanged'))
+}
 
 export function initTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+ const savedTheme = localStorage.getItem('theme')
+ const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+ const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark)
 
-    // 1. Set class pada HTML
-    if (isDark) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
+ // 1. Set class pada HTML
+ if (isDark) {
+  document.documentElement.classList.add('dark')
+ } else {
+  document.documentElement.classList.remove('dark')
+ }
 
-    // 2. SINKRONISASI ICON (Penting agar UI tidak mismatch saat refresh)
-    // Gunakan setTimeout atau panggil setelah DOM ready
-    setTimeout(() => updateThemeUI(isDark), 100);
+ // 2. SINKRONISASI ICON (Penting agar UI tidak mismatch saat refresh)
+ // Gunakan setTimeout atau panggil setelah DOM ready
+ setTimeout(() => updateThemeUI(isDark), 100)
 }

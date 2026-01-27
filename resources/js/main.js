@@ -43,7 +43,7 @@ import {
  closeModal,
  refreshSidebarMenu,
  toggleTheme,
- initTheme
+ initTheme,
 } from './utils/helpers.js'
 
 document.addEventListener('DOMContentLoaded', () => {
