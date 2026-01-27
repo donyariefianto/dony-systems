@@ -155,6 +155,7 @@ export async function refreshSidebarMenu() {
   data = decryptData(data.nonce, data.ciphertext)
   data = JSON.parse(data)
   renderSidebar(data.sidemenu)
+  AppState.menuData = data.sidemenu
   showToast('Menu sidebar diperbarui', 'success')
  } catch (error) {
   console.log(error)

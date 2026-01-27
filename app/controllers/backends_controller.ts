@@ -209,6 +209,38 @@ export default class BackendsController {
    })
   }
  }
+ async aggreateCollectionData({ params, request, response }: HttpContext) {
+  const collectionName = params.col
+  const { pipeline, options } = request.only(['pipeline', 'options'])
+  if (!pipeline) {
+   return response.status(400).send({ message: 'Pipeline is required' })
+  }
+  const defaultOptions: any = {
+   allowDiskUse: true,
+   maxTimeMS: 60000,
+   cursor: { batchSize: 1000 },
+   ...options,
+  }
+  try {
+   const collections = database.data?.collection(collectionName)
+   const startTime = Date.now()
+   const result = await collections?.aggregate(JSON.parse(pipeline), defaultOptions).toArray()
+   const duration = Date.now() - startTime
+   let data_encrypt = EncryptionService.encrypt(
+    JSON.stringify({
+     success: true,
+     data: result,
+     executionTime: `${duration}ms`,
+     messages: `[Aggregation Success] Collection: ${collectionName} | Duration: ${duration}ms | Count: ${result?.length}`,
+    })
+   )
+   return response.send(data_encrypt)
+  } catch (error) {
+   console.log(error)
+
+   return response.status(500).send({ message: 'Error executing aggregation', error })
+  }
+ }
  async getCollectionData({ params, request, response }: HttpContext) {
   const colName = params.col
   const { page = 1, limit = 10, sortField, sortOrder, search, filter } = request.all()

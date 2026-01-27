@@ -27,6 +27,10 @@ router
 router
  .group(() => {
   // API Handling CRUD Opertion
+  router.get(
+   'collections-aggregation/:col',
+   '#controllers/backends_controller.aggreateCollectionData'
+  )
   router.get('collections/:col', '#controllers/backends_controller.getCollectionData')
   router.get('collections/:col/:id', '#controllers/backends_controller.getCollectionDataDetail')
   router

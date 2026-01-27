@@ -277,14 +277,19 @@ async function initWidgetDataFetcher(widget) {
 window.refreshSingleWidget = async function (widgetId) {
  const loader = document.getElementById(`loader-${widgetId}`)
  if (loader) loader.classList.remove('opacity-0')
-
  try {
-  const response = await apiFetch(`api/collections/widgets/${widgetId}/refresh`, { method: 'POST' })
+  const widgetConfig = dashboardState.configs[widgetId]
+  const apiPipeline = JSON.stringify(widgetConfig.data_config.pipeline) || '[]'
+  const response = await apiFetch(
+   `api/collections-aggregation/${widgetConfig.data_config.collection}?pipeline=${apiPipeline}`
+  )
+  if (!response || !response.ok) throw new Error('Network Error')
+  let result = await response.json()
   if (response && response.ok) {
-   const result = await response.json()
-   const newData = result.data
+   result = decryptData(result.nonce, result.ciphertext)
+   result = JSON.parse(result)
+   const newData = result.data[0] || []
    dashboardState.data[widgetId] = newData
-   const widgetConfig = dashboardState.configs[widgetId]
    const container = document.getElementById(`widget-content-${widgetId}`)
    if (container && widgetConfig) {
     renderWidgetContent(container, widgetConfig, newData)
@@ -295,7 +300,6 @@ window.refreshSingleWidget = async function (widgetId) {
   }
  } catch (e) {
   showToast('Gagal memproses data baru', 'error')
-
   const widgetConfig = dashboardState.configs[widgetId]
   if (widgetConfig) initWidgetDataFetcher(widgetConfig)
  } finally {
