@@ -5,13 +5,10 @@ import vm from 'vm'
 export class SmartProjectionEngineService {
  static async executeEngine(data_request: any, method_request: any, param_request: any) {
   try {
-   const isEmpty = Object.keys(data_request).length === 0
-   if (isEmpty) return
    const source_data = data_request
    const trigger_collection = param_request.col
    const id_data = param_request.id
-
-   let eventType = ''
+   let eventType = ''   
    switch (method_request) {
     case 'POST':
      eventType = 'onInsert'
@@ -25,14 +22,12 @@ export class SmartProjectionEngineService {
     default:
      return
    }
-
    const speCollection = database.data?.collection('smart_projection_engine')
    const config = await speCollection?.findOne({
     'status': 'active',
     'trigger.collection': trigger_collection,
     'trigger.event': eventType,
    })
-
    if (!config || !config.mapping || config.mapping.length === 0) {
     return
    }
@@ -43,12 +38,10 @@ export class SmartProjectionEngineService {
     return
    }
    const targetCollection = database.data?.collection(targetCollectionName)
-
    let oldData: any = await targetCollection?.find({}).sort({ _id: -1 }).limit(1).toArray()
    oldData = oldData[0]
-
+   if (oldData) oldData.id_data = id_data
    const result = await this.processNestedProjection(source_data, config.mapping, oldData)
-
    if (result.data) {
     await targetCollection?.insertOne(result.data)
    }

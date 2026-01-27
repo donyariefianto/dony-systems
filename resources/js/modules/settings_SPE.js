@@ -909,12 +909,10 @@ export function initSPEController() {
    const code = document.getElementById('prop-val-formula').value
    const sourceStr = document.getElementById('test-input-source').value
    const oldStr = document.getElementById('test-input-old').value || 'null'
-
    const outputContainer = document.getElementById('test-output-container')
    const statusIndicator = document.getElementById('test-status-indicator')
    const statusText = document.getElementById('test-status-text')
    const timeText = document.getElementById('test-execution-time')
-
    try {
     const source = JSON.parse(sourceStr)
     const old = oldStr === 'null' ? null : JSON.parse(oldStr)
@@ -933,10 +931,7 @@ export function initSPEController() {
     })
 
     const data = await response.json()
-    console.log(data)
-
     const duration = Math.round(performance.now() - startTime)
-
     statusIndicator.classList.remove('opacity-0')
     timeText.textContent = `${duration}ms`
 
