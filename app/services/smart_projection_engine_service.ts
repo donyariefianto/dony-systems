@@ -32,18 +32,21 @@ export class SmartProjectionEngineService {
     return
    }
 
-   const targetCollectionName = config.engine_collection
-   if (!targetCollectionName) {
-    console.error(`SPE Error: Target collection not defined for ${config.feature_name}`)
+   const IDCollectionName = config.id_engine_collection
+   if (!IDCollectionName) {
+    console.error(`SPE Error: ID Target collection not defined for ${config.feature_name}`)
     return
    }
-   const targetCollection = database.data?.collection(targetCollectionName)
-   let oldData: any = await targetCollection?.find({}).sort({ _id: -1 }).limit(1).toArray()
-   oldData = oldData[0]
+   const targetCollection = database.data?.collection("projection")
+   const query_data_projection = {id:IDCollectionName}
+   let oldData: any = await targetCollection?.findOne(query_data_projection) || null
    if (oldData) oldData.id_data = id_data
    const result = await this.processNestedProjection(source_data, config.mapping, oldData)
    if (result.data) {
-    await targetCollection?.insertOne(result.data)
+    let result_projection = result.data
+    result_projection['id'] = IDCollectionName
+    result_projection['updated_at'] = new Date()
+    await targetCollection?.replaceOne(query_data_projection,result_projection,{upsert:true})    
    }
   } catch (error) {
    console.error('SPE Execution Error:', error)

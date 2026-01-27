@@ -68,7 +68,7 @@ export function getSPEView() {
                             <h3 class="text-[10px] font-bold text-indigo-800 uppercase mb-2">1. Identity & Trigger</h3>
                             <div class="space-y-3">
                                 <input type="text" id="spe-input-name" placeholder="Engine Name" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded text-xs font-bold focus:ring-1 focus:ring-indigo-500 outline-none">
-                                <input type="text" id="spe-input-target-collection" placeholder="Engine Coll. (e.g. report_sales)" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded text-xs font-mono focus:ring-1 focus:ring-indigo-500 outline-none">
+                                <input type="text" id="spe-input-id-target-collection" placeholder="ID Engine Coll. (e.g. report_sales)" class="w-full px-3 py-2 bg-white border border-indigo-200 rounded text-xs font-mono focus:ring-1 focus:ring-indigo-500 outline-none">
                                 <select id="spe-input-status" class="w-full px-2 py-2 border border-slate-200 rounded text-xs bg-white"><option selected value="">-- Select Status --</option><option value="active">Active</option><option value="pause">Pause</option><option value="draft">Draft</option></select>
                                 <textarea id="spe-input-desc" placeholder="Description..." rows="2" class="w-full px-3 py-2 border border-slate-200 rounded text-xs resize-none"></textarea>
                             </div>
@@ -368,7 +368,7 @@ export function initSPEController() {
 
   inputs: {
    name: document.getElementById('spe-input-name'),
-   targetCol: document.getElementById('spe-input-target-collection'),
+   targetCol: document.getElementById('spe-input-id-target-collection'),
    desc: document.getElementById('spe-input-desc'),
    status: document.getElementById('spe-input-status'),
    collection: document.getElementById('spe-input-collection'),
@@ -987,7 +987,7 @@ export function initSPEController() {
      query_search = JSON.stringify({
       feature_name: els.inputs.search.value.trim(),
       description: els.inputs.search.value.trim(),
-      engine_collection: els.inputs.search.value.trim(),
+      id_engine_collection: els.inputs.search.value.trim(),
       status: els.inputs.search.value.trim(),
      })
     }
@@ -1056,7 +1056,7 @@ export function initSPEController() {
     const config = json.data || json
 
     els.inputs.name.value = config.feature_name
-    els.inputs.targetCol.value = config.engine_collection
+    els.inputs.targetCol.value = config.id_engine_collection || null
     els.inputs.desc.value = config.description
     els.inputs.status.value = config.status
     document.getElementById('spe-builder-title').textContent =
@@ -1090,7 +1090,7 @@ export function initSPEController() {
 
    const payload = {
     feature_name: els.inputs.name.value,
-    engine_collection: els.inputs.targetCol.value,
+    id_engine_collection: els.inputs.targetCol.value,
     description: els.inputs.desc.value,
     status: els.inputs.status.value,
     trigger: { collection: els.inputs.collection.value, event: els.inputs.event.value },
@@ -1211,7 +1211,7 @@ export function initSPEController() {
      }
      const displayName = conf.feature_name || conf.name || 'Untitled Engine'
      const displayColl = conf.trigger?.collection || conf.collection || '-'
-     const displayCollTarget = conf.engine_collection || '-'
+     const displayCollTarget = conf.id_engine_collection || '-'
      const displayEvent = conf.trigger?.event || conf.event || '-'
      const rulesCount = conf.mapping ? conf.mapping.length : conf.rules_count || 0
 
