@@ -245,14 +245,9 @@ async function initWidgetDataFetcher(widget) {
 
  if (loader) loader.classList.remove('opacity-0')
  try {
-  const queryParams = new URLSearchParams({
-   page: 1,
-   limit: 1,
-   sortField: '_id',
-   sortOrder: 'desc',
-  })
+  const apiPipeline = JSON.stringify(widget.data_config.pipeline) || '[]'
   const response = await apiFetch(
-   `api/collections/${widget.data_config.collection}?${queryParams.toString()}`
+   `api/collections-aggregation/${widget.data_config.collection}?pipeline=${apiPipeline}`
   )
   if (!response || !response.ok) throw new Error('Network Error')
   let result = await response.json()
