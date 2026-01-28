@@ -4,59 +4,6 @@ import { showToast, decryptData } from '../utils/helpers.js'
 let echartsPromise = null
 let glPromise = null
 
-async function loadECharts(requireGL = false) {
- if (!window.echarts) {
-  if (!echartsPromise) {
-   echartsPromise = loadScript({
-    url: 'https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js',
-    name: 'ECharts Core',
-   })
-  }
-  await echartsPromise
- }
-
- if (requireGL && typeof window.echarts.graphic.GL === 'undefined') {
-  if (!glPromise) {
-   glPromise = loadScript({
-    url: 'https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js',
-    name: 'ECharts GL',
-   })
-  }
-  await glPromise
- }
-
- return window.echarts
-}
-
-function loadScript({ url, name }) {
- return new Promise((resolve, reject) => {
-  const script = document.createElement('script')
-  script.src = url
-  script.onload = () => {
-   console.log(`${name} loaded successfully`)
-   resolve()
-  }
-  script.onerror = () => {
-   reject(new Error(`Gagal load ${name}`))
-  }
-  document.head.appendChild(script)
- })
-}
-
-const dashboardState = {
- configs: {},
- data: {},
- activeFsChart: null,
-}
-
-const selectorState = {
- page: 1,
- limit: 6,
- totalPages: 1,
- search: '',
- timer: null,
-}
-
 export async function renderDashboardView(config, container) {
  const oldModal = document.getElementById('widget-fullscreen-modal')
  if (oldModal) oldModal.remove()
@@ -164,6 +111,59 @@ export async function renderDashboardView(config, container) {
  startClock()
  const targetId = AppState.dashboard.activeId || AppState.user?.defaultDashboard || 'default'
  await loadDashboardConfig(targetId)
+}
+
+async function loadECharts(requireGL = false) {
+ if (!window.echarts) {
+  if (!echartsPromise) {
+   echartsPromise = loadScript({
+    url: 'https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js',
+    name: 'ECharts Core',
+   })
+  }
+  await echartsPromise
+ }
+
+ if (requireGL && typeof window.echarts.graphic.GL === 'undefined') {
+  if (!glPromise) {
+   glPromise = loadScript({
+    url: 'https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js',
+    name: 'ECharts GL',
+   })
+  }
+  await glPromise
+ }
+
+ return window.echarts
+}
+
+function loadScript({ url, name }) {
+ return new Promise((resolve, reject) => {
+  const script = document.createElement('script')
+  script.src = url
+  script.onload = () => {
+   console.log(`${name} loaded successfully`)
+   resolve()
+  }
+  script.onerror = () => {
+   reject(new Error(`Gagal load ${name}`))
+  }
+  document.head.appendChild(script)
+ })
+}
+
+const dashboardState = {
+ configs: {},
+ data: {},
+ activeFsChart: null,
+}
+
+const selectorState = {
+ page: 1,
+ limit: 6,
+ totalPages: 1,
+ search: '',
+ timer: null,
 }
 
 async function loadDashboardConfig(dashboardId) {

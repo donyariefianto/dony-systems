@@ -6,6 +6,9 @@ import { WidgetConfigBuilder } from '../utils/WidgetConfigBuilder.js'
 import { iconPicker } from '../utils/icon_picker.js'
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 
+const MAX_WIDGET_LIMIT = 10
+let currentEditingIndex = null
+
 let activeMobileTab = 'editor'
 let dashboardListState = {
  page: 1,
@@ -13,8 +16,6 @@ let dashboardListState = {
  search: '',
  totalPages: 1,
 }
-const MAX_WIDGET_LIMIT = 10
-let currentEditingIndex = null
 
 function escapeHtml(text) {
  const div = document.createElement('div')
@@ -204,6 +205,7 @@ function renderEditorPanel() {
                         <h1 id="editing-dashboard-name" class="text-sm md:text-base font-bold text-slate-800 tracking-tight truncate">
                             Select Dashboard
                         </h1>
+                        <p id="editing-dashboard-id"></p>
                     </div>
                 </div>
 
@@ -794,6 +796,7 @@ export function editWidgetConfig(index) {
    : '[\n  { "label": "Contoh", "value": 100 }\n]'
 
  let echartsOptionsValue = '{}'
+ const allowVariant = widget.allow_variant || false
  if (widget.echarts_options) {
   try {
    echartsOptionsValue = JSON.stringify(widget.echarts_options, null, 2)
@@ -887,6 +890,24 @@ export function editWidgetConfig(index) {
                             <input type="text" id="conf-collection" value="${escapeHtml(valCollection)}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                         </div>
                     </div>
+
+                    <div class="space-y-1.5 flex items-center justify-between">
+                        <div>
+                            <h4 class="text-[10px] font-bold text-gray-400 uppercase">Dynamic Variants</h4>
+                            <p class="text-[9px] text-slate-500 font-medium">Enable the custom selection option for this widget.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="conf-allow-variant" class="sr-only peer" onchange="toggleDynamicVariantUI(this.checked)">
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                    <div id="variant-engine-container" class="${allowVariant ? '' : 'hidden'} space-y-3 animate-in fade-in slide-in-from-top-1">
+                        <div id="variant-items-list" class="space-y-2">
+                            </div>
+                        <button type="button" onclick="window.addVariantRow()" class="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-[10px] font-black text-slate-400 hover:border-indigo-400 hover:text-indigo-500 transition-all uppercase tracking-widest">
+                            <i class="fas fa-plus-circle mr-1"></i> Add New Option
+                        </button>
+                    </div>
                     
                     <div class="space-y-1.5">
                         <div class="flex justify-between items-center">
@@ -913,6 +934,56 @@ export function editWidgetConfig(index) {
  modal.classList.remove('hidden')
 
  dragElement(modal)
+}
+
+window.addVariantRow = function(label = '', value = '', isDefault = false) {
+    const container = document.getElementById('variant-items-list');
+    if (!container) return;
+
+    const rowId = 'var-row-' + Math.random().toString(36).substr(2, 9);
+    const rowHTML = `
+        <div id="${rowId}" class="flex items-center gap-2 group animate-in slide-in-from-right-2 duration-200">
+            <div class="flex-1 grid grid-cols-2 gap-2">
+                <input type="text" placeholder="Label (e.g. Hari Ini)" value="${label}" class="var-label w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-bold outline-none focus:border-indigo-500">
+                <input type="text" placeholder="Value (e.g. today)" value="${value}" class="var-value w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-mono outline-none focus:border-indigo-500">
+            </div>
+            <input type="radio" name="default-variant-radio" class="var-default-radio h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300" ${isDefault ? 'checked' : ''} title="Set as Default">
+            <button onclick="document.getElementById('${rowId}').remove()" class="text-slate-300 hover:text-red-500 transition-colors p-1">
+                <i class="fas fa-times-circle text-xs"></i>
+            </button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', rowHTML);
+}
+
+window.addVariantRow = function(label = '', value = '', isDefault = false) {
+    const container = document.getElementById('variant-items-list');
+    if (!container) return;
+
+    const rowId = 'var-row-' + Math.random().toString(36).substr(2, 9);
+    const rowHTML = `
+        <div id="${rowId}" class="flex items-center gap-2 group animate-in slide-in-from-right-2 duration-200">
+            <div class="flex-1 grid grid-cols-2 gap-2">
+                <input type="text" placeholder="Label (e.g. Hari Ini)" value="${label}" class="var-label w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-bold outline-none focus:border-indigo-500">
+                <input type="text" placeholder="Value (e.g. today)" value="${value}" class="var-value w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-mono outline-none focus:border-indigo-500">
+            </div>
+            <input type="radio" name="default-variant-radio" class="var-default-radio h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300" ${isDefault ? 'checked' : ''} title="Set as Default">
+            <button onclick="document.getElementById('${rowId}').remove()" class="text-slate-300 hover:text-red-500 transition-colors p-1">
+                <i class="fas fa-times-circle text-xs"></i>
+            </button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', rowHTML);
+}
+
+export function toggleDynamicVariantUI(checked) {
+    const engine = document.getElementById('variant-engine-container');
+    engine.classList.toggle('hidden', !checked);
+    console.log(checked);
+    
+    // if (checked && document.getElementById('variant-items-list').children.length === 0) {
+    //     window.addVariantRow();
+    // }
 }
 
 export function closeWidgetConfigModal() {
@@ -1100,7 +1171,9 @@ export async function openWidgetEditor(id, name) {
   }))
 
   const nameElement = document.getElementById('editing-dashboard-name')
-  if (nameElement) nameElement.innerText = name
+  const idElement = document.getElementById('editing-dashboard-id')
+  if (id) idElement.innerText = `ID: ${id}`
+  if (nameElement) nameElement.innerText = `${name}`
 
   const emptyState = document.getElementById('generator-empty-state')
   if (emptyState) emptyState.style.opacity = '0'

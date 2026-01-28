@@ -34,6 +34,7 @@ import {
  switchConfigTab,
  initDashboardGenerator,
  triggerIconPickerSettingsDashboard,
+ toggleDynamicVariantUI,
 } from './modules/settings_dashboard.js'
 
 import {
@@ -105,6 +106,7 @@ window.changeDashboardPage = changeDashboardPage
 window.switchMobileTab = switchMobileTab
 window.filterWidgetLibraryOnly = filterWidgetLibraryOnly
 window.switchConfigTab = switchConfigTab
+window.toggleDynamicVariantUI = toggleDynamicVariantUI
 window.initDashboardGenerator = initDashboardGenerator
 window.switchMobileTab = switchMobileTab
 window.setActiveTab = setActiveTab
