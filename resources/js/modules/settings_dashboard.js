@@ -1046,8 +1046,8 @@ export function editWidgetConfig(index) {
 
                         <div class="flex items-center justify-between">
                             <div>
-                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Dynamic Variants</h4>
-                                <p class="text-[9px] text-slate-500 font-medium">Inject JSON configuration for multi-variant support.</p>
+                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Static Data</h4>
+                                <p class="text-[9px] text-slate-500 font-medium">Inject JSON configuration for EChart.</p>
                             </div>
                         </div>
                         <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valStatic)}</textarea>
@@ -1191,7 +1191,7 @@ export function applyWidgetChanges() {
  target.data_config = newDataConfig
  target.allow_variant = allowVariant
  target.variant_config = variantConfig
-
+ 
  try {
   const echartsStr = document.getElementById('conf-echarts-options')?.value || '{}'
   target.echarts_options = JSON.parse(echartsStr)
@@ -1257,6 +1257,8 @@ export async function saveDashboardBuilder() {
    refresh_interval: w.refresh_interval || 0,
    echarts_options: w.echarts_options || {},
    data_config: w.data_config || WidgetConfigBuilder.staticData([{ label: 'Data', value: 0 }]),
+   allow_variant: w.allow_variant || false,
+   variant_config: w.variant_config || [],
    updated_at: w.updated_at || new Date().toISOString(),
   })),
  }
