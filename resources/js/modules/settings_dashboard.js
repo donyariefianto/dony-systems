@@ -124,68 +124,235 @@ function renderFilesPanel() {
     `
 }
 
-function dragElement(elmnt) {
- let pos1 = 0,
-  pos2 = 0,
-  pos3 = 0,
-  pos4 = 0
-
- const header = document.getElementById('widget-config-header')
-
- if (header) {
-  header.onmousedown = dragStart
-
-  header.ontouchstart = dragStart
- } else {
-  elmnt.onmousedown = dragStart
-  elmnt.ontouchstart = dragStart
+function dragElement(elmnt, options = {}) {
+ const config = {
+  handle: options.handle || null,
+  disabledElements: options.disabledElements || ['INPUT', 'TEXTAREA', 'BUTTON', 'SELECT', 'I'],
+  boundary: options.boundary || 'window',
+  snapToGrid: options.snapToGrid || false,
+  gridSize: options.gridSize || 10,
+  onStart: options.onStart || null,
+  onMove: options.onMove || null,
+  onEnd: options.onEnd || null,
  }
 
- function dragStart(e) {
-  const evt = e.type === 'touchstart' ? e.touches[0] : e
+ let isDragging = false
+ let startX = 0
+ let startY = 0
+ let elementX = 0
+ let elementY = 0
+ let boundaryRect = null
 
-  const targetTag = e.target.tagName
+ const handle = config.handle
+  ? typeof config.handle === 'string'
+    ? elmnt.querySelector(config.handle)
+    : config.handle
+  : null
 
-  if (['INPUT', 'TEXTAREA', 'BUTTON', 'I'].includes(targetTag)) {
-   return
-  }
+ const dragHandle = handle || elmnt.querySelector('.drag-handle') || elmnt
 
-  pos3 = evt.clientX
-  pos4 = evt.clientY
+ setBoundary()
+ bindEvents()
 
-  if (e.type === 'touchstart') {
-   document.ontouchend = closeDragElement
-   document.ontouchmove = elementDrag
-  } else {
-   e.preventDefault()
-   document.onmouseup = closeDragElement
-   document.onmousemove = elementDrag
+ function setBoundary() {
+  if (config.boundary === 'window') {
+   boundaryRect = {
+    top: 0,
+    left: 0,
+    right: window.innerWidth,
+    bottom: window.innerHeight,
+   }
+  } else if (config.boundary instanceof Element) {
+   const rect = config.boundary.getBoundingClientRect()
+   boundaryRect = rect
+  } else if (typeof config.boundary === 'string') {
+   const boundaryEl = document.querySelector(config.boundary)
+   if (boundaryEl) {
+    boundaryRect = boundaryEl.getBoundingClientRect()
+   } else {
+    boundaryRect = {
+     top: 0,
+     left: 0,
+     right: window.innerWidth,
+     bottom: window.innerHeight,
+    }
+   }
   }
  }
 
- function elementDrag(e) {
+ function bindEvents() {
+  dragHandle.addEventListener('mousedown', onMouseDown)
+  dragHandle.addEventListener('touchstart', onTouchDown, { passive: false })
+
+  window.addEventListener('resize', setBoundary)
+ }
+
+ function shouldStartDrag(target) {
+  const tagName = target.tagName.toUpperCase()
+  if (config.disabledElements.includes(tagName)) {
+   return false
+  }
+
+  if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
+   return false
+  }
+
+  return true
+ }
+
+ function onMouseDown(e) {
+  if (!shouldStartDrag(e.target)) return
+
+  e.preventDefault()
+  startDrag(e.clientX, e.clientY)
+
+  document.addEventListener('mousemove', onMouseMove)
+  document.addEventListener('mouseup', onMouseUp)
+ }
+
+ function onTouchDown(e) {
+  if (!shouldStartDrag(e.target)) return
+
   if (e.cancelable) e.preventDefault()
 
-  const evt = e.type === 'touchmove' ? e.touches[0] : e
+  const touch = e.touches[0]
+  startDrag(touch.clientX, touch.clientY)
 
-  pos1 = pos3 - evt.clientX
-  pos2 = pos4 - evt.clientY
-  pos3 = evt.clientX
-  pos4 = evt.clientY
-
-  elmnt.style.top = elmnt.offsetTop - pos2 + 'px'
-  elmnt.style.left = elmnt.offsetLeft - pos1 + 'px'
-
-  elmnt.style.position = 'fixed'
-  elmnt.style.margin = '0'
-  elmnt.style.transform = 'none'
+  document.addEventListener('touchmove', onTouchMove, { passive: false })
+  document.addEventListener('touchend', onTouchEnd)
  }
 
- function closeDragElement() {
-  document.onmouseup = null
-  document.onmousemove = null
-  document.ontouchend = null
-  document.ontouchmove = null
+ function startDrag(clientX, clientY) {
+  isDragging = true
+  startX = clientX
+  startY = clientY
+
+  const rect = elmnt.getBoundingClientRect()
+  elementX = rect.left
+  elementY = rect.top
+
+  const computedStyle = window.getComputedStyle(elmnt)
+  if (computedStyle.position === 'static') {
+   elmnt.style.position = 'fixed'
+   elmnt.style.left = `${rect.left}px`
+   elmnt.style.top = `${rect.top}px`
+   elmnt.style.margin = '0'
+  }
+
+  elmnt.classList.add('dragging')
+
+  if (config.onStart && typeof config.onStart === 'function') {
+   config.onStart({ element: elmnt, x: elementX, y: elementY })
+  }
+ }
+
+ function onMouseMove(e) {
+  if (!isDragging) return
+
+  e.preventDefault()
+  drag(e.clientX, e.clientY)
+ }
+
+ function onTouchMove(e) {
+  if (!isDragging) return
+
+  if (e.cancelable) e.preventDefault()
+
+  const touch = e.touches[0]
+  drag(touch.clientX, touch.clientY)
+ }
+
+ function drag(clientX, clientY) {
+  let newX = elementX + (clientX - startX)
+  let newY = elementY + (clientY - startY)
+
+  if (config.snapToGrid) {
+   newX = Math.round(newX / config.gridSize) * config.gridSize
+   newY = Math.round(newY / config.gridSize) * config.gridSize
+  }
+
+  if (boundaryRect) {
+   const elementRect = elmnt.getBoundingClientRect()
+
+   newX = Math.max(boundaryRect.left, Math.min(newX, boundaryRect.right - elementRect.width))
+   newY = Math.max(boundaryRect.top, Math.min(newY, boundaryRect.bottom - elementRect.height))
+  }
+
+  elmnt.style.transform = `translate(${newX}px, ${newY}px)`
+
+  if (config.onMove && typeof config.onMove === 'function') {
+   config.onMove({ element: elmnt, x: newX, y: newY })
+  }
+ }
+
+ function onMouseUp() {
+  endDrag()
+
+  document.removeEventListener('mousemove', onMouseMove)
+  document.removeEventListener('mouseup', onMouseUp)
+ }
+
+ function onTouchEnd() {
+  endDrag()
+
+  document.removeEventListener('touchmove', onTouchMove)
+  document.removeEventListener('touchend', onTouchEnd)
+ }
+
+ function endDrag() {
+  if (!isDragging) return
+
+  isDragging = false
+
+  elmnt.classList.remove('dragging')
+
+  const transform = elmnt.style.transform
+  if (transform) {
+   const match = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/)
+   if (match) {
+    elmnt.style.left = `${parseFloat(match[1])}px`
+    elmnt.style.top = `${parseFloat(match[2])}px`
+    elmnt.style.transform = 'none'
+   }
+  }
+
+  if (config.onEnd && typeof config.onEnd === 'function') {
+   const rect = elmnt.getBoundingClientRect()
+   config.onEnd({ element: elmnt, x: rect.left, y: rect.top })
+  }
+ }
+
+ return {
+  destroy: function () {
+   dragHandle.removeEventListener('mousedown', onMouseDown)
+   dragHandle.removeEventListener('touchstart', onTouchDown)
+   window.removeEventListener('resize', setBoundary)
+
+   document.removeEventListener('mousemove', onMouseMove)
+   document.removeEventListener('mouseup', onMouseUp)
+   document.removeEventListener('touchmove', onTouchMove)
+   document.removeEventListener('touchend', onTouchEnd)
+  },
+
+  updateOptions: function (newOptions) {
+   Object.assign(config, newOptions)
+   if (newOptions.boundary) {
+    setBoundary()
+   }
+  },
+
+  getPosition: function () {
+   const rect = elmnt.getBoundingClientRect()
+   return { x: rect.left, y: rect.top }
+  },
+
+  setPosition: function (x, y) {
+   elmnt.style.position = 'fixed'
+   elmnt.style.left = `${x}px`
+   elmnt.style.top = `${y}px`
+   elmnt.style.margin = '0'
+   elmnt.style.transform = 'none'
+  },
  }
 }
 
@@ -234,7 +401,7 @@ function renderEditorPanel() {
                         <i class="fas fa-layer-group text-2xl text-gray-300"></i>
                     </div>
                     <h3 class="text-xs font-bold text-gray-700 uppercase tracking-widest mb-1">Workspace Ready</h3>
-                    <p class="text-[10px] text-gray-400">Pilih dashboard dari kiri, tarik widget dari kanan.</p>
+                    <p class="text-[10px] text-gray-400">select one of the dashboards on the left.</p>
                 </div>
 
                 <div id="builder-widgets-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start auto-rows-min relative z-10 pb-32 lg:pb-10"></div>
@@ -795,8 +962,21 @@ export function editWidgetConfig(index) {
    ? JSON.stringify(currentConfig.static_data || [{ label: 'Data', value: 0 }], null, 2)
    : '[\n  { "label": "Contoh", "value": 100 }\n]'
 
- let echartsOptionsValue = '{}'
  const allowVariant = widget.allow_variant || false
+ const defaultVariantData = [
+  {
+   id: 'id',
+   label: 'label',
+   options: [
+    { label: 'label', value: 'value' },
+    { label: 'label', value: 'value' },
+   ],
+   default: 'default(options label value)',
+  },
+ ]
+ const valVariantConfig = JSON.stringify(widget.variant_config || defaultVariantData, null, 2)
+
+ let echartsOptionsValue = '{}'
  if (widget.echarts_options) {
   try {
    echartsOptionsValue = JSON.stringify(widget.echarts_options, null, 2)
@@ -810,35 +990,22 @@ export function editWidgetConfig(index) {
             <div class="space-y-3">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</label>
-                    <input type="text" id="conf-title" 
-                        value="${escapeHtml(widget.title || '')}" 
-                        class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-800 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
+                    <input type="text" id="conf-title" value="${escapeHtml(widget.title || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-800 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
                 </div>
 
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</label>
-                    <input type="text" id="conf-desc" 
-                        value="${escapeHtml(widget.description || '')}" 
-                        class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
+                    <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
                 </div>
 
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Icon</label>
                     <div class="flex gap-2">
-                        
-                        <div id="preview-conf-icon" 
-                            class="shrink-0 w-[38px] h-[38px] rounded-lg bg-slate-50 border border-gray-200 flex items-center justify-center text-slate-500 shadow-sm transition-all duration-300">
+                        <div id="preview-conf-icon" class="shrink-0 w-[38px] h-[38px] rounded-lg bg-slate-50 border border-gray-200 flex items-center justify-center text-slate-500 shadow-sm transition-all duration-300">
                             <i class="${widget.icon || 'fas fa-icons'} text-sm"></i>
                         </div>
-                        
                         <div class="relative flex-1 group">
-                            <input type="text" 
-                                id="conf-icon" 
-                                value="${escapeHtml(widget.icon || 'fas fa-icons')}"
-                                readonly
-                                onclick="triggerIconPickerSettingsDashboard('conf-icon')"
-                                class="w-full p-2.5 pr-8 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 outline-none focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-all placeholder:font-normal"
-                                placeholder="Select icon...">
+                            <input type="text" id="conf-icon" value="${escapeHtml(widget.icon || 'fas fa-icons')}" readonly onclick="triggerIconPickerSettingsDashboard('conf-icon')" class="w-full p-2.5 pr-8 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 outline-none focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-all placeholder:font-normal" placeholder="Select icon...">
                         </div>
                     </div>
                 </div>
@@ -848,9 +1015,9 @@ export function editWidgetConfig(index) {
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label>
                     <select id="conf-width" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-blue-500">
-                        <option value="quarter" ${widget.width === 'quarter' ? 'selected' : ''}>Quarter (1/4)</option>
-                        <option value="half" ${widget.width === 'half' ? 'selected' : ''}>Half (1/2)</option>
-                        <option value="full" ${widget.width === 'full' ? 'selected' : ''}>Full (1/1)</option>
+                        <option value="1" ${widget.width == 1 ? 'selected' : ''}>Quarter (1/4)</option>
+                        <option value="2" ${widget.width == 2 ? 'selected' : ''}>Half (1/2)</option>
+                        <option value="4" ${widget.width == 4 ? 'selected' : ''}>Full (1/1)</option>
                     </select>
                 </div>
                 <div class="space-y-1.5">
@@ -862,7 +1029,7 @@ export function editWidgetConfig(index) {
             <hr class="border-gray-100">
 
             <div class="space-y-3">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Source</label>
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Configuration</label>
                 
                 <div class="flex p-1 bg-gray-100 rounded-xl">
                     <button type="button" onclick="switchConfigTab('static')" id="btn-source-static" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'static' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
@@ -875,14 +1042,21 @@ export function editWidgetConfig(index) {
                 <input type="hidden" id="conf-source" value="${source}">
 
                 <div id="panel-config-static" class="${source === 'static' ? '' : 'hidden'} space-y-2 animate-in fade-in">
-                    <div class="flex justify-between items-center">
-                         <label class="text-[10px] font-bold text-gray-400 uppercase">JSON Data</label>
-                         <span class="text-[9px] text-blue-500 cursor-pointer hover:underline">Lihat format</span>
+                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Dynamic Variants</h4>
+                                <p class="text-[9px] text-slate-500 font-medium">Inject JSON configuration for multi-variant support.</p>
+                            </div>
+                        </div>
+                        <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valStatic)}</textarea>
+                        
                     </div>
-                    <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valStatic)}</textarea>
                 </div>
 
-                <div id="panel-config-db" class="${source === 'database' ? '' : 'hidden'} space-y-4 animate-in fade-in">
+                <div id="panel-config-db" class="${source === 'database' ? '' : 'hidden'} space-y-5 animate-in fade-in">
+                    
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-bold text-gray-400 uppercase">Collection Name</label>
                         <div class="relative">
@@ -891,99 +1065,68 @@ export function editWidgetConfig(index) {
                         </div>
                     </div>
 
-                    <div class="space-y-1.5 flex items-center justify-between">
-                        <div>
-                            <h4 class="text-[10px] font-bold text-gray-400 uppercase">Dynamic Variants</h4>
-                            <p class="text-[9px] text-slate-500 font-medium">Enable the custom selection option for this widget.</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="conf-allow-variant" class="sr-only peer" onchange="toggleDynamicVariantUI(this.checked)">
-                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                    </div>
-                    <div id="variant-engine-container" class="${allowVariant ? '' : 'hidden'} space-y-3 animate-in fade-in slide-in-from-top-1">
-                        <div id="variant-items-list" class="space-y-2">
+                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Dynamic Variant</h4>
+                                <p class="text-[9px] text-slate-500 font-medium">Enable the custom selection option for this widget.</p>
                             </div>
-                        <button type="button" onclick="window.addVariantRow()" class="w-full py-2 border-2 border-dashed border-slate-300 rounded-lg text-[10px] font-black text-slate-400 hover:border-indigo-400 hover:text-indigo-500 transition-all uppercase tracking-widest">
-                            <i class="fas fa-plus-circle mr-1"></i> Add New Option
-                        </button>
-                    </div>
-                    
-                    <div class="space-y-1.5">
-                        <div class="flex justify-between items-center">
-                             <label class="text-[10px] font-bold text-gray-400 uppercase">Aggregation Pipeline</label>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="conf-allow-variant" class="sr-only peer" onchange="document.getElementById('variant-json-editor').classList.toggle('hidden', !this.checked)" ${allowVariant ? 'checked' : ''}>
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
                         </div>
-                        <textarea id="conf-pipeline" rows="6" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valPipeline)}</textarea>
+
+                        <div id="variant-json-editor" class="${allowVariant ? '' : 'hidden'} space-y-2 animate-in slide-in-from-top-2">
+                            <div class="flex justify-between text-[9px] text-indigo-400 font-bold uppercase">
+                                <span>Variant Config (JSON Array)</span>
+                                <span class="cursor-pointer hover:underline" onclick="showToast('Each object must have an id, label, options[], and default.')">? Help</span>
+                            </div>
+                            <textarea id="conf-variant-json" rows="6" class="w-full bg-[#1e293b] text-cyan-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner placeholder:text-slate-600" placeholder='[{"label": "Opt A", "value": "a"}]'>${escapeHtml(valVariantConfig)}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Aggregation Pipeline</h4>
+                            </div>
+                            
+                            <div class="text-[9px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                Tips: Injection method <code class="text-red-500 font-bold">{{ID_VARIANT}}</code>
+                            </div>
+                        </div>
+                        <textarea id="conf-pipeline" rows="8" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='[\n  { "$match": { "status": "{{VARIANT}}" } }\n]'>${escapeHtml(valPipeline)}</textarea>
+                        <div class="p-3 bg-slate-100 rounded-lg border border-slate-200">
+                            <p class="text-[9px] text-slate-500 leading-relaxed">
+                                <i class="fas fa-info-circle mr-1 text-blue-500"></i> 
+                                <b>How it Works:</b> If you create a variant with the ID <code class="text-blue-600">YEAR</code>, then in the pipeline you can write 
+                                <code class="text-indigo-600">{"$match": {"tahun": "{{YEAR}}"}}</code>. The system will automatically replace it when the user selects the dropdown.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <hr class="border-gray-100">
-
             <div class="space-y-3">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ECharts Configuration</label>
-                <div class="space-y-1.5">
-                    <div class="flex justify-between items-center">
-                         <label class="text-[10px] font-bold text-gray-400 uppercase">ECharts Options</label>
+                <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+                    <div>
+                        <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Visualisation</h4>
+                        <p class="text-[9px] text-slate-500 font-medium">ECharts Options JSON.</p>
                     </div>
-                    <textarea id="conf-echarts-options" rows="10" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(echartsOptionsValue)}</textarea>
+                    <textarea id="conf-echarts-options" rows="6" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(echartsOptionsValue)}</textarea>
                 </div>
             </div>
         </div>`
 
  modal.classList.remove('hidden')
-
  dragElement(modal)
 }
 
-window.addVariantRow = function(label = '', value = '', isDefault = false) {
-    const container = document.getElementById('variant-items-list');
-    if (!container) return;
-
-    const rowId = 'var-row-' + Math.random().toString(36).substr(2, 9);
-    const rowHTML = `
-        <div id="${rowId}" class="flex items-center gap-2 group animate-in slide-in-from-right-2 duration-200">
-            <div class="flex-1 grid grid-cols-2 gap-2">
-                <input type="text" placeholder="Label (e.g. Hari Ini)" value="${label}" class="var-label w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-bold outline-none focus:border-indigo-500">
-                <input type="text" placeholder="Value (e.g. today)" value="${value}" class="var-value w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-mono outline-none focus:border-indigo-500">
-            </div>
-            <input type="radio" name="default-variant-radio" class="var-default-radio h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300" ${isDefault ? 'checked' : ''} title="Set as Default">
-            <button onclick="document.getElementById('${rowId}').remove()" class="text-slate-300 hover:text-red-500 transition-colors p-1">
-                <i class="fas fa-times-circle text-xs"></i>
-            </button>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', rowHTML);
-}
-
-window.addVariantRow = function(label = '', value = '', isDefault = false) {
-    const container = document.getElementById('variant-items-list');
-    if (!container) return;
-
-    const rowId = 'var-row-' + Math.random().toString(36).substr(2, 9);
-    const rowHTML = `
-        <div id="${rowId}" class="flex items-center gap-2 group animate-in slide-in-from-right-2 duration-200">
-            <div class="flex-1 grid grid-cols-2 gap-2">
-                <input type="text" placeholder="Label (e.g. Hari Ini)" value="${label}" class="var-label w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-bold outline-none focus:border-indigo-500">
-                <input type="text" placeholder="Value (e.g. today)" value="${value}" class="var-value w-full p-2 bg-white border border-slate-200 rounded-md text-[11px] font-mono outline-none focus:border-indigo-500">
-            </div>
-            <input type="radio" name="default-variant-radio" class="var-default-radio h-3 w-3 text-indigo-600 focus:ring-indigo-500 border-gray-300" ${isDefault ? 'checked' : ''} title="Set as Default">
-            <button onclick="document.getElementById('${rowId}').remove()" class="text-slate-300 hover:text-red-500 transition-colors p-1">
-                <i class="fas fa-times-circle text-xs"></i>
-            </button>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', rowHTML);
-}
-
 export function toggleDynamicVariantUI(checked) {
-    const engine = document.getElementById('variant-engine-container');
-    engine.classList.toggle('hidden', !checked);
-    console.log(checked);
-    
-    // if (checked && document.getElementById('variant-items-list').children.length === 0) {
-    //     window.addVariantRow();
-    // }
+ const engine = document.getElementById('variant-engine-container')
+ engine.classList.toggle('hidden', !checked)
+ console.log(checked)
 }
 
 export function closeWidgetConfigModal() {
@@ -1010,11 +1153,14 @@ export function applyWidgetChanges() {
  const width = document.getElementById('conf-width')?.value || 'half'
  const refresh = parseInt(document.getElementById('conf-refresh')?.value) || 0
  const source = document.getElementById('conf-source')?.value || 'static'
-
+ const allowVariant = document.getElementById('conf-allow-variant')?.checked || false
+ let variantConfig = []
  let newDataConfig = {}
  let collectionName = ''
 
  try {
+  const jsonStr = document.getElementById('conf-variant-json')?.value || '[]'
+  variantConfig = JSON.parse(jsonStr)
   if (source === 'static') {
    const jsonStr = document.getElementById('conf-static-json')?.value || '[]'
    const parsedData = JSON.parse(jsonStr)
@@ -1043,6 +1189,8 @@ export function applyWidgetChanges() {
  target.refresh_interval = refresh
  target.collection = collectionName
  target.data_config = newDataConfig
+ target.allow_variant = allowVariant
+ target.variant_config = variantConfig
 
  try {
   const echartsStr = document.getElementById('conf-echarts-options')?.value || '{}'
