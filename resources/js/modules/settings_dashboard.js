@@ -986,139 +986,148 @@ export function editWidgetConfig(index) {
  }
 
  formContainer.innerHTML = `
-        <div class="space-y-5">
-            <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</label>
-                    <input type="text" id="conf-title" value="${escapeHtml(widget.title || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-800 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
+    <div class="space-y-5">
+        <div class="space-y-3">
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-400 uppercase">Title</label>
+                <div class="relative">
+                    <i class="fas fa-t absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                    <input type="text" id="conf-title" value="${escapeHtml(widget.title||"")}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                 </div>
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Collection Name</label>
-                    <div class="relative">
-                        <i class="fas fa-database absolute left-3 top-2.5 text-gray-400 text-xs"></i>
-                        <input type="text" id="conf-collection" value="${escapeHtml(valCollection)}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
-                    </div>
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-400 uppercase">Collection Name</label>
+                <div class="relative">
+                    <i class="fas fa-database absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                    <input type="text" id="conf-collection" value="${escapeHtml(valCollection)}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                 </div>
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Descriptions</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-circle-exclamation absolute left-3 top-2.5 text-gray-400 text-xs"></i>
-                        <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Icon</label>
-                    <div class="flex gap-2">
-                        <div id="preview-conf-icon" class="shrink-0 w-[38px] h-[38px] rounded-lg bg-slate-50 border border-gray-200 flex items-center justify-center text-slate-500 shadow-sm transition-all duration-300">
-                            <i class="${widget.icon || 'fas fa-icons'} text-sm"></i>
-                        </div>
-                        <div class="relative flex-1 group">
-                            <input type="text" id="conf-icon" value="${escapeHtml(widget.icon || 'fas fa-icons')}" readonly onclick="triggerIconPickerSettingsDashboard('conf-icon')" class="w-full p-2.5 pr-8 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 outline-none focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-all placeholder:font-normal" placeholder="Select icon...">
-                        </div>
-                    </div>
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-400 uppercase">Descriptions</label>
+                <div class="relative">
+                    <i class="fa-solid fa-circle-exclamation absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                    <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" placeholder="e.g. Details transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label>
-                    <select id="conf-width" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-blue-500">
-                        <option value="1" ${widget.width == 1 ? 'selected' : ''}>Quarter (1/4)</option>
-                        <option value="2" ${widget.width == 2 ? 'selected' : ''}>Half (1/2)</option>
-                        <option value="4" ${widget.width == 4 ? 'selected' : ''}>Full (1/1)</option>
-                    </select>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Refresh (Detik)</label>
-                    <input type="number" id="conf-refresh" value="${widget.refresh_interval || 0}" min="0" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
-                </div>
-            </div>
-
-            <hr class="border-gray-100">
-
-            <div class="space-y-3">
-                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Configuration</label>
-                
-                <div class="flex p-1 bg-gray-100 rounded-xl">
-                    <button type="button" onclick="switchConfigTab('static')" id="btn-source-static" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'static' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
-                        <i class="fas fa-code mr-1"></i> Static
-                    </button>
-                    <button type="button" onclick="switchConfigTab('database')" id="btn-source-db" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'database' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
-                        <i class="fas fa-database mr-1"></i> Database
-                    </button>
-                </div>
-                <input type="hidden" id="conf-source" value="${source}">
-
-                <div id="panel-config-static" class="${source === 'static' ? '' : 'hidden'} space-y-2 animate-in fade-in">
-                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
-
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Static Data</h4>
-                                <p class="text-[9px] text-slate-500 font-medium">Inject JSON configuration for EChart.</p>
-                            </div>
-                        </div>
-                        <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valStatic)}</textarea>
-                        
+            <div>
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Icon</label>
+                <div class="flex gap-2">
+                    <div id="preview-conf-icon" class="shrink-0 w-[38px] h-[38px] rounded-lg bg-slate-50 border border-gray-200 flex items-center justify-center text-slate-500 shadow-sm transition-all duration-300">
+                        <i class="${widget.icon || 'fas fa-icons'} text-sm"></i>
                     </div>
-                </div>
-
-                <div id="panel-config-db" class="${source === 'database' ? '' : 'hidden'} space-y-5 animate-in fade-in">
-
-                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Dynamic Variant</h4>
-                                <p class="text-[9px] text-slate-500 font-medium">Enable the custom selection option for this widget.</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="conf-allow-variant" class="sr-only peer" onchange="document.getElementById('variant-json-editor').classList.toggle('hidden', !this.checked)" ${allowVariant ? 'checked' : ''}>
-                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-                            </label>
-                        </div>
-
-                        <div id="variant-json-editor" class="${allowVariant ? '' : 'hidden'} space-y-2 animate-in slide-in-from-top-2">
-                            <div class="flex justify-between text-[9px] text-indigo-400 font-bold uppercase">
-                                <span>Variant Config (JSON Array)</span>
-                                <span class="cursor-pointer hover:underline" onclick="showToast('Each object must have an id, label, options[], and default.')">? Help</span>
-                            </div>
-                            <textarea id="conf-variant-json" rows="6" class="w-full bg-[#1e293b] text-cyan-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner placeholder:text-slate-600" placeholder='[{"label": "Opt A", "value": "a"}]'>${escapeHtml(valVariantConfig)}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
-                        <div class="flex justify-between items-end">
-                            <div>
-                                <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Aggregation Pipeline</h4>
-                            </div>
-                            
-                            <div class="text-[9px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                                Tips: Injection method <code class="text-red-500 font-bold">{{ID_VARIANT}}</code>
-                            </div>
-                        </div>
-                        <textarea id="conf-pipeline" rows="8" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='[\n  { "$match": { "status": "{{VARIANT}}" } }\n]'>${escapeHtml(valPipeline)}</textarea>
-                        <div class="p-3 bg-slate-100 rounded-lg border border-slate-200">
-                            <p class="text-[9px] text-slate-500 leading-relaxed">
-                                <i class="fas fa-info-circle mr-1 text-blue-500"></i> 
-                                <b>How it Works:</b> If you create a variant with the ID <code class="text-blue-600">YEAR</code>, then in the pipeline you can write 
-                                <code class="text-indigo-600">{"$match": {"tahun": "{{YEAR}}"}}</code>. The system will automatically replace it when the user selects the dropdown.
-                            </p>
-                        </div>
+                    <div class="relative flex-1 group">
+                        <input type="text" id="conf-icon" value="${escapeHtml(widget.icon || 'fas fa-icons')}" readonly onclick="triggerIconPickerSettingsDashboard('conf-icon')" class="w-full p-2.5 pr-8 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 outline-none focus:border-blue-500 cursor-pointer hover:bg-slate-50 transition-all placeholder:font-normal" placeholder="Select icon...">
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label>
+                <select id="conf-width" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-blue-500">
+                    <option value="" ${!widget.width ? 'selected' : ''}>--Choose Width--</option>
+                    <option value="quarter" ${widget.width == 'quarter' ? 'selected' : ''}>Quarter (1/4)</option>
+                    <option value="half" ${widget.width == 'half' ? 'selected' : ''}>Half (1/2)</option>
+                    <option value="full" ${widget.width == 'full' ? 'selected' : ''}>Full (1/1)</option>
+                </select>
+            </div>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Refresh (Sec)</label>
+                <select id="conf-refresh" class="w-full p-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-700 outline-none focus:border-blue-500">
+                    <option value="0" ${!widget.refresh_interval ? 'selected' : ''}>--Choose Refresh--</option>
+                    <option value="10" ${widget.refresh_interval == 10 ? 'selected' : ''}>10</option>
+                    <option value="30" ${widget.refresh_interval == 30 ? 'selected' : ''}>30</option>
+                    <option value="60" ${widget.refresh_interval == 60 ? 'selected' : ''}>60</option>
+                </select>
+            </div>
+        </div>
 
-            <div class="space-y-3">
+        <hr class="border-gray-100">
+
+        <div class="space-y-3">
+            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Data Configuration</label>
+            
+            <div class="flex p-1 bg-gray-100 rounded-xl">
+                <button type="button" onclick="switchConfigTab('static')" id="btn-source-static" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'static' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
+                    <i class="fas fa-code mr-1"></i> Static
+                </button>
+                <button type="button" onclick="switchConfigTab('database')" id="btn-source-db" class="flex-1 py-2 rounded-lg text-[10px] font-bold transition-all ${source === 'database' ? 'bg-white shadow text-blue-600 border border-gray-100' : 'text-gray-500 hover:text-gray-700'}">
+                    <i class="fas fa-database mr-1"></i> Database
+                </button>
+            </div>
+            <input type="hidden" id="conf-source" value="${source}">
+
+            <div id="panel-config-static" class="${source === 'static' ? '' : 'hidden'} space-y-2 animate-in fade-in">
                 <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
-                    <div>
-                        <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Visualisation</h4>
-                        <p class="text-[9px] text-slate-500 font-medium">ECharts Options JSON.</p>
+
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Static Data</h4>
+                            <p class="text-[9px] text-slate-500 font-medium">Inject JSON configuration for EChart.</p>
+                        </div>
                     </div>
-                    <textarea id="conf-echarts-options" rows="6" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(echartsOptionsValue)}</textarea>
+                    <textarea id="conf-static-json" rows="8" class="w-full bg-[#1e293b] text-green-400 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(valStatic)}</textarea>
+                    
                 </div>
             </div>
-        </div>`
+
+            <div id="panel-config-db" class="${source === 'database' ? '' : 'hidden'} space-y-5 animate-in fade-in">
+
+                <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Dynamic Variant</h4>
+                            <p class="text-[9px] text-slate-500 font-medium">Enable the custom selection option for this widget.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="conf-allow-variant" class="sr-only peer" onchange="document.getElementById('variant-json-editor').classList.toggle('hidden', !this.checked)" ${allowVariant ? 'checked' : ''}>
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+
+                    <div id="variant-json-editor" class="${allowVariant ? '' : 'hidden'} space-y-2 animate-in slide-in-from-top-2">
+                        <div class="flex justify-between text-[9px] text-indigo-400 font-bold uppercase">
+                            <span>Variant Config (JSON Array)</span>
+                            <span class="cursor-pointer hover:underline" onclick="showToast('Each object must have an id, label, options[], and default.')">? Help</span>
+                        </div>
+                        <textarea id="conf-variant-json" rows="6" class="w-full bg-[#1e293b] text-cyan-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner placeholder:text-slate-600" placeholder='[{"label": "Opt A", "value": "a"}]'>${escapeHtml(valVariantConfig)}</textarea>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Aggregation Pipeline</h4>
+                        </div>
+                        
+                        <div class="text-[9px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            Tips: Injection method <code class="text-red-500 font-bold">{{ID_VARIANT}}</code>
+                        </div>
+                    </div>
+                    <textarea id="conf-pipeline" rows="8" class="w-full bg-[#1e293b] text-orange-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner" placeholder='[\n  { "$match": { "status": "{{VARIANT}}" } }\n]'>${escapeHtml(valPipeline)}</textarea>
+                    <div class="p-3 bg-slate-100 rounded-lg border border-slate-200">
+                        <p class="text-[9px] text-slate-500 leading-relaxed">
+                            <i class="fas fa-info-circle mr-1 text-blue-500"></i> 
+                            <b>How it Works:</b> If you create a variant with the ID <code class="text-blue-600">YEAR</code>, then in the pipeline you can write 
+                            <code class="text-indigo-600">{"$match": {"tahun": "{{YEAR}}"}}</code>. The system will automatically replace it when the user selects the dropdown.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
+                <div>
+                    <h4 class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Visualisation</h4>
+                    <p class="text-[9px] text-slate-500 font-medium">ECharts Options JSON.</p>
+                </div>
+                <textarea id="conf-echarts-options" rows="6" class="w-full bg-[#1e293b] text-blue-300 p-3 text-[10px] font-mono border-none rounded-lg outline-none resize-none custom-scrollbar leading-relaxed shadow-inner">${escapeHtml(echartsOptionsValue)}</textarea>
+            </div>
+        </div>
+    </div>`
 
  modal.classList.remove('hidden')
  dragElement(modal)
