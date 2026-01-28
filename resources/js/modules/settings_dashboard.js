@@ -992,10 +992,19 @@ export function editWidgetConfig(index) {
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</label>
                     <input type="text" id="conf-title" value="${escapeHtml(widget.title || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-800 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
                 </div>
-
-                <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</label>
-                    <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" class="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 outline-none focus:border-blue-500 transition-all placeholder:font-normal">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Collection Name</label>
+                    <div class="relative">
+                        <i class="fas fa-database absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                        <input type="text" id="conf-collection" value="${escapeHtml(valCollection)}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Descriptions</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-circle-exclamation absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                        <input type="text" id="conf-desc" value="${escapeHtml(widget.description || '')}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
+                    </div>
                 </div>
 
                 <div>
@@ -1056,14 +1065,6 @@ export function editWidgetConfig(index) {
                 </div>
 
                 <div id="panel-config-db" class="${source === 'database' ? '' : 'hidden'} space-y-5 animate-in fade-in">
-                    
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Collection Name</label>
-                        <div class="relative">
-                            <i class="fas fa-table absolute left-3 top-2.5 text-gray-400 text-xs"></i>
-                            <input type="text" id="conf-collection" value="${escapeHtml(valCollection)}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
-                        </div>
-                    </div>
 
                     <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-3">
                         <div class="flex items-center justify-between">
