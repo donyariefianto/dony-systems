@@ -104,7 +104,7 @@ function renderFilesPanel() {
         <div id="panel-files" class="w-full lg:w-72 flex-col border-r border-gray-200 bg-white h-full hidden lg:flex z-30 shrink-0 relative">
             <div class="h-12 px-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-gray-50/30">
                 <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Saved Dashboards</span>
-                <button onclick="openAddDashboardModal()" class="w-6 h-6 flex items-center justify-center rounded hover:bg-blue-50 text-blue-600 transition-colors text-xs" title="Buat Baru">
+                <button onclick="openAddDashboardModal()" class="w-6 h-6 flex items-center justify-center rounded hover:bg-blue-50 text-blue-600 transition-colors text-xs" title="Create Baru">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -462,7 +462,7 @@ function renderMobileNavigation() {
 
 function renderWidgetConfigModal() {
  return `
-    <div id="widget-config-modal" class="fixed top-24 right-4 md:right-8 lg:right-10 z-[100] w-[90vw] md:w-[380px] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[80vh] transition-all duration-200 animate-in fade-in zoom-in-95">
+    <div id="widget-config-modal" class="fixed top-24 right-4 md:right-8 lg:right-10 z-[100] w-[90vw] md:w-[380px] lg:w-[420px] bg-white shadow-2xl rounded-2xl border border-gray-200 flex flex-col hidden max-h-[85vh] transition-all duration-200 animate-in fade-in zoom-in-95">
         
         <div id="widget-config-header" class="h-12 border-b border-gray-100 flex justify-between items-center px-5 bg-gray-50 rounded-t-2xl shrink-0 cursor-move select-none group">
             <div class="flex items-center gap-2 pointer-events-none">
@@ -640,7 +640,7 @@ export async function deleteDashboardConfig(id, name) {
   text: `Anda akan menghapus dashboard "${name}". Data konfigurasi widget di dalamnya akan hilang permanen.`,
   icon: 'warning',
   confirmText: 'Ya, Hapus Permanen',
-  cancelText: 'Batal',
+  cancelText: 'Cancel',
   dangerMode: true,
  })
 
@@ -762,9 +762,9 @@ export function filterWidgetLibraryOnly(val) {
 export async function addWidgetToBuilder(key) {
  if (!AppState.currentEditingDashboardId) {
   const confirmed = await showConfirmDialog({
-   title: 'Dashboard Belum Dipilih',
-   text: 'Anda harus memilih atau membuat dashboard terlebih dahulu sebelum menambahkan widget.',
-   confirmText: 'Buat Dashboard Baru',
+   title: 'Dashboard Not Selected',
+   text: 'You must select or create a dashboard first before adding widgets..',
+   confirmText: 'Create New Dashboard',
    icon: 'info',
   })
 
@@ -960,7 +960,7 @@ export function editWidgetConfig(index) {
  const valStatic =
   source === 'static'
    ? JSON.stringify(currentConfig.static_data || [{ label: 'Data', value: 0 }], null, 2)
-   : '[\n  { "label": "Contoh", "value": 100 }\n]'
+   : '[\n  { "label": "Eg. ", "value": 100 }\n]'
 
  const allowVariant = widget.allow_variant || false
  const defaultVariantData = [
@@ -1363,28 +1363,28 @@ export async function triggerIconPickerSettingsDashboard(fieldName) {
 export async function openAddDashboardModal() {
  const { value: formValues } = await Swal.fire({
   title:
-   '<div class="text-lg font-black text-gray-800 uppercase tracking-widest">Dashboard Baru</div>',
+   '<div class="text-lg font-black text-gray-800 uppercase tracking-widest">New Dashboard</div>',
   html: `
     <div class="flex flex-col gap-4 text-left mt-2">
         <div class="space-y-1.5">
             <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
-                Nama Dashboard <span class="text-red-500">*</span>
+                Dashboard Name <span class="text-red-500">*</span>
             </label>
-            <input id="swal-dash-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-bold text-gray-800 outline-none transition-all placeholder-gray-400" placeholder="Contoh: Production Monitoring">
+            <input id="swal-dash-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-bold text-gray-800 outline-none transition-all placeholder-gray-400" placeholder="Eg. Production Monitoring">
         </div>
 
         <div class="space-y-1.5">
             <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">
-                Deskripsi Singkat
+                Descriptions
             </label>
-            <textarea id="swal-dash-desc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400 resize-none" rows="2" placeholder="Jelaskan fungsi dashboard ini..."></textarea>
+            <textarea id="swal-dash-desc" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl text-sm font-medium text-gray-800 outline-none transition-all placeholder-gray-400 resize-none" rows="2" placeholder="Please describe the dashboard..."></textarea>
         </div>
     </div>`,
   showCancelButton: true,
   confirmButtonColor: '#2563eb',
   cancelButtonColor: '#9ca3af',
-  confirmButtonText: 'Buat Dashboard',
-  cancelButtonText: 'Batal',
+  confirmButtonText: 'Create Dashboard',
+  cancelButtonText: 'Cancel',
   reverseButtons: true,
   focusConfirm: false,
   customClass: {
@@ -1401,7 +1401,7 @@ export async function openAddDashboardModal() {
    const desc = descInput ? descInput.value.trim() : ''
 
    if (!name) {
-    Swal.showValidationMessage('Nama dashboard wajib diisi!')
+    Swal.showValidationMessage('Dashboard Name wajib diisi!')
     return false
    }
    return { name, desc }
@@ -1418,7 +1418,7 @@ export async function openAddDashboardModal() {
  }
 
  Swal.fire({
-  title: 'Membuat Dashboard...',
+  title: 'MemCreate Dashboard...',
   html: 'Mohon tunggu sebentar.',
   allowOutsideClick: false,
   didOpen: () => {
@@ -1438,12 +1438,12 @@ export async function openAddDashboardModal() {
   if (response && response.ok) {
    const result = await response.json()
    Swal.close()
-   showToast('Dashboard berhasil dibuat!', 'success')
+   showToast('Dashboard berhasil diCreate!', 'success')
    await fetchDashboardsFromDB()
    await openWidgetEditor(result.insertedId, name)
    switchMobileTab('editor')
   } else {
-   throw new Error('Gagal membuat data')
+   throw new Error('Gagal memCreate data')
   }
  } catch (e) {
   Swal.fire({
