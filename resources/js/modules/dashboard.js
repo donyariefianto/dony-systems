@@ -120,7 +120,6 @@ export async function renderDashboardView(config, container) {
  const targetId = AppState.dashboard.activeId || AppState.user?.defaultDashboard || 'default'
  await loadDashboardConfig(targetId)
 }
-
 async function loadECharts(requireGL = false) {
  if (!window.echarts) {
   if (!echartsPromise) {
@@ -144,7 +143,6 @@ async function loadECharts(requireGL = false) {
 
  return window.echarts
 }
-
 function loadScript({ url, name }) {
  return new Promise((resolve, reject) => {
   const script = document.createElement('script')
@@ -158,13 +156,11 @@ function loadScript({ url, name }) {
   document.head.appendChild(script)
  })
 }
-
 const dashboardState = {
  configs: {},
  data: {},
  activeFsChart: null,
 }
-
 const selectorState = {
  page: 1,
  limit: 6,
@@ -172,7 +168,6 @@ const selectorState = {
  search: '',
  timer: null,
 }
-
 async function loadDashboardConfig(dashboardId) {
  AppState.dashboard.activeId = dashboardId
  const gridContainer = document.getElementById('dashboard-grid')
@@ -277,7 +272,6 @@ async function loadDashboardConfig(dashboardId) {
   gridContainer.innerHTML = `<div class="col-span-full p-10 text-center bg-red-50 rounded-2xl border border-red-100"><i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i><p class="text-red-600 font-bold text-sm">Dashboard not found.</p><div class="mt-4 flex gap-2 justify-center"><button onclick="openDashboardSelector()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">Choose another options</button></div></div>`
  }
 }
-
 async function initWidgetDataFetcher(widget) {
  const contentContainer = document.getElementById(`widget-content-${widget.id}`)
  const loader = document.getElementById(`loader-${widget.id}`)
@@ -319,49 +313,6 @@ async function initWidgetDataFetcher(widget) {
   if (loader) loader.classList.add('opacity-0')
  }
 }
-
-window.refreshSingleWidget = async function (widgetId) {
- const loader = document.getElementById(`loader-${widgetId}`)
- if (loader) loader.classList.remove('opacity-0')
- try {
-  const widgetConfig = dashboardState.configs[widgetId]
-  const apiPipeline = getWidgetPipelineWithVariants(widgetConfig)
-
-  const response = await apiFetch(
-   `api/collections-aggregation/${widgetConfig.data_config.collection}?pipeline=${apiPipeline}`
-  )
-  if (!response || !response.ok) throw new Error('Network Error')
-  let result = await response.json()
-  if (response && response.ok) {
-   result = decryptData(result.nonce, result.ciphertext)
-   result = JSON.parse(result)
-   const newData = result.data[0] || []
-   dashboardState.data[widgetId] = newData
-   const container = document.getElementById(`widget-content-${widgetId}`)
-   if (container && widgetConfig) {
-    renderWidgetContent(container, widgetConfig, newData)
-   }
-   showToast('Data refreshed', 'success')
-  } else {
-   throw new Error('Refresh failed')
-  }
- } catch (e) {
-  showToast('Gagal memproses data baru', 'error')
-  const widgetConfig = dashboardState.configs[widgetId]
-  if (widgetConfig) initWidgetDataFetcher(widgetConfig)
- } finally {
-  if (loader) loader.classList.add('opacity-0')
- }
-}
-
-window.refreshAllWidgets = function () {
- Object.keys(dashboardState.configs).forEach((id) => {
-  setTimeout(() => {
-   refreshSingleWidget(id)
-  }, Math.random() * 1000)
- })
-}
-
 function renderWidgetContent(container, widget, data, isFullscreen = false) {
  if (!data || data.length === 0) {
   container.innerHTML = `<div class="flex items-center justify-center h-full text-gray-400"><span class="text-[10px] font-bold uppercase tracking-widest opacity-60">No Data Available</span></div>`
@@ -531,7 +482,6 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
   container.innerHTML = `<div class="text-xs text-gray-400 p-2">Unsupported Type</div>`
  }
 }
-
 async function initChartDispatcher(containerId, widget, data, isFullscreen = false, attempt = 0) {
  const chartDom = document.getElementById(containerId)
  if (!chartDom) return
@@ -577,14 +527,12 @@ async function initChartDispatcher(containerId, widget, data, isFullscreen = fal
   chartDom.innerHTML = `<div class="flex items-center justify-center h-full text-xs text-red-400">Error</div>`
  }
 }
-
 function handleGeneric3DChart(option, data, subtype, myChart) {
  if (subtype.includes('bar3d') || subtype.includes('scatter3d') || subtype.includes('line3d')) {
   option = data
   return myChart.setOption(option)
  }
 }
-
 function handleRadarChart(option, data, myChart) {
  option.series[0].data = data.data
  option.legend = data.legend || []
@@ -593,7 +541,6 @@ function handleRadarChart(option, data, myChart) {
  } || { indicator: [] }
  return myChart.setOption(option)
 }
-
 function handleStandardChart(option, data, subtype, myChart) {
  if (subtype.includes('line')) {
   if (subtype === 'line_smooth') {
@@ -869,7 +816,185 @@ function handleStandardChart(option, data, subtype, myChart) {
   }
  }
 }
+async function fetchAndRenderDashboards() {
+ const container = document.getElementById('dash-list-container')
+ const infoLabel = document.getElementById('dash-pagination-info')
+ const btnPrev = document.getElementById('btn-prev')
+ const btnNext = document.getElementById('btn-next')
+ if (!container) return
+ container.innerHTML = Array(5)
+  .fill(0)
+  .map(
+   () =>
+    `<div class="p-4 rounded-xl border border-gray-100 bg-gray-50 animate-pulse flex justify-between items-center"><div class="space-y-2 w-full"><div class="h-4 bg-gray-200 rounded w-1/3"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div></div>`
+  )
+  .join('')
+ try {
+  const queryParams = new URLSearchParams({
+   page: selectorState.page,
+   limit: selectorState.limit,
+   search: selectorState.search,
+  })
+  const response = await apiFetch(`api/collections/dashboard_settings?${queryParams.toString()}`)
+  if (!response || !response.ok) throw new Error('Gagal')
+  let result = await response.json()
+  result = decryptData(result.nonce, result.ciphertext)
+  result = JSON.parse(result)
 
+  const dashboards = result.data || []
+  selectorState.totalPages = result.total || 1
+  if (dashboards.length === 0) {
+   container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 py-10"><i class="far fa-folder-open text-3xl mb-2 opacity-30"></i><span class="text-xs font-medium">Tidak ditemukan dashboard.</span></div>`
+  } else {
+   container.innerHTML = dashboards
+    .map((dash) => {
+     const isActive = dash._id === AppState.dashboard.activeId
+     const wrapperClass = isActive
+      ? 'bg-zinc-50 border-zinc-200 shadow-sm'
+      : 'bg-white border-gray-100 hover:border-zinc-300 hover:shadow-md hover:bg-gray-50'
+     return `<div onclick="switchDashboard('${dash._id}')" class="cursor-pointer p-4 rounded-xl border transition-all duration-200 group relative select-none ${wrapperClass}"><div class="flex justify-between items-start"><div class="flex items-start gap-3 overflow-hidden"><div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center text-sm ${isActive ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-zinc-500 transition-colors'}"><i class="fas fa-chart-pie"></i></div><div class="flex flex-col"><h4 class="font-bold text-gray-800 text-sm group-hover:text-zinc-600 transition-colors flex items-center gap-2">${dash.name} ${isActive ? '<i class="fas fa-check-circle text-zinc-500 text-xs"></i>' : ''}</h4><p class="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">${dash.description || 'Dashboard pemantauan sistem.'}</p></div></div><div class="flex items-center gap-1 text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100"><i class="fas fa-cube text-gray-300"></i> ${dash.widgets ? dash.widgets.length : 0}</div></div></div>`
+    })
+    .join('')
+  }
+  const totalItems = result.totalItems || 0
+  const start = (selectorState.page - 1) * selectorState.limit + 1
+  const end = Math.min(selectorState.page * selectorState.limit, totalItems)
+  infoLabel.innerText = `${start}-${end} dari ${totalItems}`
+  btnPrev.disabled = selectorState.page <= 1
+  btnNext.disabled = selectorState.page >= selectorState.totalPages
+ } catch (err) {
+  container.innerHTML = `<div class="text-center text-red-500 text-xs py-10">Gagal memuat data.</div>`
+ }
+}
+function getWidgetPipelineWithVariants(widget) {
+ let pipelineStr = JSON.stringify(widget.data_config.pipeline || [])
+ const activeValues = dashboardState.activeVariants?.[widget.id] || {}
+
+ if (widget.variant_config) {
+  widget.variant_config.forEach((group) => {
+   const val = activeValues[group.id] || group.default
+   const regex = new RegExp(`{{${group.id}}}`, 'g')
+   pipelineStr = pipelineStr.replace(regex, val)
+  })
+ }
+ return pipelineStr
+}
+function clearActiveIntervals() {
+ AppState.dashboard.intervals.forEach((id) => clearTimeout(id))
+ AppState.dashboard.intervals = []
+ Object.keys(AppState.dashboard.charts).forEach((key) => {
+  if (AppState.dashboard.charts[key]) AppState.dashboard.charts[key].dispose()
+ })
+ AppState.dashboard.charts = {}
+}
+function getColSpanClass(width) {
+ switch (width) {
+  case 'full':
+   return 'col-span-1 md:col-span-2 xl:col-span-4'
+  case 'half':
+   return 'col-span-1 md:col-span-2 xl:col-span-2'
+  case 'quarter':
+   return 'col-span-1 xl:col-span-1'
+  default:
+   return 'col-span-1 md:col-span-2 xl:col-span-2'
+ }
+}
+function renderWidgetSkeleton() {
+ return `<div class="w-full animate-pulse space-y-3"><div class="h-8 bg-gray-100 rounded-lg w-1/2"></div><div class="h-4 bg-gray-100 rounded w-3/4"></div><div class="h-20 bg-gray-50 rounded-xl mt-4"></div></div>`
+}
+function renderSkeletonPage() {
+ return Array(4)
+  .fill(0)
+  .map(
+   () =>
+    `<div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm h-48 animate-pulse"><div class="flex gap-3 mb-4"><div class="w-8 h-8 bg-gray-200 rounded-lg"></div><div class="h-4 bg-gray-200 rounded w-1/3 mt-2"></div></div><div class="h-24 bg-gray-100 rounded-xl"></div></div>`
+  )
+  .join('')
+}
+function renderEmptyState() {
+ return `<div class="col-span-full flex flex-col items-center justify-center py-20 text-center opacity-60"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fas fa-layer-group text-4xl text-gray-300"></i></div><h3 class="text-lg font-black text-gray-700 uppercase tracking-widest">Dashboard Kosong</h3><p class="text-xs text-gray-400 mt-2 max-w-sm">Belum ada widget yang ditambahkan.</p></div>`
+}
+function startClock() {
+ const updateTime = () => {
+  const el = document.getElementById('current-time')
+  if (el)
+   el.innerText = new Date().toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+   })
+ }
+ updateTime()
+ AppState.dashboard.intervals.push(setInterval(updateTime, 60000))
+}
+function formatRelativeTime(dateInput) {
+ if (!dateInput) return '-'
+
+ const now = new Date()
+ const date = new Date(dateInput)
+ const secondsAgo = Math.floor((now - date) / 1000)
+
+ if (secondsAgo < 0) return 'Baru saja'
+ if (secondsAgo < 60) return 'Baru saja'
+
+ const minutesAgo = Math.floor(secondsAgo / 60)
+ if (minutesAgo < 60) return `${minutesAgo} menit yang lalu`
+
+ const hoursAgo = Math.floor(minutesAgo / 60)
+ if (hoursAgo < 24) return `${hoursAgo} jam yang lalu`
+
+ const daysAgo = Math.floor(hoursAgo / 24)
+ if (daysAgo < 7) return `${daysAgo} hari yang lalu`
+
+ return date.toLocaleDateString('id-ID', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+ })
+}
+window.refreshSingleWidget = async function (widgetId) {
+ const loader = document.getElementById(`loader-${widgetId}`)
+ if (loader) loader.classList.remove('opacity-0')
+ try {
+  const widgetConfig = dashboardState.configs[widgetId]
+  const apiPipeline = getWidgetPipelineWithVariants(widgetConfig)
+
+  const response = await apiFetch(
+   `api/collections-aggregation/${widgetConfig.data_config.collection}?pipeline=${apiPipeline}`
+  )
+  if (!response || !response.ok) throw new Error('Network Error')
+  let result = await response.json()
+  if (response && response.ok) {
+   result = decryptData(result.nonce, result.ciphertext)
+   result = JSON.parse(result)
+   const newData = result.data[0] || []
+   dashboardState.data[widgetId] = newData
+   const container = document.getElementById(`widget-content-${widgetId}`)
+   if (container && widgetConfig) {
+    renderWidgetContent(container, widgetConfig, newData)
+   }
+   showToast('Data refreshed', 'success')
+  } else {
+   throw new Error('Refresh failed')
+  }
+ } catch (e) {
+  showToast('Gagal memproses data baru', 'error')
+  const widgetConfig = dashboardState.configs[widgetId]
+  if (widgetConfig) initWidgetDataFetcher(widgetConfig)
+ } finally {
+  if (loader) loader.classList.add('opacity-0')
+ }
+}
+window.refreshAllWidgets = function () {
+ Object.keys(dashboardState.configs).forEach((id) => {
+  setTimeout(() => {
+   refreshSingleWidget(id)
+  }, Math.random() * 1000)
+ })
+}
 window.openDashboardSelector = async function () {
  const modal = document.getElementById('dashboard-selector-modal')
  const panel = document.getElementById('selector-panel')
@@ -1172,144 +1297,5 @@ window.applyVariant = function (widgetId) {
  document.getElementById(`variant-popover-${widgetId}`).classList.add('hidden')
  refreshSingleWidget(widgetId)
  showToast('Filter applied successfully', 'success')
-}
-async function fetchAndRenderDashboards() {
- const container = document.getElementById('dash-list-container')
- const infoLabel = document.getElementById('dash-pagination-info')
- const btnPrev = document.getElementById('btn-prev')
- const btnNext = document.getElementById('btn-next')
- if (!container) return
- container.innerHTML = Array(5)
-  .fill(0)
-  .map(
-   () =>
-    `<div class="p-4 rounded-xl border border-gray-100 bg-gray-50 animate-pulse flex justify-between items-center"><div class="space-y-2 w-full"><div class="h-4 bg-gray-200 rounded w-1/3"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div></div>`
-  )
-  .join('')
- try {
-  const queryParams = new URLSearchParams({
-   page: selectorState.page,
-   limit: selectorState.limit,
-   search: selectorState.search,
-  })
-  const response = await apiFetch(`api/collections/dashboard_settings?${queryParams.toString()}`)
-  if (!response || !response.ok) throw new Error('Gagal')
-  let result = await response.json()
-  result = decryptData(result.nonce, result.ciphertext)
-  result = JSON.parse(result)
-
-  const dashboards = result.data || []
-  selectorState.totalPages = result.total || 1
-  if (dashboards.length === 0) {
-   container.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-gray-400 py-10"><i class="far fa-folder-open text-3xl mb-2 opacity-30"></i><span class="text-xs font-medium">Tidak ditemukan dashboard.</span></div>`
-  } else {
-   container.innerHTML = dashboards
-    .map((dash) => {
-     const isActive = dash._id === AppState.dashboard.activeId
-     const wrapperClass = isActive
-      ? 'bg-zinc-50 border-zinc-200 shadow-sm'
-      : 'bg-white border-gray-100 hover:border-zinc-300 hover:shadow-md hover:bg-gray-50'
-     return `<div onclick="switchDashboard('${dash._id}')" class="cursor-pointer p-4 rounded-xl border transition-all duration-200 group relative select-none ${wrapperClass}"><div class="flex justify-between items-start"><div class="flex items-start gap-3 overflow-hidden"><div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center text-sm ${isActive ? 'bg-zinc-100 text-zinc-600' : 'bg-gray-100 text-gray-400 group-hover:bg-white group-hover:text-zinc-500 transition-colors'}"><i class="fas fa-chart-pie"></i></div><div class="flex flex-col"><h4 class="font-bold text-gray-800 text-sm group-hover:text-zinc-600 transition-colors flex items-center gap-2">${dash.name} ${isActive ? '<i class="fas fa-check-circle text-zinc-500 text-xs"></i>' : ''}</h4><p class="text-[11px] text-gray-400 mt-1 line-clamp-2 leading-relaxed">${dash.description || 'Dashboard pemantauan sistem.'}</p></div></div><div class="flex items-center gap-1 text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100"><i class="fas fa-cube text-gray-300"></i> ${dash.widgets ? dash.widgets.length : 0}</div></div></div>`
-    })
-    .join('')
-  }
-  const totalItems = result.totalItems || 0
-  const start = (selectorState.page - 1) * selectorState.limit + 1
-  const end = Math.min(selectorState.page * selectorState.limit, totalItems)
-  infoLabel.innerText = `${start}-${end} dari ${totalItems}`
-  btnPrev.disabled = selectorState.page <= 1
-  btnNext.disabled = selectorState.page >= selectorState.totalPages
- } catch (err) {
-  container.innerHTML = `<div class="text-center text-red-500 text-xs py-10">Gagal memuat data.</div>`
- }
-}
-function getWidgetPipelineWithVariants(widget) {
- let pipelineStr = JSON.stringify(widget.data_config.pipeline || [])
- const activeValues = dashboardState.activeVariants?.[widget.id] || {}
-
- if (widget.variant_config) {
-  widget.variant_config.forEach((group) => {
-   const val = activeValues[group.id] || group.default
-   const regex = new RegExp(`{{${group.id}}}`, 'g')
-   pipelineStr = pipelineStr.replace(regex, val)
-  })
- }
- return pipelineStr
-}
-function clearActiveIntervals() {
- AppState.dashboard.intervals.forEach((id) => clearTimeout(id))
- AppState.dashboard.intervals = []
- Object.keys(AppState.dashboard.charts).forEach((key) => {
-  if (AppState.dashboard.charts[key]) AppState.dashboard.charts[key].dispose()
- })
- AppState.dashboard.charts = {}
-}
-function getColSpanClass(width) {
- switch (width) {
-  case 'full':
-   return 'col-span-1 md:col-span-2 xl:col-span-4'
-  case 'half':
-   return 'col-span-1 md:col-span-2 xl:col-span-2'
-  case 'quarter':
-   return 'col-span-1 xl:col-span-1'
-  default:
-   return 'col-span-1 md:col-span-2 xl:col-span-2'
- }
-}
-function renderWidgetSkeleton() {
- return `<div class="w-full animate-pulse space-y-3"><div class="h-8 bg-gray-100 rounded-lg w-1/2"></div><div class="h-4 bg-gray-100 rounded w-3/4"></div><div class="h-20 bg-gray-50 rounded-xl mt-4"></div></div>`
-}
-function renderSkeletonPage() {
- return Array(4)
-  .fill(0)
-  .map(
-   () =>
-    `<div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm h-48 animate-pulse"><div class="flex gap-3 mb-4"><div class="w-8 h-8 bg-gray-200 rounded-lg"></div><div class="h-4 bg-gray-200 rounded w-1/3 mt-2"></div></div><div class="h-24 bg-gray-100 rounded-xl"></div></div>`
-  )
-  .join('')
-}
-function renderEmptyState() {
- return `<div class="col-span-full flex flex-col items-center justify-center py-20 text-center opacity-60"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fas fa-layer-group text-4xl text-gray-300"></i></div><h3 class="text-lg font-black text-gray-700 uppercase tracking-widest">Dashboard Kosong</h3><p class="text-xs text-gray-400 mt-2 max-w-sm">Belum ada widget yang ditambahkan.</p></div>`
-}
-function startClock() {
- const updateTime = () => {
-  const el = document.getElementById('current-time')
-  if (el)
-   el.innerText = new Date().toLocaleDateString('id-ID', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-   })
- }
- updateTime()
- AppState.dashboard.intervals.push(setInterval(updateTime, 60000))
-}
-function formatRelativeTime(dateInput) {
- if (!dateInput) return '-'
-
- const now = new Date()
- const date = new Date(dateInput)
- const secondsAgo = Math.floor((now - date) / 1000)
-
- if (secondsAgo < 0) return 'Baru saja'
- if (secondsAgo < 60) return 'Baru saja'
-
- const minutesAgo = Math.floor(secondsAgo / 60)
- if (minutesAgo < 60) return `${minutesAgo} menit yang lalu`
-
- const hoursAgo = Math.floor(minutesAgo / 60)
- if (hoursAgo < 24) return `${hoursAgo} jam yang lalu`
-
- const daysAgo = Math.floor(hoursAgo / 24)
- if (daysAgo < 7) return `${daysAgo} hari yang lalu`
-
- return date.toLocaleDateString('id-ID', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
- })
 }
 window.loadDashboardConfig = () => loadDashboardConfig(AppState.dashboard.activeId)
