@@ -28,12 +28,7 @@ export default class BackendsController {
   }
   return response.send(data)
  }
- async listMenu({ response, request }: HttpContext) {
-  let { example } = request.all()
-  if (example === 'true') {
-   let data = fs.readFileSync('public/menu.json', { encoding: 'utf-8' })
-   return response.send(data)
-  }
+ async listMenu({ response }: HttpContext) {
   try {
    const collections = database.data?.collection('systems')
    let data = await collections?.findOne({ id: 'fixed_menu' })
@@ -174,23 +169,43 @@ export default class BackendsController {
    })
   }
  }
- async dashboardSnapshots({ response }: HttpContext) {
-  return response.send({})
- }
  async settingsGeneral({ response }: HttpContext) {
-  const settings = {
-   app_name: 'TB Sahabat System',
-   timezone: 'Asia/Jakarta',
-   shop_name: 'TB Sahabat Jaya',
-   shop_phone: '081234567890',
-   shop_address: 'Jl. Raya Utama No. 123, Malang, Jawa Timur',
-   maintenance_mode: false,
-   email_notification: true,
-   session_timeout: 120,
-   logo_url: '/uploads/logo-sahabat.png',
-   updated_at: '2023-10-27T10:00:00Z',
+  const collections = database.data?.collection('systems')
+  const existingDoc = await collections?.findOne({ id: 'general_settings' })
+  let data_encrypt = EncryptionService.encrypt(JSON.stringify(existingDoc)) || {
+   id: 'general_settings',
+   app_name: 'My Systems',
+   app_short_name: 'MS',
+   phone_number: '',
+   address: '',
+   maintenance_mode: '',
+   theme: '',
+   language: '',
+   timezone: '',
+   enable_analytics: '',
+   enable_error_tracking: '',
+   auto_save_interval: '',
+   max_upload_size: '',
+   session_timeout: '',
   }
-  return response.send(settings)
+  return response.send(data_encrypt)
+ }
+ async patchGeneralSettings({ response, request }: HttpContext) {
+  let body = request.all()
+  const collections = database.data?.collection('systems')
+  const existingDoc = await collections?.findOne({ id: 'general_settings' })
+  let data
+  body.id = 'general_settings'
+  if (existingDoc) {
+   body.created_at = existingDoc.created_at
+   body.updated_at = new Date()
+   data = await collections?.replaceOne({ id: 'general_settings' }, body, { upsert: false })
+  } else {
+   body.created_at = new Date()
+   body.updated_at = new Date()
+   data = await collections?.replaceOne({ id: 'general_settings' }, body, { upsert: true })
+  }
+  return response.send(data)
  }
  async runTestFormulaSPE({ request, response }: HttpContext) {
   try {
@@ -387,7 +402,7 @@ export default class BackendsController {
   const storedToken = await collections_token_authentications?.findOne({ token: token })
   if (!storedToken) return response.forbidden()
   try {
-   const payload = jwt.verify(token, env.get('REFRESH_SECRET'))
+   const payload: any = jwt.verify(token, REFRESH_SECRET)
    await collections_token_authentications?.deleteOne({ token: token })
    const newAccessToken = jwt.sign({ id: payload.id }, ACCESS_SECRET, { expiresIn: '30m' })
    const newRefreshToken = jwt.sign({ id: payload.id }, REFRESH_SECRET, { expiresIn: '7d' })

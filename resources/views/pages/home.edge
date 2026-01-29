@@ -11,6 +11,46 @@
 
  </head>
  <body class="bg-gray-100 overflow-hidden">
+  <div
+   id="splash-screen"
+   class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 overflow-hidden"
+  >
+
+   <div
+    class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/60 rounded-full blur-[120px] animate-pulse-slow"
+   >
+   </div>
+   <div
+    class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-100/60 rounded-full blur-[120px] animate-pulse-slow"
+    style="animation-delay: 2s;"
+   >
+   </div>
+
+   <div
+    id="splash-content"
+    class="relative z-10 flex flex-col items-center opacity-0 scale-95 transition-all duration-700"
+   >
+    <div
+     class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-[2.5rem] shadow-2xl shadow-blue-200 flex items-center justify-center mb-8 transform -rotate-3"
+    >
+     <i id="splash-icon" class="fas fa-cube text-white text-4xl"></i>
+    </div>
+
+    <h1 id="splash-name" class="text-3xl font-black text-slate-800 tracking-tighter uppercase mb-2">
+     Loading...
+    </h1>
+    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">
+     System Initializing
+    </p>
+
+    <div
+     class="w-64 h-1.5 bg-slate-200/40 rounded-full mt-12 overflow-hidden backdrop-blur-md border border-white/20"
+    >
+     <div id="splash-progress" class="h-full bg-gradient-to-r from-blue-600 to-indigo-500 w-0">
+     </div>
+    </div>
+   </div>
+  </div>
 
   <div class="flex h-screen overflow-hidden">
 
@@ -21,11 +61,12 @@
     <div class="p-5 border-b border-gray-800 flex items-center justify-between">
      <div class="flex items-center gap-3">
       <div
+       id="app-short-name"
        class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white text-sm"
       >
        TB
       </div>
-      <span class="text-xl font-bold text-white tracking-tighter uppercase">Sahabat</span>
+      <span id="app-name" class="text-xl font-bold text-white tracking-tighter uppercase">Sahabat</span>
      </div>
      <button onclick="toggleSidebar()" class="lg:hidden text-gray-400">
       <i class="fas fa-times"></i>

@@ -36,11 +36,11 @@ const DropdownManager = {
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
                     <input type="text" oninput="DropdownManager.handleSearch('${uniqueId}', this.value)" 
-                        class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none focus:border-zinc-500" placeholder="Cari...">
+                        class="w-full pl-8 pr-3 py-1.5 bg-white border border-gray-200 rounded text-xs focus:outline-none focus:border-zinc-500" placeholder="Search...">
                 </div>
             </div>
             <ul id="ul_${uniqueId}" onscroll="DropdownManager.handleScroll('${uniqueId}')" class="max-h-48 overflow-y-auto custom-scrollbar p-1 space-y-0.5">
-                <li class="p-3 text-center text-gray-400 text-[10px] italic">Ketik untuk mencari...</li>
+                <li class="p-3 text-center text-gray-400 text-[10px] italic">Type to search...</li>
             </ul>
         </div>
     </div>`
@@ -199,7 +199,7 @@ export function renderTableView(config, container) {
                         </button>
                         <div class="w-px h-5 bg-slate-200 mx-1"></div>
                         <div class="flex-1 flex items-center relative pr-3">
-                            <input type="text" placeholder="Cari data..." oninput="doSearch(this.value)" value="${AppState.searchQuery || ''}" class="w-full py-2.5 bg-transparent text-sm font-medium text-slate-700 placeholder:text-slate-400 outline-none">
+                            <input type="text" placeholder="Search data..." oninput="doSearch(this.value)" value="${AppState.searchQuery || ''}" class="w-full py-2.5 bg-transparent text-sm font-medium text-slate-700 placeholder:text-slate-400 outline-none">
                             <i class="fas fa-search text-slate-300 text-xs pointer-events-none absolute right-3"></i>
                         </div>
                     </div>

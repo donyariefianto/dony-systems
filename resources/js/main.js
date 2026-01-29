@@ -47,7 +47,20 @@ import {
  initTheme,
 } from './utils/helpers.js'
 
+import { saveSettings, settingsData } from './modules/settings_general.js'
+
 document.addEventListener('DOMContentLoaded', () => {
+ const cachedName = localStorage.getItem('app_name') || 'D'
+ const cachedIcon = localStorage.getItem('app_icon') || 'fa-cube'
+
+ document.getElementById('splash-name').innerText = cachedName
+ document.getElementById('splash-icon').className = `fas ${cachedIcon} text-white text-4xl`
+
+ setTimeout(() => {
+  const content = document.getElementById('splash-content')
+  content.classList.remove('opacity-0', 'scale-95')
+  content.classList.add('opacity-100', 'scale-100')
+ }, 50)
  initApp()
  initTheme()
 })
@@ -59,17 +72,47 @@ document.addEventListener('submit', async function (e) {
  }
 })
 
-window.toggleTheme = toggleTheme
-window.refreshSidebarMenu = refreshSidebarMenu
-window.navigate = navigate
-window.toggleSidebar = toggleSidebar
-window.logout = logout
-window.showToast = showToast
-window.closeModal = closeModal
-window.fetchTableData = fetchTableData
-window.deleteData = deleteData
-window.editData = editData
-window.openCrudModal = openCrudModal
+let currentProgress = 0
+let progressInterval = null
+
+window.updateProgress = function (targetValue) {
+ return new Promise((resolve) => {
+  const progressBar = document.getElementById('splash-progress')
+  if (!progressBar) {
+   console.error('ERROR: Elemen #splash-progress tidak ditemukan!')
+   return resolve()
+  }
+
+  if (progressInterval) clearInterval(progressInterval)
+  progressInterval = setInterval(() => {
+   if (currentProgress >= targetValue) {
+    clearInterval(progressInterval)
+    currentProgress = targetValue
+    progressBar.style.width = currentProgress + '%'
+    resolve()
+   } else {
+    currentProgress += 0.5
+    progressBar.style.width = currentProgress + '%'
+   }
+  }, 10)
+ })
+}
+
+window.hideSplashScreen = function () {
+ const splash = document.getElementById('splash-screen')
+ const content = document.getElementById('splash-content')
+ if (!splash) return
+
+ setTimeout(() => {
+  if (content) {
+   content.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+   content.style.opacity = '0'
+   content.style.transform = 'scale(0.9) translateY(-10px)'
+  }
+  splash.style.opacity = '0'
+  setTimeout(() => splash.remove(), 1000)
+ }, 400)
+}
 
 window.changePage = (p) => {
  AppState.currentPage = p
@@ -85,8 +128,18 @@ window.doSearch = (val) => {
   fetchTableData()
  }, 500)
 }
-
-window.saveSettings = () => showToast('Configuration save Succesfully', 'success')
+window.toggleTheme = toggleTheme
+window.refreshSidebarMenu = refreshSidebarMenu
+window.navigate = navigate
+window.toggleSidebar = toggleSidebar
+window.logout = logout
+window.showToast = showToast
+window.closeModal = closeModal
+window.fetchTableData = fetchTableData
+window.deleteData = deleteData
+window.editData = editData
+window.openCrudModal = openCrudModal
+window.saveSettings = saveSettings
 window.openWidgetEditor = openWidgetEditor
 window.triggerIconPickerSettingsDashboard = triggerIconPickerSettingsDashboard
 window.saveDashboardBuilder = saveDashboardBuilder
@@ -113,7 +166,7 @@ window.setActiveTab = setActiveTab
 window.getCurrentActiveTab = getCurrentActiveTab
 window.AppState = window.AppState || {}
 window.AppState.settingsActiveTab = getCurrentActiveTab
-
+window.settingsData = settingsData
 window.syncSettingsTab = (tab) => {
  if (typeof setActiveTab === 'function') {
   setActiveTab(tab)

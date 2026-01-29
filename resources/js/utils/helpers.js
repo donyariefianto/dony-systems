@@ -181,13 +181,11 @@ const updateThemeUI = (isDark) => {
  if (!icon) return
 
  if (isDark) {
-  // Tampilkan Matahari saat mode gelap aktif
   icon.classList.remove('fa-moon')
   icon.classList.add('fa-sun')
   btn.classList.add('text-yellow-400', 'border-yellow-500/50')
   btn.classList.remove('text-slate-500')
  } else {
-  // Tampilkan Bulan saat mode terang aktif
   icon.classList.remove('fa-sun')
   icon.classList.add('fa-moon')
   btn.classList.remove('text-yellow-400', 'border-yellow-500/50')
@@ -199,13 +197,11 @@ export const toggleTheme = function () {
  const html = document.documentElement
  const isDark = html.classList.toggle('dark')
  console.log('Mode Gelap Aktif:', isDark)
- // 1. Simpan preferensi
+
  localStorage.setItem('theme', isDark ? 'dark' : 'light')
 
- // 2. Update tampilan tombol
  updateThemeUI(isDark)
 
- // 3. Beritahu sistem (termasuk ECharts) bahwa tema berubah
  window.dispatchEvent(new Event('themeChanged'))
 }
 
@@ -214,14 +210,312 @@ export function initTheme() {
  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
  const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark)
 
- // 1. Set class pada HTML
  if (isDark) {
   document.documentElement.classList.add('dark')
  } else {
   document.documentElement.classList.remove('dark')
  }
 
- // 2. SINKRONISASI ICON (Penting agar UI tidak mismatch saat refresh)
- // Gunakan setTimeout atau panggil setelah DOM ready
  setTimeout(() => updateThemeUI(isDark), 100)
 }
+
+/**
+ * PRODUCTION-READY Relative Time Formatter
+ *
+ * Fitur utama:
+ * 1. Menerima berbagai format datetime
+ * 2. Error handling yang robust
+ * 3. Timezone-aware (support UTC, ISO, local)
+ * 4. Pluralization yang benar
+ * 5. Configurable dengan default values
+ * 6. TypeScript support (dengan JSDoc)
+ * 7. Performance optimized
+ * 8. Testable dan maintainable
+ */
+
+/**
+ * @typedef {Object} FormatOptions
+ * @property {string} [locale='en-US'] - Locale untuk formatting
+ * @property {boolean} [showSeconds=true] - Tampilkan "just now" untuk <60 detik
+ * @property {boolean} [capitalize=true] - Kapitalisasi huruf pertama
+ * @property {string} [fallback='-'] - Fallback text untuk invalid dates
+ * @property {boolean} [allowFuture=false] - Izinkan waktu di masa depan
+ * @property {Object} [dateStyle] - Style untuk tanggal lengkap
+ * @property {string} [justNowText='Just now'] - Text untuk "just now"
+ * @property {string} [yesterdayText='Yesterday'] - Text untuk yesterday
+ */
+
+/**
+ * Parse berbagai format datetime menjadi Date object
+ * @param {Date|string|number} dateInput - Input date
+ * @returns {Date|null} Valid Date object atau null
+ */
+function parseDate(dateInput) {
+ if (!dateInput) return null
+
+ if (dateInput instanceof Date) {
+  return isNaN(dateInput.getTime()) ? null : new Date(dateInput.getTime())
+ }
+
+ if (typeof dateInput === 'number') {
+  const isSeconds = dateInput < 1000000000000
+  return new Date(isSeconds ? dateInput * 1000 : dateInput)
+ }
+
+ if (typeof dateInput === 'string') {
+  const cleanStr = dateInput
+   .trim()
+   .replace(/['"]/g, '')
+   .replace(/\s{2,}/g, ' ')
+
+  const date = new Date(cleanStr)
+  if (!isNaN(date.getTime())) return date
+
+  if (/^\d+$/.test(cleanStr)) {
+   const timestamp = parseInt(cleanStr, 10)
+   const isSeconds = timestamp < 1000000000000
+   return new Date(isSeconds ? timestamp * 1000 : timestamp)
+  }
+
+  return parseNonISODate(cleanStr)
+ }
+
+ return null
+}
+
+/**
+ * Parse non-ISO date formats
+ * @param {string} dateStr - Date string
+ * @returns {Date|null} Parsed date atau null
+ */
+function parseNonISODate(dateStr) {
+ const parsers = [
+  (str) => {
+   const match = str.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?$/i
+   )
+   if (match) {
+    const [, y, m, d, h, min, s] = match
+    return new Date(y, m - 1, d, h, min, s)
+   }
+   return null
+  },
+
+  (str) => {
+   const match = str.match(
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i
+   )
+   if (match) {
+    let [, m, d, y, h, min, s, ampm] = match
+    h = h ? parseInt(h, 10) : 0
+    if (ampm) {
+     if (ampm.toUpperCase() === 'PM' && h < 12) h += 12
+     if (ampm.toUpperCase() === 'AM' && h === 12) h = 0
+    }
+    return new Date(y, m - 1, d, h, min || 0, s || 0)
+   }
+   return null
+  },
+
+  (str) => {
+   const match = str.match(
+    /^(\d{1,2})[\.\/\-](\d{1,2})[\.\/\-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+   )
+   if (match) {
+    const [, d, m, y, h, min, s] = match
+    return new Date(y, m - 1, d, h || 0, min || 0, s || 0)
+   }
+   return null
+  },
+
+  (str) => {
+   const monthNames = {
+    jan: 0,
+    feb: 1,
+    mar: 2,
+    apr: 3,
+    may: 4,
+    jun: 5,
+    jul: 6,
+    aug: 7,
+    sep: 8,
+    oct: 9,
+    nov: 10,
+    dec: 11,
+   }
+
+   const match = str.match(
+    /^([a-z]{3,})\s+(\d{1,2}),?\s+(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?/i
+   )
+   if (match) {
+    const [, month, day, year, h, min, s, ampm] = match
+    const monthIdx = monthNames[month.toLowerCase().substring(0, 3)]
+    if (monthIdx === undefined) return null
+
+    let hour = h ? parseInt(h, 10) : 0
+    if (ampm) {
+     if (ampm.toUpperCase() === 'PM' && hour < 12) hour += 12
+     if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0
+    }
+
+    return new Date(year, monthIdx, day, hour, min || 0, s || 0)
+   }
+   return null
+  },
+ ]
+
+ for (const parser of parsers) {
+  try {
+   const date = parser(dateStr)
+   if (date && !isNaN(date.getTime())) {
+    return date
+   }
+  } catch {}
+ }
+
+ return null
+}
+
+/**
+ * Format relative time dengan berbagai opsi
+ * @param {Date|string|number} dateInput - Input date
+ * @param {FormatOptions} [options={}] - Formatting options
+ * @returns {string} Formatted relative time
+ */
+function formatRelativeTime(dateInput, options = {}) {
+ const {
+  locale = 'en-US',
+  showSeconds = true,
+  capitalize = true,
+  fallback = '-',
+  allowFuture = false,
+  dateStyle = { day: 'numeric', month: 'short', year: 'numeric' },
+  justNowText = 'Just now',
+  yesterdayText = 'Yesterday',
+ } = options
+
+ const date = parseDate(dateInput)
+ if (!date) return fallback
+
+ const now = new Date()
+
+ if (!allowFuture && date > now) {
+  return justNowText
+ }
+
+ const diffMs = now.getTime() - date.getTime()
+ const diffSeconds = Math.floor(diffMs / 1000)
+ const diffMinutes = Math.floor(diffSeconds / 60)
+ const diffHours = Math.floor(diffMinutes / 60)
+ const diffDays = Math.floor(diffHours / 24)
+ const diffWeeks = Math.floor(diffDays / 7)
+
+ const formatText = (text) => {
+  return capitalize && text ? text.charAt(0).toUpperCase() + text.slice(1) : text
+ }
+
+ const pluralize = (count, singular, plural) => {
+  return count === 1 ? singular : plural
+ }
+
+ if (showSeconds && diffSeconds < 60) {
+  return formatText(justNowText)
+ }
+
+ if (diffMinutes < 60) {
+  const text = `${diffMinutes} ${pluralize(diffMinutes, 'minute', 'minutes')} ago`
+  return formatText(text)
+ }
+
+ if (diffHours < 24) {
+  const text = `${diffHours} ${pluralize(diffHours, 'hour', 'hours')} ago`
+  return formatText(text)
+ }
+
+ if (diffDays === 1) {
+  return formatText(yesterdayText)
+ }
+
+ if (diffDays < 7) {
+  const text = `${diffDays} ${pluralize(diffDays, 'day', 'days')} ago`
+  return formatText(text)
+ }
+
+ if (diffWeeks < 4) {
+  const text = `${diffWeeks} ${pluralize(diffWeeks, 'week', 'weeks')} ago`
+  return formatText(text)
+ }
+
+ const isCurrentYear = date.getFullYear() === now.getFullYear()
+ const formatOptions = { ...dateStyle }
+
+ if (isCurrentYear && !formatOptions.year) {
+  formatOptions.year = undefined
+ }
+
+ try {
+  return date.toLocaleDateString(locale, formatOptions)
+ } catch {
+  return date.toISOString().split('T')[0]
+ }
+}
+
+/**
+ * Versi dengan cache untuk performa (optional)
+ */
+const createCachedRelativeTimeFormatter = (options = {}) => {
+ const cache = new Map()
+ const maxCacheSize = 1000
+
+ return (dateInput) => {
+  const cacheKey = typeof dateInput === 'object' ? JSON.stringify(dateInput) : String(dateInput)
+
+  if (cache.has(cacheKey)) {
+   return cache.get(cacheKey)
+  }
+
+  const result = formatRelativeTime(dateInput, options)
+
+  if (cache.size >= maxCacheSize) {
+   const firstKey = cache.keys().next().value
+   cache.delete(firstKey)
+  }
+
+  cache.set(cacheKey, result)
+  return result
+ }
+}
+
+/**
+ * Utility functions untuk penggunaan umum
+ */
+const relativeTimeUtils = {
+ format: formatRelativeTime,
+
+ createCachedFormatter: createCachedRelativeTimeFormatter,
+
+ formatWithFuture: (dateInput, options = {}) => {
+  return formatRelativeTime(dateInput, { ...options, allowFuture: true })
+ },
+
+ formatShort: (dateInput, options = {}) => {
+  return formatRelativeTime(dateInput, { ...options, showSeconds: false })
+ },
+
+ isValidDate: (dateInput) => {
+  return parseDate(dateInput) !== null
+ },
+
+ parseDate: parseDate,
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+ module.exports = relativeTimeUtils
+} else if (typeof define === 'function' && define.amd) {
+ define([], () => relativeTimeUtils)
+} else if (typeof window !== 'undefined') {
+ window.formatRelativeTime = formatRelativeTime
+ window.relativeTimeUtils = relativeTimeUtils
+}
+
+export { formatRelativeTime, parseDate, relativeTimeUtils }

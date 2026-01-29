@@ -180,21 +180,45 @@
    5. MEDIA QUERY OVERRIDES (Specific Fixes)
    ============================================ */
 @media (max-width: 1024px) {
- /* Fix untuk Mobile Sidebar Z-Index */
  #sidebar {
-  z-index: 50; /* Sesuai dengan layer modal backdrop */
+  z-index: 50;
  }
 
- /* Touch optimizations */
  button,
  input,
  select,
  .nav-item {
-  @apply min-h-[44px]; /* Standar aksesibilitas Apple/Google */
+  @apply min-h-[44px];
  }
 
- /* Fix padding bawah agar tidak tertutup nav bar browser */
  .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
  }
+}
+
+#splash-progress {
+ transition: none !important;
+ transform-origin: left;
+ will-change: width;
+}
+
+@keyframes mesh-float {
+ 0% {
+  transform: translate(0, 0) scale(1);
+ }
+ 50% {
+  transform: translate(5%, 5%) scale(1.05);
+ }
+ 100% {
+  transform: translate(-2%, 8%) scale(1);
+ }
+}
+
+.animate-pulse-slow {
+ animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+#splash-content {
+ backface-visibility: hidden;
+ -webkit-font-smoothing: antialiased;
 }

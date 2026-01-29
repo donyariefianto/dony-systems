@@ -2,11 +2,11 @@ import { apiFetch } from '../core/api.js'
 import { AppState } from '../core/state.js'
 import { navigate } from '../core/router.js'
 import { logout, decryptData } from '../utils/helpers.js'
+import { settingsData } from './settings_general.js'
 
 export async function initApp() {
  const token = localStorage.getItem('auth_token')
  const isLoginPage = window.location.pathname.includes('login')
-
  if (!token && !isLoginPage) {
   window.location.href = '/login'
   return
@@ -19,6 +19,9 @@ export async function initApp() {
 
  if (token) {
   try {
+   const content = document.getElementById('splash-content')
+   if (content) content.classList.remove('opacity-0', 'scale-95')
+   await window.updateProgress(30)
    const response = await apiFetch('api/list-menu')
    if (!response) return
    let data = await response.json()
@@ -28,10 +31,22 @@ export async function initApp() {
    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}')
    const nameEl = document.querySelector('.text-xs.font-bold.text-gray-800')
    if (nameEl && userInfo.name) nameEl.innerText = userInfo.name
-
+   const splashName = document.getElementById('splash-name')
+   const splashIcon = document.getElementById('splash-icon')
+   await window.updateProgress(50)
+   const settings_data = await settingsData()
+   if (splashName) splashName.innerText = settings_data.app_name
+   if (splashIcon)
+    splashIcon.className = `fas ${settings_data.app_icon || 'fa-cube'} text-white text-4xl`
+   await window.updateProgress(70)
+   localStorage.setItem('app_name', settings_data.app_name)
+   localStorage.setItem('app_icon', settings_data.app_icon || 'fa-cube')
+   await window.updateProgress(100)
    renderSidebar(AppState.menuData)
    handleInitialRouting()
+   hideSplashScreen()
   } catch (error) {
+   await window.updateProgress(70)
    console.error('Critical Error: Gagal memuat menu.', error)
   }
  }

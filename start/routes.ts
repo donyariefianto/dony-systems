@@ -47,8 +47,8 @@ router
   //   API Handling System
   router.get('/list-menu', '#controllers/backends_controller.listMenu')
   router.patch('/patch-menu', '#controllers/backends_controller.patchMenu')
-  router.post('/dashboard-snapshot', '#controllers/backends_controller.dashboardSnapshots')
   router.get('/settings', '#controllers/backends_controller.settingsGeneral')
+  router.patch('/settings', '#controllers/backends_controller.patchGeneralSettings')
   router.post('/test-formula', '#controllers/backends_controller.runTestFormulaSPE')
  })
  .prefix('/api')

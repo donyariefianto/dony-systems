@@ -264,7 +264,7 @@ async function loadDashboardConfig(dashboardId) {
 
   widgetList.forEach((widget) => initWidgetDataFetcher(widget))
  } catch (err) {
-  gridContainer.innerHTML = `<div class="col-span-full p-10 text-center bg-red-50 rounded-2xl border border-red-100"><i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i><p class="text-red-600 font-bold text-sm">Dashboard not found.</p><div class="mt-4 flex gap-2 justify-center"><button onclick="openDashboardSelector()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">Choose another options</button></div></div>`
+  gridContainer.innerHTML = `<div class="col-span-full p-10 text-center bg-red-50 rounded-2xl border border-red-100"><i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-2"></i><p class="text-red-600 font-bold text-sm">default dashboard was not found.</p><div class="mt-4 flex gap-2 justify-center"><button onclick="openDashboardSelector()" class="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">Choose another options</button></div></div>`
  }
 }
 async function initWidgetDataFetcher(widget) {
@@ -296,6 +296,7 @@ async function initWidgetDataFetcher(widget) {
   const widgetDoc = result.data ? result.data[0] : null
   const liveData = widgetDoc ? widgetDoc || [] : []
   dashboardState.data[widget.id] = liveData
+  widget.updated_at = result.data[0].updated_at || '-'
   renderWidgetContent(contentContainer, widget, liveData)
   if (widget.refresh_interval && widget.refresh_interval > 0) {
    const timer = setTimeout(() => refreshSingleWidget(widget.id), widget.refresh_interval * 1000)
@@ -326,7 +327,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
                     <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                     </svg>
-                    <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+                    <span id="${chartId}-updated-at" class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
                 </div>
             </div>
         </div>
@@ -335,13 +336,10 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
  } else if (widget.type === 'label') {
   const item =
    Array.isArray(data) && data.length > 0 ? data[0] : widget.data_config?.static_data?.[0] || {}
-
   const mainValue = item.value || widget.config?.value || '0'
   const description = item.description || widget.config?.description || ''
-
   const colorTheme = item.color || widget.config?.color || 'zinc'
   const labelName = item.name || widget.config?.name || widget.title || 'Metric'
-
   container.innerHTML = `
     <div class="h-full flex flex-col p-2 animate-in fade-in slide-in-from-left-4 duration-700 relative group">
         <div class="flex flex-col justify-between h-full">
@@ -371,7 +369,7 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
                 <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
                 </svg>
-                <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+                <span id="${chartId}-updated-at" class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
             </div>
             </div>
         </div>
@@ -913,7 +911,7 @@ function startClock() {
  const updateTime = () => {
   const el = document.getElementById('current-time')
   if (el)
-   el.innerText = new Date().toLocaleDateString('id-ID', {
+   el.innerText = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -924,31 +922,6 @@ function startClock() {
  }
  updateTime()
  AppState.dashboard.intervals.push(setInterval(updateTime, 60000))
-}
-function formatRelativeTime(dateInput) {
- if (!dateInput) return '-'
-
- const now = new Date()
- const date = new Date(dateInput)
- const secondsAgo = Math.floor((now - date) / 1000)
-
- if (secondsAgo < 0) return 'Baru saja'
- if (secondsAgo < 60) return 'Baru saja'
-
- const minutesAgo = Math.floor(secondsAgo / 60)
- if (minutesAgo < 60) return `${minutesAgo} menit yang lalu`
-
- const hoursAgo = Math.floor(minutesAgo / 60)
- if (hoursAgo < 24) return `${hoursAgo} jam yang lalu`
-
- const daysAgo = Math.floor(hoursAgo / 24)
- if (daysAgo < 7) return `${daysAgo} hari yang lalu`
-
- return date.toLocaleDateString('id-ID', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
- })
 }
 window.refreshSingleWidget = async function (widgetId) {
  const loader = document.getElementById(`loader-${widgetId}`)
@@ -967,6 +940,7 @@ window.refreshSingleWidget = async function (widgetId) {
    result = JSON.parse(result)
    const newData = result.data[0] || []
    dashboardState.data[widgetId] = newData
+   widgetConfig.updated_at = result.data.updated_at || '-'
    const container = document.getElementById(`widget-content-${widgetId}`)
    if (container && widgetConfig) {
     renderWidgetContent(container, widgetConfig, newData)
@@ -987,7 +961,7 @@ window.refreshAllWidgets = function () {
  Object.keys(dashboardState.configs).forEach((id) => {
   const config = dashboardState.configs[id]
   if (config.data_config.source !== 'static') {
-    refreshSingleWidget(id)
+   refreshSingleWidget(id)
   }
  })
 }
@@ -1179,25 +1153,20 @@ window.refreshFullscreenWidget = async function (widgetId) {
 
  const refreshBtnIcon = document.querySelector('#fs-actions button i.fa-sync-alt')
  if (refreshBtnIcon) refreshBtnIcon.classList.add('fa-spin')
-
  try {
   const apiPipeline = getWidgetPipelineWithVariants(widgetConfig)
-
   const response = await apiFetch(
    `api/collections-aggregation/${widgetConfig.data_config.collection}?pipeline=${apiPipeline}`
   )
-
   if (!response || !response.ok) throw new Error('Network Error')
-
   let result = await response.json()
 
   if (result.nonce && result.ciphertext) {
    result = decryptData(result.nonce, result.ciphertext)
    result = JSON.parse(result)
   }
-
   const newData = result.data[0] || []
-
+  widgetConfig.updated_at = result.data.updated_at || '-'
   dashboardState.data[widgetId] = newData
 
   const fsContainer = document.getElementById('fs-content-body')

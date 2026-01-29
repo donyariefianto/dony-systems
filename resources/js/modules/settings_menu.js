@@ -528,7 +528,7 @@ function renderFieldCard(field, idx) {
             
             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
                 <div class="md:col-span-7">
-                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Type</label>
                     <div class="relative">
                         <select onchange="window.updateField(${idx}, 'type', this.value)" class="w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:bg-white focus:border-zinc-500 outline-none appearance-none font-medium text-gray-700 transition-colors shadow-sm">
                             <option value="text" ${field.type === 'text' ? 'selected' : ''}>Text (Singkat)</option>
@@ -558,7 +558,7 @@ function renderFieldCard(field, idx) {
             <div class="bg-zinc-50 p-3 rounded-lg border border-zinc-100 space-y-2 animate-in slide-in-from-top-1">
                 <div class="flex justify-between items-center">
                     <label class="text-[10px] font-bold text-zinc-600 uppercase"><i class="fas fa-list-ul mr-1"></i> Static Options</label>
-                    <span class="text-[9px] text-zinc-400 bg-white px-1.5 rounded border border-zinc-100">Pisahkan koma</span>
+                    <span class="text-[9px] text-zinc-400 bg-white px-1.5 rounded border border-zinc-100">Separated with coma</span>
                 </div>
                 <textarea rows="2" onchange="window.updateFieldOptions(${idx}, this.value)" class="w-full px-3 py-2 border border-zinc-200 rounded-lg text-xs font-medium focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 outline-none placeholder-zinc-300" placeholder="Pcs, Box, Pack">${safeOptions.join(', ')}</textarea>
             </div>`
@@ -570,10 +570,10 @@ function renderFieldCard(field, idx) {
               ? `
             <div class="bg-indigo-50/60 p-3 rounded-lg border border-indigo-100 space-y-3 animate-in slide-in-from-top-1">
                 <div class="flex items-center gap-2 text-indigo-800 border-b border-indigo-200/50 pb-2">
-                    <i class="fas fa-link"></i> <span class="text-xs font-bold uppercase">Konfigurasi Relasi</span>
+                    <i class="fas fa-link"></i> <span class="text-xs font-bold uppercase">Relationship Configuration</span>
                 </div>
                 <select onchange="window.updateDeepField(${idx}, 'relation.collection', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white outline-none">
-                    <option value="">-- Pilih Collection --</option>
+                    <option value="">-- Choose Collection --</option>
                     ${collections.map((c) => `<option value="${c.collection}" ${field.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
                 </select>
                 <div class="grid grid-cols-2 gap-3">
@@ -584,7 +584,7 @@ function renderFieldCard(field, idx) {
                 <div class="pt-1">
                      <label class="flex items-center gap-2 cursor-pointer select-none">
                         <input type="checkbox" ${isAutoPopEnabled ? 'checked' : ''} onchange="window.updateDeepField(${idx}, 'relation.enable_auto_populate', this.checked); window.refreshBuilderUI()" class="rounded text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5 border-indigo-300">
-                        <span class="text-[9px] font-bold text-indigo-600 uppercase">Aktifkan Auto Fill</span>
+                        <span class="text-[9px] font-bold text-indigo-600 uppercase">Enable AutoFill</span>
                     </label>
                     ${
                      isAutoPopEnabled
@@ -624,7 +624,7 @@ function renderFieldCard(field, idx) {
             <div class="flex flex-wrap items-center gap-4 pt-4 mt-2 border-t border-gray-100">
                 <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
                     <input type="checkbox" ${field.required ? 'checked' : ''} onchange="window.updateField(${idx}, 'required', this.checked)" class="rounded text-zinc-600 focus:ring-zinc-500 w-4 h-4 border-gray-300">
-                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-zinc-600 uppercase transition-colors">Wajib Diisi</span>
+                    <span class="text-[10px] font-bold text-gray-500 group-hover/chk:text-zinc-600 uppercase transition-colors">Required</span>
                 </label>
                 
                 <label class="flex items-center gap-2 cursor-pointer select-none group/chk">
@@ -633,61 +633,15 @@ function renderFieldCard(field, idx) {
                 </label>
 
                 <div class="ml-auto flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Lebar:</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Width:</span>
                     <select onchange="window.updateField(${idx}, 'width', this.value)" class="text-[10px] font-bold border border-gray-200 rounded-lg px-2 py-1 bg-white outline-none focus:border-zinc-500 transition-colors">
-                        <option value="50">50% (Setengah)</option>
-                        <option value="100" ${field.width === '100' ? 'selected' : ''}>100% (Penuh)</option>
-                        <option value="33" ${field.width === '33' ? 'selected' : ''}>33% (Sepertiga)</option>
-                        <option value="66" ${field.width === '66' ? 'selected' : ''}>66% (Dua pertiga)</option>
+                        <option value="50">50% (Half)</option>
+                        <option value="100" ${field.width === '100' ? 'selected' : ''}>100% (Full)</option>
+                        <option value="33" ${field.width === '33' ? 'selected' : ''}>33% (One Third)</option>
+                        <option value="66" ${field.width === '66' ? 'selected' : ''}>66% (Two Thirds)</option>
                     </select>
                 </div>
             </div>
-        </div>
-    </div>`
-}
-
-function renderSelectConfig(field, idx) {
- return `
-    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-1.5">
-        <label class="text-[10px] font-bold text-gray-500 uppercase">Opsi Pilihan (Pisahkan dengan koma)</label>
-        <textarea onchange="window.updateFieldOptions(${idx}, this.value)" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500/10 outline-none resize-none" placeholder="Contoh: Tunai, Transfer, Kredit">${(field.options || []).join(', ')}</textarea>
-    </div>`
-}
-
-function renderRelationConfig(field, idx) {
- const collections = window.getAllCollections()
- const autoPopStr = Object.entries(field.relation?.auto_populate || {})
-  .map(([k, v]) => `${k}:${v}`)
-  .join(', ')
-
- return `
-    <div class="bg-indigo-50/60 p-3 rounded-lg border border-indigo-100 space-y-3">
-        <div class="flex items-center gap-2 text-indigo-800 border-b border-indigo-200/50 pb-2">
-            <i class="fas fa-link"></i> <span class="text-xs font-bold uppercase">Konfigurasi Relasi</span>
-        </div>
-        
-        <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-indigo-400 uppercase">Ambil Data Dari</label>
-            <select onchange="window.updateDeepField(${idx}, 'relation.collection', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white focus:border-indigo-500 outline-none h-10">
-                <option value="">-- Pilih Koleksi --</option>
-                ${collections.map((c) => `<option value="${c.collection}" ${field.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
-            </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-indigo-400 uppercase">Value Key</label>
-                <input value="${field.relation?.key || '_id'}" oninput="window.updateDeepField(${idx}, 'relation.key', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="_id">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] font-bold text-indigo-400 uppercase">Label Display</label>
-                <input value="${field.relation?.display || 'name'}" oninput="window.updateDeepField(${idx}, 'relation.display', this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs bg-white" placeholder="nama">
-            </div>
-        </div>
-        
-        <div class="space-y-1">
-            <label class="text-[10px] font-bold text-indigo-400 uppercase">Auto Populate (Isi Otomatis)</label>
-            <input value="${autoPopStr}" onchange="window.updateAutoPopulate(${idx}, this.value)" class="w-full px-3 py-2 border border-indigo-200 rounded-lg text-xs font-mono bg-white" placeholder="Format: field_sini:field_sana, ...">
         </div>
     </div>`
 }
@@ -705,7 +659,7 @@ function renderCalculationConfig(field, idx) {
   hintTxt = 'Format: <b>nama_repeater.nama_kolom</b>'
  } else if (['subtract', 'divide', 'add', 'multiply'].includes(currentOp)) {
   placeholderTxt = 'grand_total, discount'
-  hintTxt = 'Urutan berpengaruh (Field1 - Field2)'
+  hintTxt = 'Order of influence (Field1 - Field2)'
  }
 
  return `
@@ -728,21 +682,21 @@ function renderCalculationConfig(field, idx) {
             <div class="flex flex-col gap-2">
                 <select onchange="window.updateDeepField(${idx}, 'calculation.operation', this.value); window.refreshBuilderUI()" 
                     class="w-full text-[10px] border border-green-200 rounded px-2 py-1.5 bg-white focus:border-green-500 outline-none font-bold text-gray-700">
-                    <option value="">-- Pilih Operasi --</option>
+                    <option value="">-- Choose Operations --</option>
                     
-                    <optgroup label="Matematika (Field Utama)">
-                        <option value="subtract" ${currentOp === 'subtract' ? 'selected' : ''}>Pengurangan ( - )</option>
-                        <option value="add" ${currentOp === 'add' ? 'selected' : ''}>Penjumlahan ( + )</option>
-                        <option value="multiply" ${currentOp === 'multiply' ? 'selected' : ''}>Perkalian ( x )</option>
-                        <option value="divide" ${currentOp === 'divide' ? 'selected' : ''}>Pembagian ( / )</option>
+                    <optgroup label="Mathematics (Main Field)">
+                        <option value="subtract" ${currentOp === 'subtract' ? 'selected' : ''}>Reduction ( - )</option>
+                        <option value="add" ${currentOp === 'add' ? 'selected' : ''}>Addition ( + )</option>
+                        <option value="multiply" ${currentOp === 'multiply' ? 'selected' : ''}>Multiplication ( x )</option>
+                        <option value="divide" ${currentOp === 'divide' ? 'selected' : ''}>Division ( / )</option>
                     </optgroup>
 
-                    <optgroup label="Aggregasi (Ambil dari Repeater)">
+                    <optgroup label="Aggregation (Fetch from Repeater)">
                         <option value="sum" ${currentOp === 'sum' ? 'selected' : ''}>SUM (Total)</option>
-                        <option value="avg" ${currentOp === 'avg' ? 'selected' : ''}>AVG (Rata-rata)</option>
-                        <option value="count" ${currentOp === 'count' ? 'selected' : ''}>COUNT (Jumlah Data)</option>
-                        <option value="max" ${currentOp === 'max' ? 'selected' : ''}>MAX (Nilai Tertinggi)</option>
-                        <option value="min" ${currentOp === 'min' ? 'selected' : ''}>MIN (Nilai Terendah)</option>
+                        <option value="avg" ${currentOp === 'avg' ? 'selected' : ''}>AVG (Average)</option>
+                        <option value="count" ${currentOp === 'count' ? 'selected' : ''}>COUNT (Number of Data)</option>
+                        <option value="max" ${currentOp === 'max' ? 'selected' : ''}>MAX (Highest Value)</option>
+                        <option value="min" ${currentOp === 'min' ? 'selected' : ''}>MIN (Lowest Value)</option>
                     </optgroup>
                 </select>
                 
@@ -799,7 +753,7 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
  } else if (sf.type === 'select') {
   extraConfig = `
         <div class="mt-2 pt-2 border-t border-dashed border-gray-200">
-            <label class="text-[9px] font-bold text-gray-400 uppercase">Opsi Pilihan (Pisahkan Koma)</label>
+            <label class="text-[9px] font-bold text-gray-400 uppercase">Options (Separate with comma)</label>
             <input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 focus:border-zinc-500 outline-none" placeholder="Contoh: Pcs, Box, Kg">
         </div>`
  }
@@ -830,7 +784,7 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
                     <input value="${sf.name || ''}" oninput="window.updateSubField(${fIdx}, ${sIdx}, 'name', this.value)" class="w-full text-[10px] font-mono border border-gray-300 rounded px-2 py-1.5 bg-gray-50 focus:bg-white focus:border-zinc-500 outline-none" placeholder="field_name">
                 </div>
                 <div>
-                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Tipe Data</label>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1">Type</label>
                     <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'type', this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 bg-white focus:border-zinc-500 outline-none">
                         <option value="text" ${sf.type === 'text' ? 'selected' : ''}>Text</option>
                         <option value="date" ${sf.type === 'date' ? 'selected' : ''}>Datetime</option>
@@ -848,12 +802,12 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
                     <span class="text-[9px] font-bold text-gray-500 uppercase">ReadOnly</span>
                 </label>
                 <div class="ml-auto flex items-center gap-1">
-                     <span class="text-[9px] font-bold text-gray-400 uppercase">Lebar:</span>
+                     <span class="text-[9px] font-bold text-gray-400 uppercase">Width:</span>
                      <select onchange="window.updateSubField(${fIdx}, ${sIdx}, 'width', this.value)" class="text-[9px] border border-gray-200 rounded px-1 py-0.5 bg-gray-50">
                         <option value="">Auto</option>
-                        <option value="100px">Kecil</option>
-                        <option value="200px">Sedang</option>
-                        <option value="300px">Lebar</option>
+                        <option value="100px">Small</option>
+                        <option value="200px">Medium</option>
+                        <option value="300px">Large</option>
                      </select>
                 </div>
             </div>
@@ -877,7 +831,7 @@ function renderSubRelationConfig(sf, fIdx, sIdx) {
         </div>
         
         <select onchange="window.updateDeepSubField(${fIdx}, ${sIdx}, 'relation.collection', this.value)" class="w-full text-[10px] border border-purple-200 rounded px-2 py-1.5 bg-white focus:border-purple-500 outline-none shadow-sm">
-            <option value="">-- Pilih Sumber Data (Collection) --</option>
+            <option value="">-- Select Data Source (Collection) --</option>
             ${collections.map((c) => `<option value="${c.collection}" ${sf.relation?.collection === c.collection ? 'selected' : ''}>${c.name}</option>`).join('')}
         </select>
         
@@ -1400,8 +1354,8 @@ window.saveMenuSettings = async () => {
   title: 'Save?',
   text: 'Configuration will be updated for all users.',
   icon: 'warning',
-  confirmText: 'Ya, Simpan',
-  cancelText: 'Batal',
+  confirmText: 'Yes, Save',
+  cancelText: 'Cancel',
  })
 
  if (!isConfirmed) return
@@ -1431,10 +1385,10 @@ window.saveMenuSettings = async () => {
 
   if (!response.ok) {
    const errJson = await response.json().catch(() => ({}))
-   throw new Error(errJson.message || 'Gagal menyimpan konfigurasi.')
+   throw new Error(errJson.message || 'Failed to save configuration.')
   }
 
-  showToast('Menu berhasil disimpan!', 'success')
+  showToast('Menu saved successfully!', 'success')
  } catch (error) {
   console.error('Save Error:', error)
   showToast(error.message, 'error')
