@@ -90,7 +90,7 @@ export async function renderDashboardView(config, container) {
         <div id="selector-panel" class="absolute inset-x-0 bottom-0 top-10 md:inset-y-0 md:left-auto md:right-0 md:w-[500px] bg-white shadow-2xl rounded-t-2xl md:rounded-none transform transition-transform duration-300 ease-out translate-y-full md:translate-y-0 md:translate-x-full flex flex-col border-l border-gray-100">
             <div class="h-16 border-b border-gray-100 flex justify-between items-center px-6 bg-white shrink-0 rounded-t-2xl md:rounded-none z-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-zinc-50 text-zinc-600 flex items-center justify-center"><i class="fas fa-th-large"></i></div>
+                    <div class="w-8 h-8 rounded-lg bg-zinc-50 text-zinc-600 flex items-center justify-center"><i class="fa-solid fa-chalkboard"></i></div>
                     <h3 class="font-black text-gray-800 text-sm uppercase tracking-widest">Select Dashboard</h3>
                 </div>
                 <button onclick="closeDashboardSelector()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><i class="fas fa-times"></i></button>

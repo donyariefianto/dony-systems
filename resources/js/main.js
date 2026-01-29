@@ -80,6 +80,8 @@ let progressInterval = null
 window.updateProgress = function (targetValue) {
  return new Promise((resolve) => {
   const progressBar = document.getElementById('splash-progress')
+  const progressPercentage = document.getElementById('progress-percentage')
+
   if (!progressBar) {
    console.error('ERROR: Elemen #splash-progress tidak ditemukan!')
    return resolve()
@@ -90,10 +92,12 @@ window.updateProgress = function (targetValue) {
    if (currentProgress >= targetValue) {
     clearInterval(progressInterval)
     currentProgress = targetValue
+    progressPercentage.textContent = currentProgress + '%'
     progressBar.style.width = currentProgress + '%'
     resolve()
    } else {
     currentProgress += 0.5
+    progressPercentage.textContent = currentProgress + '%'
     progressBar.style.width = currentProgress + '%'
    }
   }, 10)

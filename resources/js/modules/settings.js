@@ -16,7 +16,7 @@ export async function renderSettingsView(config, container) {
     <div id="initial-loader" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-50 transition-opacity duration-500">
         <div class="relative w-16 h-16 mb-4">
             <div class="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 border-4 border-zinc-600 rounded-full border-t-transparent animate-spin"></div>
             <div class="absolute inset-0 flex items-center justify-center">
                 <i class="fas fa-cogs text-gray-300 text-xl animate-pulse"></i>
             </div>
