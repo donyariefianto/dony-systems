@@ -991,9 +991,7 @@ window.refreshAllWidgets = function () {
  Object.keys(dashboardState.configs).forEach((id, data_config) => {
   const config = dashboardState.configs[id]
   if (config.data_config.source !== 'static') {
-   setTimeout(() => {
     refreshSingleWidget(id)
-   }, 1000)
   }
  })
 }
