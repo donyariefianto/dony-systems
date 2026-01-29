@@ -240,7 +240,7 @@ async function loadDashboardConfig(dashboardId) {
                             </button>
                         </div>
 
-                        <div id="variant-form-${widget.id}" class="p-4 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
+                        <div id="variant-form-${widget.id}" class="pl-4 pr-4 p-2 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
 
                         <div class="p-3 bg-white border-t border-gray-100 rounded-b-xl flex gap-3">
                             <button onclick="document.getElementById('variant-popover-${widget.id}').classList.add('hidden')" 
@@ -1139,7 +1139,7 @@ window.toolsVariant = function (widgetId) {
    .map((group) => {
     const currentValue = activeValues[group.id] || group.default
     return `
-        <div class="space-y-1.5">
+        <div >
             <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${group.label}</label>
             <div class="relative">
                 <select id="sel-${widgetId}-${group.id}" 
