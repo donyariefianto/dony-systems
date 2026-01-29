@@ -50,9 +50,11 @@ import {
 import { saveSettings, settingsData } from './modules/settings_general.js'
 
 document.addEventListener('DOMContentLoaded', () => {
- const cachedName = localStorage.getItem('app_name') || 'D'
+ const cachedName = localStorage.getItem('app_name') || 'Systems'
+ const cachedShortName = localStorage.getItem('app_short_name') || 'D'
  const cachedIcon = localStorage.getItem('app_icon') || 'fa-cube'
-
+ document.getElementById('app-short-name').innerText = cachedShortName
+ document.getElementById('app-name').innerText = cachedName
  document.getElementById('splash-name').innerText = cachedName
  document.getElementById('splash-icon').className = `fas ${cachedIcon} text-white text-4xl`
 

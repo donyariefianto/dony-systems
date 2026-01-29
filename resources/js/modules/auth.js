@@ -31,15 +31,11 @@ export async function initApp() {
    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}')
    const nameEl = document.querySelector('.text-xs.font-bold.text-gray-800')
    if (nameEl && userInfo.name) nameEl.innerText = userInfo.name
-   const splashName = document.getElementById('splash-name')
-   const splashIcon = document.getElementById('splash-icon')
    await window.updateProgress(50)
    const settings_data = await settingsData()
-   if (splashName) splashName.innerText = settings_data.app_name
-   if (splashIcon)
-    splashIcon.className = `fas ${settings_data.app_icon || 'fa-cube'} text-white text-4xl`
    await window.updateProgress(70)
    localStorage.setItem('app_name', settings_data.app_name)
+   localStorage.setItem('app_short_name', settings_data.app_short_name)
    localStorage.setItem('app_icon', settings_data.app_icon || 'fa-cube')
    await window.updateProgress(100)
    renderSidebar(AppState.menuData)
