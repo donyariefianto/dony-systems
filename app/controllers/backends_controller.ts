@@ -172,22 +172,29 @@ export default class BackendsController {
  async settingsGeneral({ response }: HttpContext) {
   const collections = database.data?.collection('systems')
   const existingDoc = await collections?.findOne({ id: 'general_settings' })
-  let data_encrypt = EncryptionService.encrypt(JSON.stringify(existingDoc)) || {
-   id: 'general_settings',
-   app_name: 'My Systems',
-   app_short_name: 'MS',
-   phone_number: '',
-   address: '',
-   maintenance_mode: '',
-   theme: '',
-   language: '',
-   timezone: '',
-   enable_analytics: '',
-   enable_error_tracking: '',
-   auto_save_interval: '',
-   max_upload_size: '',
-   session_timeout: '',
+  if (!existingDoc) {
+   return response.send(
+    EncryptionService.encrypt(
+     JSON.stringify({
+      id: 'general_settings',
+      app_name: 'Dony',
+      app_short_name: 'D',
+      phone_number: '',
+      address: '',
+      maintenance_mode: '',
+      theme: '',
+      language: '',
+      timezone: '',
+      enable_analytics: '',
+      enable_error_tracking: '',
+      auto_save_interval: '',
+      max_upload_size: '',
+      session_timeout: '',
+     })
+    )
+   )
   }
+  let data_encrypt = EncryptionService.encrypt(JSON.stringify(existingDoc))
   return response.send(data_encrypt)
  }
  async patchGeneralSettings({ response, request }: HttpContext) {
