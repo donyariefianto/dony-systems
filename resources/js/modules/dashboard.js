@@ -988,7 +988,7 @@ window.refreshSingleWidget = async function (widgetId) {
  }
 }
 window.refreshAllWidgets = function () {
- Object.keys(dashboardState.configs).forEach((id, data_config) => {
+ Object.keys(dashboardState.configs).forEach((id) => {
   const config = dashboardState.configs[id]
   if (config.data_config.source !== 'static') {
     refreshSingleWidget(id)
