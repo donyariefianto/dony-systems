@@ -44,37 +44,45 @@ export async function renderDashboardView(config, container) {
         </div>
     </div>`
 
- const modalFullscreenHTML = `
-    <div id="widget-fullscreen-modal" 
-         class="hidden" 
-         style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100dvh; background-color: #ffffff; z-index: 2147483647;">
-        
-        <div class="flex flex-col w-full h-full relative bg-white">
-            <div style="height: env(safe-area-inset-top); width: 100%; background-color: #ffffff; flex-shrink: 0;"></div>
+ const modalFullscreenHTML = `<div id="widget-fullscreen-modal" 
+     class="hidden" 
+     style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100dvh; background-color: #ffffff; z-index: 2147483647;">
+    
+    <div class="flex flex-col w-full h-full relative bg-white">
+        <div style="height: env(safe-area-inset-top); width: 100%; background-color: #ffffff; flex-shrink: 0;"></div>
 
-            <div class="flex items-center justify-between px-4 border-b border-gray-200 shadow-sm" 
-                 style="height: 64px; background-color: #ffffff; flex-shrink: 0; position: relative; z-index: 9999;">
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-10 h-10 rounded-xl bg-zinc-50 text-zinc-600 flex items-center justify-center shadow-sm shrink-0 border border-zinc-100">
-                        <i class="fas fa-cube"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <h2 id="fs-title" class="text-base font-black text-gray-800 tracking-tight truncate leading-tight">Widget</h2>
-                        <p id="fs-desc" class="text-[10px] text-gray-500 font-medium truncate hidden sm:block">Description</p>
-                    </div>
+        <div class="flex items-center justify-between px-4 border-b border-gray-200 shadow-sm" 
+             style="height: 64px; background-color: #ffffff; flex-shrink: 0; position: relative; z-index: 9999;">
+            
+            <div class="flex items-center gap-3 overflow-hidden mr-2">
+                <div id="fs-icon-box" class="w-10 h-10 rounded-xl bg-zinc-50 text-zinc-600 flex items-center justify-center shadow-sm shrink-0 border border-zinc-100">
+                    <i class="fas fa-cube"></i>
                 </div>
+                <div class="min-w-0 flex-1">
+                    <h2 id="fs-title" class="text-base font-black text-gray-800 tracking-tight truncate leading-tight">Widget</h2>
+                    <p id="fs-desc" class="text-[10px] text-gray-500 font-medium truncate hidden sm:block">Description</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                
+                <div id="fs-actions" class="flex items-center gap-2"></div>
+                
+                <div class="w-px h-6 bg-gray-200 mx-1"></div>
+
                 <button onclick="closeWidgetFullscreen()" class="h-10 px-4 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 font-bold text-xs uppercase hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2 shrink-0 active:scale-95">
-                    <span>TUTUP</span> <i class="fas fa-times text-sm"></i>
+                    <span>Close</span> <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
-
-            <div class="flex-1 relative w-full overflow-hidden" style="background-color: #ffffff; z-index: 1;">
-                <div id="fs-content-body" class="w-full h-full p-4 md:p-6 overflow-y-auto" style="-webkit-overflow-scrolling: touch;"></div>
-            </div>
-
-            <div style="height: env(safe-area-inset-bottom); width: 100%; background-color: #ffffff; flex-shrink: 0;"></div>
         </div>
-    </div>`
+
+        <div class="flex-1 relative w-full overflow-hidden" style="background-color: #ffffff; z-index: 1;">
+            <div id="fs-content-body" class="w-full h-full p-4 md:p-6 overflow-y-auto" style="-webkit-overflow-scrolling: touch;"></div>
+        </div>
+
+        <div style="height: env(safe-area-inset-bottom); width: 100%; background-color: #ffffff; flex-shrink: 0;"></div>
+    </div>
+</div>`
 
  const modalSelectorHTML = `
     <div id="dashboard-selector-modal" class="fixed inset-0 z-[100] hidden">
@@ -142,7 +150,6 @@ function loadScript({ url, name }) {
   const script = document.createElement('script')
   script.src = url
   script.onload = () => {
-   console.log(`${name} loaded successfully`)
    resolve()
   }
   script.onerror = () => {
@@ -192,29 +199,73 @@ async function loadDashboardConfig(dashboardId) {
    .map((widget) => {
     dashboardState.configs[widget.id] = widget
     const colSpanClass = getColSpanClass(widget.width)
+    const allow_variant = widget.allow_variant || false
 
     return `
-    <div id="widget-container-${widget.id}" class="${colSpanClass} bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden flex flex-col hover-card group transition-all duration-300">
-        <div class="flex justify-between items-start mb-4">
+    <div id="widget-container-${widget.id}" class="${colSpanClass} bg-white rounded-2xl border border-gray-100 shadow-sm relative overflow-visible flex flex-col hover:shadow-md transition-all duration-300 hover:z-50">
+        
+        <div class="flex justify-between items-start mb-4 p-5 pb-0 relative">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-zinc-50 text-zinc-600 flex items-center justify-center text-xs shadow-sm">
                     <i class="${widget.icon || 'fa-cube'}"></i>
                 </div>
                 <h3 class="text-sm font-bold text-gray-700 uppercase tracking-tight truncate max-w-[150px] md:max-w-xs">${widget.title}</h3>
             </div>
-            <div class="flex items-center gap-2">
-                <div id="loader-${widget.id}" class="opacity-0 transition-opacity duration-300 text-zinc-400 text-[10px]"><i class="fas fa-circle-notch fa-spin"></i></div>
+
+            <div class="flex items-center gap-2 relative">
+                <div id="loader-${widget.id}" class="opacity-0 transition-opacity duration-300 text-zinc-400 text-[10px] mr-1">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
                 
-                <button onclick="refreshSingleWidget('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-green-600 hover:bg-green-50 transition-colors" title="Refresh Data">
+                <div class="relative">
+                    <button onclick="window.toolsVariant('${widget.id}')" 
+                        class="${allow_variant ? '' : 'hidden'} w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" 
+                        title="Filters">
+                        <i class="fas fa-sliders-h text-xs"></i>
+                    </button>
+
+                    <div id="variant-popover-${widget.id}" 
+                        class="hidden absolute top-full right-0 mt-2 w-72 max-w-[85vw] bg-white border border-gray-200 shadow-xl rounded-xl z-[9999] transform transition-all animate-in fade-in slide-in-from-top-2 duration-200 origin-top-right">
+                        
+                        <div class="absolute -top-1.5 right-3 w-3 h-3 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+
+                        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-xl">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <i class="fas fa-filter text-xs"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Filters</span>
+                            </div>
+                            <button onclick="document.getElementById('variant-popover-${widget.id}').classList.add('hidden')" 
+                                class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 transition-colors">
+                                <i class="fas fa-times text-[10px]"></i>
+                            </button>
+                        </div>
+
+                        <div id="variant-form-${widget.id}" class="p-4 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
+
+                        <div class="p-3 bg-white border-t border-gray-100 rounded-b-xl flex gap-3">
+                            <button onclick="document.getElementById('variant-popover-${widget.id}').classList.add('hidden')" 
+                                class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+                                Cancel
+                            </button>
+                            <button onclick="window.applyVariant('${widget.id}')" 
+                                class="flex-[2] py-2 bg-zinc-600 hover:bg-zinc-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg shadow-zinc-200 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <span>Apply</span> <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="refreshSingleWidget('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Refresh Data">
                     <i class="fas fa-sync-alt text-xs"></i>
                 </button>
                 
-                <button onclick="openWidgetFullscreen('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-300 hover:text-zinc-600 hover:bg-zinc-50 transition-colors" title="Fullscreen">
+                <button onclick="openWidgetFullscreen('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-zinc-600 hover:bg-zinc-50 transition-colors" title="Fullscreen">
                     <i class="fas fa-expand text-xs"></i>
                 </button>
             </div>
         </div>
-        <div id="widget-content-${widget.id}" class="flex-1 flex flex-col justify-center min-h-[150px]">
+        
+        <div id="widget-content-${widget.id}" class="flex-1 flex flex-col justify-center min-h-[150px] px-5 pb-5 overflow-hidden rounded-b-2xl">
             ${renderWidgetSkeleton()} 
         </div>
     </div>`
@@ -245,7 +296,7 @@ async function initWidgetDataFetcher(widget) {
 
  if (loader) loader.classList.remove('opacity-0')
  try {
-  const apiPipeline = JSON.stringify(widget.data_config.pipeline) || '[]'
+  const apiPipeline = getWidgetPipelineWithVariants(widget)
   const response = await apiFetch(
    `api/collections-aggregation/${widget.data_config.collection}?pipeline=${apiPipeline}`
   )
@@ -274,7 +325,8 @@ window.refreshSingleWidget = async function (widgetId) {
  if (loader) loader.classList.remove('opacity-0')
  try {
   const widgetConfig = dashboardState.configs[widgetId]
-  const apiPipeline = JSON.stringify(widgetConfig.data_config.pipeline) || '[]'
+  const apiPipeline = getWidgetPipelineWithVariants(widgetConfig)
+
   const response = await apiFetch(
    `api/collections-aggregation/${widgetConfig.data_config.collection}?pipeline=${apiPipeline}`
   )
@@ -320,18 +372,18 @@ function renderWidgetContent(container, widget, data, isFullscreen = false) {
   const chartId = isFullscreen ? `echart-fs-${widget.id}` : `echart-${widget.id}`
   container.innerHTML = `
     <div class="w-full h-full min-h-[180px] relative overflow-hidden group">
-    <div id="${chartId}" class="w-full h-full absolute inset-0 z-0"></div>
-    
-    <div class="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
-        <div class="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
-        <div class="flex items-center gap-1.5">
-            <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-            </svg>
-            <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+        <div id="${chartId}" class="w-full h-full absolute inset-0 z-0"></div>
+        
+        <div class="absolute bottom-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+            <div class="bg-black/70 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+                <div class="flex items-center gap-1.5">
+                    <svg class="w-3 h-3 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-xs font-medium text-gray-200">${formatRelativeTime(widget.updated_at) || '-'}</span>
+                </div>
+            </div>
         </div>
-        </div>
-    </div>
     </div>`
   setTimeout(() => initChartDispatcher(chartId, widget, data, isFullscreen), 100)
  } else if (widget.type === 'label') {
@@ -843,6 +895,284 @@ window.closeDashboardSelector = function () {
   modal.classList.add('hidden')
  }, 300)
 }
+window.handleSelectorSearch = (val) => {
+ clearTimeout(selectorState.timer)
+ selectorState.timer = setTimeout(() => {
+  selectorState.search = val
+  selectorState.page = 1
+  fetchAndRenderDashboards()
+ }, 500)
+}
+window.changeSelectorPage = (direction) => {
+ const newPage = selectorState.page + direction
+ if (newPage > 0 && newPage <= selectorState.totalPages) {
+  selectorState.page = newPage
+  fetchAndRenderDashboards()
+ }
+}
+window.switchDashboard = (id) => {
+ closeDashboardSelector()
+ if (id === AppState.dashboard.activeId) return
+ setTimeout(() => loadDashboardConfig(id), 300)
+}
+window.openWidgetFullscreen = function (widgetId) {
+ const modal = document.getElementById('widget-fullscreen-modal')
+
+ const titleEl = document.getElementById('fs-title')
+ const descEl = document.getElementById('fs-desc')
+ const iconBox = document.getElementById('fs-icon-box')
+ const body = document.getElementById('fs-content-body')
+ const actionsContainer = document.getElementById('fs-actions')
+
+ const widget = dashboardState.configs[widgetId]
+ const data = dashboardState.data[widgetId]
+
+ if (!widget || !data) {
+  if (typeof showToast === 'function') showToast('Data widget belum siap', 'error')
+  return
+ }
+
+ if (titleEl) titleEl.innerText = widget.title
+ if (descEl) descEl.innerText = widget.description || ''
+ if (iconBox) iconBox.innerHTML = `<i class="${widget.icon || 'fas fa-cube'}"></i>`
+
+ if (actionsContainer) {
+  const allowVariant = widget.allow_variant || false
+
+  const filterBtnHTML = allowVariant
+   ? `
+    <div class="relative">
+        <button onclick="window.toggleFullscreenVariant('${widget.id}')" 
+            class="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all active:scale-95 shadow-sm" 
+            title="Filter Data">
+            <i class="fas fa-sliders-h"></i>
+        </button>
+
+        <div id="variant-popover-${widget.id}-fs" 
+                class="hidden absolute top-full right-0 mt-3 w-72 max-w-[80vw] bg-white border border-gray-200 shadow-2xl rounded-2xl z-[99999] transform transition-all animate-in fade-in slide-in-from-top-2 origin-top-right">
+            
+            <div class="absolute -top-1.5 right-4 w-3 h-3 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+                <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Filter View</span>
+                <button onclick="document.getElementById('variant-popover-${widget.id}-fs').classList.add('hidden')" class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 transition-colors">
+                    <i class="fas fa-times text-[10px]"></i>
+                </button>
+            </div>
+
+            <div id="variant-form-${widget.id}-fs" class="p-4 space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar"></div>
+
+            <div class="p-3 border-t border-gray-100 flex gap-2">
+                <button onclick="window.applyFullscreenVariant('${widget.id}')" 
+                    class="w-full py-2.5 bg-zinc-600 hover:bg-zinc-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-zinc-200 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span>Apply</span> <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>`
+   : ''
+
+  const refreshBtnHTML = `
+    <button onclick="refreshFullscreenWidget('${widget.id}')" 
+        class="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all active:scale-95 shadow-sm" 
+        title="Refresh Data">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+    `
+
+  actionsContainer.innerHTML = filterBtnHTML + refreshBtnHTML
+ }
+
+ if (body) {
+  body.innerHTML = ''
+  renderWidgetContent(body, widget, data, true)
+ }
+
+ if (modal) {
+  modal.classList.remove('hidden')
+  modal.style.display = 'block'
+ }
+}
+window.toggleFullscreenVariant = function (widgetId) {
+ const popover = document.getElementById(`variant-popover-${widgetId}-fs`)
+ const formContainer = document.getElementById(`variant-form-${widgetId}-fs`)
+ const widget = dashboardState.configs[widgetId]
+
+ if (!popover || !widget) return
+
+ if (popover.classList.contains('hidden')) {
+  const config = widget.variant_config || []
+  const activeValues = dashboardState.activeVariants?.[widgetId] || {}
+
+  formContainer.innerHTML = config
+   .map((group) => {
+    const currentValue = activeValues[group.id] || group.default
+    return `
+            <div class="space-y-1.5">
+                <label class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${group.label}</label>
+                <div class="relative">
+                    <select id="sel-fs-${widgetId}-${group.id}" 
+                        class="w-full pl-3 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[11px] font-bold text-gray-700 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none">
+                        ${group.options.map((opt) => `<option value="${opt.value}" ${currentValue == opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-3 top-3 text-[10px] text-gray-400 pointer-events-none"></i>
+                </div>
+            </div>`
+   })
+   .join('')
+
+  popover.classList.remove('hidden')
+ } else {
+  popover.classList.add('hidden')
+ }
+}
+window.applyFullscreenVariant = function (widgetId) {
+ const widget = dashboardState.configs[widgetId]
+ const newValues = {}
+
+ widget.variant_config.forEach((group) => {
+  const select = document.getElementById(`sel-fs-${widgetId}-${group.id}`)
+  if (select) newValues[group.id] = select.value
+ })
+
+ if (!dashboardState.activeVariants) dashboardState.activeVariants = {}
+ dashboardState.activeVariants[widgetId] = newValues
+
+ document.getElementById(`variant-popover-${widgetId}-fs`).classList.add('hidden')
+
+ refreshFullscreenWidget(widgetId)
+}
+window.closeWidgetFullscreen = function () {
+ const modal = document.getElementById('widget-fullscreen-modal')
+ if (modal) {
+  modal.classList.add('hidden')
+  modal.style.display = 'none'
+
+  document.getElementById('fs-content-body').innerHTML = ''
+  document.getElementById('fs-actions').innerHTML = ''
+ }
+}
+window.refreshFullscreenWidget = async function (widgetId) {
+ const widgetConfig = dashboardState.configs[widgetId]
+ if (!widgetConfig) return
+
+ const refreshBtnIcon = document.querySelector('#fs-actions button i.fa-sync-alt')
+ if (refreshBtnIcon) refreshBtnIcon.classList.add('fa-spin')
+
+ try {
+  const apiPipeline = getWidgetPipelineWithVariants(widgetConfig)
+
+  const response = await apiFetch(
+   `api/collections-aggregation/${widgetConfig.data_config.collection}?pipeline=${apiPipeline}`
+  )
+
+  if (!response || !response.ok) throw new Error('Network Error')
+
+  let result = await response.json()
+
+  if (result.nonce && result.ciphertext) {
+   result = decryptData(result.nonce, result.ciphertext)
+   result = JSON.parse(result)
+  }
+
+  const newData = result.data[0] || []
+
+  dashboardState.data[widgetId] = newData
+
+  const fsContainer = document.getElementById('fs-content-body')
+  if (fsContainer) {
+   renderWidgetContent(fsContainer, widgetConfig, newData, true)
+  }
+
+  const dashboardContainer = document.getElementById(`widget-content-${widgetId}`)
+  if (dashboardContainer) {
+   renderWidgetContent(dashboardContainer, widgetConfig, newData, false)
+  }
+
+  showToast('Data refreshed successfully', 'success')
+ } catch (e) {
+  console.error(e)
+  showToast('Gagal memuat data terbaru', 'error')
+ } finally {
+  if (refreshBtnIcon) refreshBtnIcon.classList.remove('fa-spin')
+ }
+}
+window.closeWidgetFullscreen = function () {
+ const modal = document.getElementById('widget-fullscreen-modal')
+ const body = document.getElementById('fs-content-body')
+
+ if (modal) {
+  modal.classList.add('hidden')
+  modal.style.display = 'none'
+ }
+
+ if (dashboardState.activeFsChart) {
+  dashboardState.activeFsChart.dispose()
+  dashboardState.activeFsChart = null
+ }
+
+ if (body) {
+  setTimeout(() => {
+   body.innerHTML = ''
+  }, 300)
+ }
+}
+window.toolsVariant = function (widgetId) {
+ document.querySelectorAll('[id^="variant-popover-"]').forEach((el) => {
+  if (el.id !== `variant-popover-${widgetId}`) el.classList.add('hidden')
+ })
+ const widget = dashboardState.configs[widgetId]
+ const popover = document.getElementById(`variant-popover-${widgetId}`)
+ const formContainer = document.getElementById(`variant-form-${widgetId}`)
+
+ if (!widget || !widget.variant_config) {
+  showToast('Variant Configuration Not Found', 'error')
+  return
+ }
+ const config = widget.variant_config
+ const isHidden = popover.classList.contains('hidden')
+
+ if (isHidden) {
+  const activeValues = dashboardState.activeVariants?.[widgetId] || {}
+
+  formContainer.innerHTML = config
+   .map((group) => {
+    const currentValue = activeValues[group.id] || group.default
+    return `
+        <div class="space-y-1.5">
+            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${group.label}</label>
+            <div class="relative">
+                <select id="sel-${widgetId}-${group.id}" 
+                    class="w-full pl-3 pr-8 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all appearance-none cursor-pointer hover:bg-slate-100">
+                    ${group.options.map((opt) => `<option value="${opt.value}" ${currentValue == opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
+                </select>
+                <i class="fas fa-chevron-down absolute right-3 top-2.5 text-[10px] text-slate-400 pointer-events-none"></i>
+            </div>
+        </div>`
+   })
+   .join('')
+
+  popover.classList.remove('hidden')
+ } else {
+  popover.classList.add('hidden')
+ }
+}
+window.applyVariant = function (widgetId) {
+ const widget = dashboardState.configs[widgetId]
+ const newValues = {}
+
+ widget.variant_config.forEach((group) => {
+  const select = document.getElementById(`sel-${widgetId}-${group.id}`)
+  if (select) newValues[group.id] = select.value
+ })
+
+ if (!dashboardState.activeVariants) dashboardState.activeVariants = {}
+ dashboardState.activeVariants[widgetId] = newValues
+
+ document.getElementById(`variant-popover-${widgetId}`).classList.add('hidden')
+ refreshSingleWidget(widgetId)
+ showToast('Filter applied successfully', 'success')
+}
 async function fetchAndRenderDashboards() {
  const container = document.getElementById('dash-list-container')
  const infoLabel = document.getElementById('dash-pagination-info')
@@ -893,79 +1223,18 @@ async function fetchAndRenderDashboards() {
   container.innerHTML = `<div class="text-center text-red-500 text-xs py-10">Gagal memuat data.</div>`
  }
 }
-window.handleSelectorSearch = (val) => {
- clearTimeout(selectorState.timer)
- selectorState.timer = setTimeout(() => {
-  selectorState.search = val
-  selectorState.page = 1
-  fetchAndRenderDashboards()
- }, 500)
-}
-window.changeSelectorPage = (direction) => {
- const newPage = selectorState.page + direction
- if (newPage > 0 && newPage <= selectorState.totalPages) {
-  selectorState.page = newPage
-  fetchAndRenderDashboards()
+function getWidgetPipelineWithVariants(widget) {
+ let pipelineStr = JSON.stringify(widget.data_config.pipeline || [])
+ const activeValues = dashboardState.activeVariants?.[widget.id] || {}
+
+ if (widget.variant_config) {
+  widget.variant_config.forEach((group) => {
+   const val = activeValues[group.id] || group.default
+   const regex = new RegExp(`{{${group.id}}}`, 'g')
+   pipelineStr = pipelineStr.replace(regex, val)
+  })
  }
-}
-window.switchDashboard = (id) => {
- closeDashboardSelector()
- if (id === AppState.dashboard.activeId) return
- setTimeout(() => loadDashboardConfig(id), 300)
-}
-window.openWidgetFullscreen = function (widgetId) {
- const modal = document.getElementById('widget-fullscreen-modal')
-
- const titleEl = document.getElementById('fs-title')
- const descEl = document.getElementById('fs-desc')
- const iconBox = document.getElementById('fs-icon-box')
- const body = document.getElementById('fs-content-body')
-
- const widget = dashboardState.configs[widgetId]
- const data = dashboardState.data[widgetId]
-
- if (!widget || !data) {
-  if (typeof showToast === 'function') showToast('Data widget belum siap', 'error')
-  return
- }
-
- if (titleEl) titleEl.innerText = widget.title
- if (descEl) descEl.innerText = widget.description || ''
- if (iconBox) iconBox.innerHTML = `<i class="fas ${widget.icon || 'fa-cube'}"></i>`
-
- if (body) {
-  body.innerHTML = ''
-
-  renderWidgetContent(body, widget, data, true)
- }
-
- if (modal) {
-  modal.classList.remove('hidden')
-
-  modal.style.display = 'flex'
-
-  modal.style.zIndex = '2147483647'
- }
-}
-window.closeWidgetFullscreen = function () {
- const modal = document.getElementById('widget-fullscreen-modal')
- const body = document.getElementById('fs-content-body')
-
- if (modal) {
-  modal.classList.add('hidden')
-  modal.style.display = 'none'
- }
-
- if (dashboardState.activeFsChart) {
-  dashboardState.activeFsChart.dispose()
-  dashboardState.activeFsChart = null
- }
-
- if (body) {
-  setTimeout(() => {
-   body.innerHTML = ''
-  }, 300)
- }
+ return pipelineStr
 }
 function clearActiveIntervals() {
  AppState.dashboard.intervals.forEach((id) => clearTimeout(id))

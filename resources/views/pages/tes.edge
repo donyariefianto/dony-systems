@@ -1479,13 +1479,13 @@
       break;
      }
      row.innerHTML = `
-                                                                                <td>${transaction.date}</td>
-                                                                                <td>${transaction.desc}</td>
-                                                                                <td>${transaction.account}</td>
-                                                                                <td class="amount debit">${transaction.debit > 0 ? formatRupiah(transaction.debit) : ""}</td>
-                                                                                <td class="amount credit">${transaction.credit > 0 ? formatRupiah(transaction.credit) : ""}</td>
-                                                                                <td><span class="status ${statusClass}">${statusText}</span></td>
-                                                                            `;
+                                                                                            <td>${transaction.date}</td>
+                                                                                            <td>${transaction.desc}</td>
+                                                                                            <td>${transaction.account}</td>
+                                                                                            <td class="amount debit">${transaction.debit > 0 ? formatRupiah(transaction.debit) : ""}</td>
+                                                                                            <td class="amount credit">${transaction.credit > 0 ? formatRupiah(transaction.credit) : ""}</td>
+                                                                                            <td><span class="status ${statusClass}">${statusText}</span></td>
+                                                                                        `;
      tbody.appendChild(row);
     });
    }
@@ -1497,15 +1497,15 @@
     sampleJournalEntries.forEach(journal => {
      const row = document.createElement("tr");
      row.innerHTML = `
-                                                                                <td>${journal.id}</td>
-                                                                                <td>${journal.date}</td>
-                                                                                <td>${journal.desc}</td>
-                                                                                <td>${journal.ref}</td>
-                                                                                <td>${journal.debitAcc}</td>
-                                                                                <td class="amount debit">${formatRupiah(journal.debit)}</td>
-                                                                                <td>${journal.creditAcc}</td>
-                                                                                <td class="amount credit">${formatRupiah(journal.credit)}</td>
-                                                                            `;
+                                                                                            <td>${journal.id}</td>
+                                                                                            <td>${journal.date}</td>
+                                                                                            <td>${journal.desc}</td>
+                                                                                            <td>${journal.ref}</td>
+                                                                                            <td>${journal.debitAcc}</td>
+                                                                                            <td class="amount debit">${formatRupiah(journal.debit)}</td>
+                                                                                            <td>${journal.creditAcc}</td>
+                                                                                            <td class="amount credit">${formatRupiah(journal.credit)}</td>
+                                                                                        `;
      tbody.appendChild(row);
     });
    }
@@ -1584,50 +1584,50 @@
      balance: 69e6
     } ];
     let html = `
-                                                                            <h4 style="margin-bottom: 20px; color: #4b5563;">
-                                                                                Buku Besar: ${account.code} - ${account.name}
-                                                                            </h4>
-                                                                            <div style="margin-bottom: 20px;">
-                                                                                <span class="badge ${getBadgeClass(account.type)}">${getAccountTypeName(account.type)}</span>
-                                                                                <span style="margin-left: 10px; color: #6b7280;">${account.category}</span>
-                                                                            </div>
-                                                                            <table>
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th>Tanggal</th>
-                                                                                        <th>No. Ref</th>
-                                                                                        <th>Keterangan</th>
-                                                                                        <th>Debit</th>
-                                                                                        <th>Kredit</th>
-                                                                                        <th>Saldo</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                        `;
+                                                                                        <h4 style="margin-bottom: 20px; color: #4b5563;">
+                                                                                            Buku Besar: ${account.code} - ${account.name}
+                                                                                        </h4>
+                                                                                        <div style="margin-bottom: 20px;">
+                                                                                            <span class="badge ${getBadgeClass(account.type)}">${getAccountTypeName(account.type)}</span>
+                                                                                            <span style="margin-left: 10px; color: #6b7280;">${account.category}</span>
+                                                                                        </div>
+                                                                                        <table>
+                                                                                            <thead>
+                                                                                                <tr>
+                                                                                                    <th>Tanggal</th>
+                                                                                                    <th>No. Ref</th>
+                                                                                                    <th>Keterangan</th>
+                                                                                                    <th>Debit</th>
+                                                                                                    <th>Kredit</th>
+                                                                                                    <th>Saldo</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                    `;
     sampleLedgerEntries.forEach(entry => {
      html += `
-                                                                                <tr>
-                                                                                    <td>${entry.date}</td>
-                                                                                    <td>${entry.ref}</td>
-                                                                                    <td>${entry.desc}</td>
-                                                                                    <td class="amount debit">${entry.debit > 0 ? formatRupiah(entry.debit) : ""}</td>
-                                                                                    <td class="amount credit">${entry.credit > 0 ? formatRupiah(entry.credit) : ""}</td>
-                                                                                    <td class="amount" style="font-weight: 700;">${formatRupiah(entry.balance)}</td>
-                                                                                </tr>
-                                                                            `;
+                                                                                            <tr>
+                                                                                                <td>${entry.date}</td>
+                                                                                                <td>${entry.ref}</td>
+                                                                                                <td>${entry.desc}</td>
+                                                                                                <td class="amount debit">${entry.debit > 0 ? formatRupiah(entry.debit) : ""}</td>
+                                                                                                <td class="amount credit">${entry.credit > 0 ? formatRupiah(entry.credit) : ""}</td>
+                                                                                                <td class="amount" style="font-weight: 700;">${formatRupiah(entry.balance)}</td>
+                                                                                            </tr>
+                                                                                        `;
     });
     html += `
-                                                                                </tbody>
-                                                                                <tfoot>
-                                                                                    <tr>
-                                                                                        <td colspan="3" style="text-align: right; font-weight: 700;">Total:</td>
-                                                                                        <td class="amount debit">${formatRupiah(4e7)}</td>
-                                                                                        <td class="amount credit">${formatRupiah(21e6)}</td>
-                                                                                        <td class="amount" style="font-weight: 700;">${formatRupiah(69e6)}</td>
-                                                                                    </tr>
-                                                                                </tfoot>
-                                                                            </table>
-                                                                        `;
+                                                                                            </tbody>
+                                                                                            <tfoot>
+                                                                                                <tr>
+                                                                                                    <td colspan="3" style="text-align: right; font-weight: 700;">Total:</td>
+                                                                                                    <td class="amount debit">${formatRupiah(4e7)}</td>
+                                                                                                    <td class="amount credit">${formatRupiah(21e6)}</td>
+                                                                                                    <td class="amount" style="font-weight: 700;">${formatRupiah(69e6)}</td>
+                                                                                                </tr>
+                                                                                            </tfoot>
+                                                                                        </table>
+                                                                                    `;
     ledgerDetail.innerHTML = html;
    }
    // Load Balance Sheet
@@ -1687,33 +1687,33 @@
     assets.forEach(asset => {
      const amountClass = asset.amount < 0 ? "credit" : "debit";
      assetsHtml += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                                                    <span>${asset.name}</span>
-                                                                                    <span class="amount ${amountClass}">${formatRupiah(Math.abs(asset.amount))}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                                                                <span>${asset.name}</span>
+                                                                                                <span class="amount ${amountClass}">${formatRupiah(Math.abs(asset.amount))}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     assetsDiv.innerHTML = assetsHtml;
     // Render Liabilities
     let liabilitiesHtml = "";
     liabilities.forEach(liability => {
      liabilitiesHtml += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                                                    <span>${liability.name}</span>
-                                                                                    <span class="amount credit">${formatRupiah(liability.amount)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                                                                <span>${liability.name}</span>
+                                                                                                <span class="amount credit">${formatRupiah(liability.amount)}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     liabilitiesDiv.innerHTML = liabilitiesHtml;
     // Render Equity
     let equityHtml = "";
     equity.forEach(item => {
      equityHtml += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount debit">${formatRupiah(item.amount)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount debit">${formatRupiah(item.amount)}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     equityDiv.innerHTML = equityHtml;
    }
@@ -1754,73 +1754,73 @@
      } ]
     };
     let html = `
-                                                                            <div style="margin-bottom: 30px;">
-                                                                                <h4 style="color: #10b981; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
-                                                                                    Pendapatan
-                                                                                </h4>
-                                                                        `;
+                                                                                        <div style="margin-bottom: 30px;">
+                                                                                            <h4 style="color: #10b981; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                                                                                                Pendapatan
+                                                                                            </h4>
+                                                                                    `;
     data.revenue.forEach(item => {
      html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount debit">${formatRupiah(item.amount)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount debit">${formatRupiah(item.amount)}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
-                                                                                    <span>Total Pendapatan</span>
-                                                                                    <span>${formatRupiah(12e8)}</span>
-                                                                                </div>
-                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                                                                                                <span>Total Pendapatan</span>
+                                                                                                <span>${formatRupiah(12e8)}</span>
+                                                                                            </div>
+                                                                                        </div>
 
-                                                                            <div style="margin-bottom: 30px;">
-                                                                                <h4 style="color: #ef4444; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
-                                                                                    Harga Pokok Penjualan
-                                                                                </h4>
-                                                                        `;
+                                                                                        <div style="margin-bottom: 30px;">
+                                                                                            <h4 style="color: #ef4444; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                                                                                                Harga Pokok Penjualan
+                                                                                            </h4>
+                                                                                    `;
     data.cogs.forEach(item => {
      html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount credit">${formatRupiah(item.amount)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount credit">${formatRupiah(item.amount)}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
-                                                                                    <span>Laba Kotor</span>
-                                                                                    <span>${formatRupiah(675e6)}</span>
-                                                                                </div>
-                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                                                                                                <span>Laba Kotor</span>
+                                                                                                <span>${formatRupiah(675e6)}</span>
+                                                                                            </div>
+                                                                                        </div>
 
-                                                                            <div style="margin-bottom: 30px;">
-                                                                                <h4 style="color: #f59e0b; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
-                                                                                    Beban Operasional
-                                                                                </h4>
-                                                                        `;
+                                                                                        <div style="margin-bottom: 30px;">
+                                                                                            <h4 style="color: #f59e0b; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                                                                                                Beban Operasional
+                                                                                            </h4>
+                                                                                    `;
     data.expenses.forEach(item => {
      html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount credit">${formatRupiah(item.amount)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount credit">${formatRupiah(item.amount)}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
-                                                                                    <span>Total Beban Operasional</span>
-                                                                                    <span>${formatRupiah(3e8)}</span>
-                                                                                </div>
-                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                                                                                                <span>Total Beban Operasional</span>
+                                                                                                <span>${formatRupiah(3e8)}</span>
+                                                                                            </div>
+                                                                                        </div>
 
-                                                                            <div style="margin-top: 30px; padding-top: 20px; border-top: 3px double #e5e7eb;">
-                                                                                <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
-                                                                                    <span>LABA BERSIH</span>
-                                                                                    <span style="color: #10b981;">${formatRupiah(375e6)}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        `;
+                                                                                        <div style="margin-top: 30px; padding-top: 20px; border-top: 3px double #e5e7eb;">
+                                                                                            <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
+                                                                                                <span>LABA BERSIH</span>
+                                                                                                <span style="color: #10b981;">${formatRupiah(375e6)}</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
     incomeStatementDiv.innerHTML = html;
    }
    // Load Cash Flow Statement
@@ -1863,84 +1863,84 @@
      } ]
     };
     let html = `
-                                                                            <div style="margin-bottom: 30px;">
-                                                                                <h4 style="color: #3b82f6; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
-                                                                                    Aktivitas Operasi
-                                                                                </h4>
-                                                                        `;
+                                                                                        <div style="margin-bottom: 30px;">
+                                                                                            <h4 style="color: #3b82f6; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                                                                                                Aktivitas Operasi
+                                                                                            </h4>
+                                                                                    `;
     data.operating.forEach(item => {
      const amountClass = item.amount >= 0 ? "debit" : "credit";
      html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
-                                                                                    <span>Arus Kas dari Operasi</span>
-                                                                                    <span>${formatRupiah(275e6)}</span>
-                                                                                </div>
-                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                                                                                                <span>Arus Kas dari Operasi</span>
+                                                                                                <span>${formatRupiah(275e6)}</span>
+                                                                                            </div>
+                                                                                        </div>
 
-                                                                            <div style="margin-bottom: 30px;">
-                                                                                <h4 style="color: #8b5cf6; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
-                                                                                    Aktivitas Investasi
-                                                                                </h4>
-                                                                        `;
+                                                                                        <div style="margin-bottom: 30px;">
+                                                                                            <h4 style="color: #8b5cf6; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                                                                                                Aktivitas Investasi
+                                                                                            </h4>
+                                                                                    `;
     data.investing.forEach(item => {
      const amountClass = item.amount >= 0 ? "debit" : "credit";
      html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
-                                                                                    <span>Arus Kas dari Investasi</span>
-                                                                                    <span style="color: #ef4444;">${formatRupiah(-105e6)}</span>
-                                                                                </div>
-                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                                                                                                <span>Arus Kas dari Investasi</span>
+                                                                                                <span style="color: #ef4444;">${formatRupiah(-105e6)}</span>
+                                                                                            </div>
+                                                                                        </div>
 
-                                                                            <div style="margin-bottom: 30px;">
-                                                                                <h4 style="color: #10b981; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
-                                                                                    Aktivitas Pendanaan
-                                                                                </h4>
-                                                                        `;
+                                                                                        <div style="margin-bottom: 30px;">
+                                                                                            <h4 style="color: #10b981; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #e5e7eb;">
+                                                                                                Aktivitas Pendanaan
+                                                                                            </h4>
+                                                                                    `;
     data.financing.forEach(item => {
      const amountClass = item.amount >= 0 ? "debit" : "credit";
      html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                                                    <span>${item.name}</span>
-                                                                                    <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                                                                <span>${item.name}</span>
+                                                                                                <span class="amount ${amountClass}">${formatRupiah(Math.abs(item.amount))}</span>
+                                                                                            </div>
+                                                                                        `;
     });
     html += `
-                                                                                <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
-                                                                                    <span>Arus Kas dari Pendanaan</span>
-                                                                                    <span>${formatRupiah(65e6)}</span>
-                                                                                </div>
-                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 2px solid #e5e7eb; font-weight: 600;">
+                                                                                                <span>Arus Kas dari Pendanaan</span>
+                                                                                                <span>${formatRupiah(65e6)}</span>
+                                                                                            </div>
+                                                                                        </div>
 
-                                                                            <div style="margin-top: 30px; padding-top: 20px; border-top: 3px double #e5e7eb;">
-                                                                                <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
-                                                                                    <span>KENAIKAN BERSIH KAS</span>
-                                                                                    <span style="color: #10b981;">${formatRupiah(235e6)}</span>
-                                                                                </div>
-                                                                                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: 600;">
-                                                                                    <span>Saldo Kas Awal Periode</span>
-                                                                                    <span>${formatRupiah(85e6)}</span>
-                                                                                </div>
-                                                                                <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 1.3rem; font-weight: 700;">
-                                                                                    <span>SALDO KAS AKHIR PERIODE</span>
-                                                                                    <span style="color: #3b82f6;">${formatRupiah(32e7)}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        `;
+                                                                                        <div style="margin-top: 30px; padding-top: 20px; border-top: 3px double #e5e7eb;">
+                                                                                            <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: 700;">
+                                                                                                <span>KENAIKAN BERSIH KAS</span>
+                                                                                                <span style="color: #10b981;">${formatRupiah(235e6)}</span>
+                                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-weight: 600;">
+                                                                                                <span>Saldo Kas Awal Periode</span>
+                                                                                                <span>${formatRupiah(85e6)}</span>
+                                                                                            </div>
+                                                                                            <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #e5e7eb; font-size: 1.3rem; font-weight: 700;">
+                                                                                                <span>SALDO KAS AKHIR PERIODE</span>
+                                                                                                <span style="color: #3b82f6;">${formatRupiah(32e7)}</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
     cashFlowDiv.innerHTML = html;
    }
    // Load Equity Statement
@@ -1967,49 +1967,49 @@
      } ]
     };
     let html = `
-                                                                            <table>
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <th>Keterangan</th>
-                                                                                        <th>Modal Saham</th>
-                                                                                        <th>Laba Ditahan</th>
-                                                                                        <th>Total</th>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                    <tr>
-                                                                                        <td>Saldo Awal Periode</td>
-                                                                                        <td class="amount">${formatRupiah(1e9)}</td>
-                                                                                        <td class="amount">${formatRupiah(285e6)}</td>
-                                                                                        <td class="amount" style="font-weight: 700;">${formatRupiah(1285e6)}</td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td>Laba Bersih Periode</td>
-                                                                                        <td class="amount"></td>
-                                                                                        <td class="amount debit">${formatRupiah(375e6)}</td>
-                                                                                        <td class="amount debit">${formatRupiah(375e6)}</td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td>Prive Pemilik</td>
-                                                                                        <td class="amount"></td>
-                                                                                        <td class="amount credit">${formatRupiah(5e7)}</td>
-                                                                                        <td class="amount credit">${formatRupiah(5e7)}</td>
-                                                                                    </tr>
-                                                                                    <tr>
-                                                                                        <td>Dividen</td>
-                                                                                        <td class="amount"></td>
-                                                                                        <td class="amount credit">${formatRupiah(16e7)}</td>
-                                                                                        <td class="amount credit">${formatRupiah(16e7)}</td>
-                                                                                    </tr>
-                                                                                    <tr style="border-top: 2px solid #e5e7eb;">
-                                                                                        <td style="font-weight: 700;">Saldo Akhir Periode</td>
-                                                                                        <td class="amount" style="font-weight: 700;">${formatRupiah(1e9)}</td>
-                                                                                        <td class="amount" style="font-weight: 700;">${formatRupiah(45e7)}</td>
-                                                                                        <td class="amount" style="font-weight: 700;">${formatRupiah(145e7)}</td>
-                                                                                    </tr>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        `;
+                                                                                        <table>
+                                                                                            <thead>
+                                                                                                <tr>
+                                                                                                    <th>Keterangan</th>
+                                                                                                    <th>Modal Saham</th>
+                                                                                                    <th>Laba Ditahan</th>
+                                                                                                    <th>Total</th>
+                                                                                                </tr>
+                                                                                            </thead>
+                                                                                            <tbody>
+                                                                                                <tr>
+                                                                                                    <td>Saldo Awal Periode</td>
+                                                                                                    <td class="amount">${formatRupiah(1e9)}</td>
+                                                                                                    <td class="amount">${formatRupiah(285e6)}</td>
+                                                                                                    <td class="amount" style="font-weight: 700;">${formatRupiah(1285e6)}</td>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td>Laba Bersih Periode</td>
+                                                                                                    <td class="amount"></td>
+                                                                                                    <td class="amount debit">${formatRupiah(375e6)}</td>
+                                                                                                    <td class="amount debit">${formatRupiah(375e6)}</td>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td>Prive Pemilik</td>
+                                                                                                    <td class="amount"></td>
+                                                                                                    <td class="amount credit">${formatRupiah(5e7)}</td>
+                                                                                                    <td class="amount credit">${formatRupiah(5e7)}</td>
+                                                                                                </tr>
+                                                                                                <tr>
+                                                                                                    <td>Dividen</td>
+                                                                                                    <td class="amount"></td>
+                                                                                                    <td class="amount credit">${formatRupiah(16e7)}</td>
+                                                                                                    <td class="amount credit">${formatRupiah(16e7)}</td>
+                                                                                                </tr>
+                                                                                                <tr style="border-top: 2px solid #e5e7eb;">
+                                                                                                    <td style="font-weight: 700;">Saldo Akhir Periode</td>
+                                                                                                    <td class="amount" style="font-weight: 700;">${formatRupiah(1e9)}</td>
+                                                                                                    <td class="amount" style="font-weight: 700;">${formatRupiah(45e7)}</td>
+                                                                                                    <td class="amount" style="font-weight: 700;">${formatRupiah(145e7)}</td>
+                                                                                                </tr>
+                                                                                            </tbody>
+                                                                                        </table>
+                                                                                    `;
     equityDiv.innerHTML = html;
    }
    // Modal Functions
@@ -2031,31 +2031,31 @@
     entryDiv.style.paddingTop = "20px";
     entryDiv.style.borderTop = "1px dashed #e5e7eb";
     entryDiv.innerHTML = `
-                                                                            <div class="form-row">
-                                                                                <div class="form-group">
-                                                                                    <label>Akun Debit (Entri ${entryCount})</label>
-                                                                                    <select class="debit-account">
-                                                                                        <option value="">Pilih akun...</option>
-                                                                                    </select>
-                                                                                </div>
-                                                                                <div class="form-group">
-                                                                                    <label>Jumlah Debit</label>
-                                                                                    <input type="number" class="debit-amount" placeholder="Rp 0">
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="form-row">
-                                                                                <div class="form-group">
-                                                                                    <label>Akun Kredit (Entri ${entryCount})</label>
-                                                                                    <select class="credit-account">
-                                                                                        <option value="">Pilih akun...</option>
-                                                                                    </select>
-                                                                                </div>
-                                                                                <div class="form-group">
-                                                                                    <label>Jumlah Kredit</label>
-                                                                                    <input type="number" class="credit-amount" placeholder="Rp 0">
-                                                                                </div>
-                                                                            </div>
-                                                                        `;
+                                                                                        <div class="form-row">
+                                                                                            <div class="form-group">
+                                                                                                <label>Akun Debit (Entri ${entryCount})</label>
+                                                                                                <select class="debit-account">
+                                                                                                    <option value="">Pilih akun...</option>
+                                                                                                </select>
+                                                                                            </div>
+                                                                                            <div class="form-group">
+                                                                                                <label>Jumlah Debit</label>
+                                                                                                <input type="number" class="debit-amount" placeholder="Rp 0">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="form-row">
+                                                                                            <div class="form-group">
+                                                                                                <label>Akun Kredit (Entri ${entryCount})</label>
+                                                                                                <select class="credit-account">
+                                                                                                    <option value="">Pilih akun...</option>
+                                                                                                </select>
+                                                                                            </div>
+                                                                                            <div class="form-group">
+                                                                                                <label>Jumlah Kredit</label>
+                                                                                                <input type="number" class="credit-amount" placeholder="Rp 0">
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
     // Populate account options
     Object.values(chartOfAccounts).forEach(account => {
      const debitOption = document.createElement("option");
@@ -2206,24 +2206,24 @@
     const printContent = document.getElementById(reportId).innerHTML;
     const originalContent = document.body.innerHTML;
     document.body.innerHTML = `
-                                                                            <html>
-                                                                                <head>
-                                                                                    <title>Laporan Akuntansi</title>
-                                                                                    <style>
-                                                                                        body { font-family: Arial, sans-serif; }
-                                                                                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                                                                                        th, td { padding: 10px; border: 1px solid #ddd; }
-                                                                                        th { background-color: #f5f5f5; }
-                                                                                        .text-right { text-align: right; }
-                                                                                        .total { font-weight: bold; }
-                                                                                    </style>
-                                                                                </head>
-                                                                                <body>
-                                                                                    <h1 style="text-align: center;">Laporan Akuntansi</h1>
-                                                                                    <div>${printContent}</div>
-                                                                                </body>
-                                                                            </html>
-                                                                        `;
+                                                                                        <html>
+                                                                                            <head>
+                                                                                                <title>Laporan Akuntansi</title>
+                                                                                                <style>
+                                                                                                    body { font-family: Arial, sans-serif; }
+                                                                                                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                                                                                                    th, td { padding: 10px; border: 1px solid #ddd; }
+                                                                                                    th { background-color: #f5f5f5; }
+                                                                                                    .text-right { text-align: right; }
+                                                                                                    .total { font-weight: bold; }
+                                                                                                </style>
+                                                                                            </head>
+                                                                                            <body>
+                                                                                                <h1 style="text-align: center;">Laporan Akuntansi</h1>
+                                                                                                <div>${printContent}</div>
+                                                                                            </body>
+                                                                                        </html>
+                                                                                    `;
     window.print();
     document.body.innerHTML = originalContent;
     location.reload();

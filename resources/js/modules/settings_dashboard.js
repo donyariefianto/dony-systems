@@ -992,7 +992,7 @@ export function editWidgetConfig(index) {
                 <label class="text-[10px] font-bold text-gray-400 uppercase">Title</label>
                 <div class="relative">
                     <i class="fas fa-t absolute left-3 top-2.5 text-gray-400 text-xs"></i>
-                    <input type="text" id="conf-title" value="${escapeHtml(widget.title||"")}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
+                    <input type="text" id="conf-title" value="${escapeHtml(widget.title || '')}" placeholder="e.g. transactions" class="w-full pl-8 p-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 outline-none focus:border-blue-500">
                 </div>
             </div>
             <div class="space-y-1.5">
@@ -1201,7 +1201,7 @@ export function applyWidgetChanges() {
  target.data_config = newDataConfig
  target.allow_variant = allowVariant
  target.variant_config = variantConfig
- 
+
  try {
   const echartsStr = document.getElementById('conf-echarts-options')?.value || '{}'
   target.echarts_options = JSON.parse(echartsStr)

@@ -196,7 +196,6 @@ export function renderTableView(config, container) {
                         <button id="search-filter-btn" onclick="window.toggleSearchFilter()" class="pl-3 pr-2 py-2.5 flex items-center gap-1.5 text-slate-500 hover:text-zinc-600 transition-colors cursor-pointer outline-none border-r border-transparent hover:bg-slate-50 rounded-l-xl group/btn">
                             <i class="fas fa-sliders-h text-xs"></i>
                             <div id="filter-active-dot" class="${AppState.searchFields && AppState.searchFields.length > 0 ? '' : 'hidden'} w-1.5 h-1.5 rounded-full bg-zinc-500 animate-pulse shadow-sm shadow-zinc-500/50"></div>
-                            <i class="fas fa-chevron-down text-[8px] opacity-50 ml-0.5 group-hover/btn:translate-y-0.5 transition-transform"></i>
                         </button>
                         <div class="w-px h-5 bg-slate-200 mx-1"></div>
                         <div class="flex-1 flex items-center relative pr-3">
@@ -207,7 +206,7 @@ export function renderTableView(config, container) {
 
                     <div id="search-filter-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 w-64 bg-white border border-slate-100 rounded-2xl shadow-2xl shadow-slate-200/50 animate-in fade-in slide-in-from-top-2 overflow-hidden ring-1 ring-slate-900/5">
                         <div class="px-4 py-3 bg-slate-50/80 backdrop-blur border-b border-slate-100 flex justify-between items-center">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Filter Pencarian</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Filters</span>
                             <span class="text-[9px] font-bold bg-white border border-slate-200 text-slate-400 px-2 py-0.5 rounded-full">Max 3</span>
                         </div>
                         
