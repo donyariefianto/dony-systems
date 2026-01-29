@@ -195,7 +195,6 @@ async function loadDashboardConfig(dashboardId) {
     dashboardState.configs[widget.id] = widget
     const colSpanClass = getColSpanClass(widget.width)
     const allow_variant = widget.allow_variant || false
-
     return `
     <div id="widget-container-${widget.id}" class="${colSpanClass} bg-white rounded-2xl border border-gray-100 shadow-sm relative overflow-visible flex flex-col hover:shadow-md transition-all duration-300 hover:z-50">
         
@@ -250,7 +249,7 @@ async function loadDashboardConfig(dashboardId) {
                     </div>
                 </div>
 
-                <button onclick="refreshSingleWidget('${widget.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Refresh Data">
+                <button onclick="refreshSingleWidget('${widget.id}')" class="${widget.data_config.source === 'database' ? '' : 'hidden'} w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Refresh Data">
                     <i class="fas fa-sync-alt text-xs"></i>
                 </button>
                 
@@ -989,10 +988,13 @@ window.refreshSingleWidget = async function (widgetId) {
  }
 }
 window.refreshAllWidgets = function () {
- Object.keys(dashboardState.configs).forEach((id) => {
-  setTimeout(() => {
-   refreshSingleWidget(id)
-  }, Math.random() * 1000)
+ Object.keys(dashboardState.configs).forEach((id, data_config) => {
+  const config = dashboardState.configs[id]
+  if (config.data_config.source !== 'static') {
+   setTimeout(() => {
+    refreshSingleWidget(id)
+   }, Math.random() * 1000)
+  }
  })
 }
 window.openDashboardSelector = async function () {
