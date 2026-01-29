@@ -237,10 +237,6 @@ async function loadDashboardConfig(dashboardId) {
                         <div id="variant-form-${widget.id}" class="pl-4 pr-4 p-2 space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
 
                         <div class="p-3 bg-white border-t border-gray-100 rounded-b-xl flex gap-3">
-                            <button onclick="document.getElementById('variant-popover-${widget.id}').classList.add('hidden')" 
-                                class="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-                                Cancel
-                            </button>
                             <button onclick="window.applyVariant('${widget.id}')" 
                                 class="flex-[2] py-2 bg-zinc-600 hover:bg-zinc-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg shadow-zinc-200 active:scale-95 transition-all flex items-center justify-center gap-2">
                                 <span>Apply</span> <i class="fas fa-check"></i>
