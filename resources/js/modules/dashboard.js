@@ -993,7 +993,7 @@ window.refreshAllWidgets = function () {
   if (config.data_config.source !== 'static') {
    setTimeout(() => {
     refreshSingleWidget(id)
-   }, Math.random() * 1000)
+   }, 1000)
   }
  })
 }
