@@ -13,188 +13,163 @@
  <body class="bg-gray-100 overflow-hidden">
   <div
    id="splash-screen"
-   class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-gradient-to-br from-zinc-50 via-white to-zinc-100/80 transition-all duration-1000 overflow-hidden"
+   class="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900 transition-all duration-1000 overflow-hidden"
   >
-   <!-- Background Effects -->
    <div class="absolute inset-0 overflow-hidden">
-    <!-- Animated Gradient Orbs -->
+
     <div
-     class="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-zinc-200/40 to-zinc-300/30 rounded-full blur-3xl animate-float-slow"
+     class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc0IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9Ii4wMiIvPjwvc3ZnPg==')] opacity-5"
     >
     </div>
     <div
-     class="absolute bottom-1/4 -right-20 w-96 h-96 bg-gradient-to-l from-zinc-300/30 to-zinc-400/20 rounded-full blur-3xl animate-float-slow"
+     class="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-zinc-800/30 to-zinc-700/20 rounded-full blur-3xl animate-float-slow"
+    >
+    </div>
+    <div
+     class="absolute bottom-1/4 -right-20 w-96 h-96 bg-gradient-to-l from-zinc-700/20 to-zinc-600/10 rounded-full blur-3xl animate-float-slow"
      style="animation-delay: 1s;"
     >
     </div>
     <div
-     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-zinc-100/50 to-zinc-200/30 rounded-full blur-3xl animate-pulse-subtle"
+     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-zinc-800/10 to-zinc-700/5 rounded-full blur-3xl animate-pulse-subtle"
     >
     </div>
 
-    <!-- Geometric Pattern Overlay -->
-    <div class="absolute inset-0 opacity-5">
+    <div class="absolute inset-0 opacity-10">
      <div
       class="absolute inset-0"
-      style="background-image: radial-gradient(circle at 1px 1px, rgb(113 113 122 / 0.2) 1px, transparent 0); background-size: 40px 40px;"
+      style="background-image: linear-gradient(to right, rgb(113 113 122 / 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgb(113 113 122 / 0.1) 1px, transparent 1px); background-size: 50px 50px;"
      >
      </div>
     </div>
 
-    <!-- Gradient Border Effect -->
     <div
-     class="absolute inset-0 border-[16px] border-transparent"
-     style="background: linear-gradient(135deg, rgba(161, 161, 170, 0.1) 0%, rgba(113, 113, 122, 0.05) 100%) border-box; mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;"
+     class="absolute inset-0 bg-radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.3) 100%)"
     >
     </div>
    </div>
 
-   <!-- Main Content -->
    <div
     id="splash-content"
     class="relative z-10 flex flex-col items-center opacity-0 scale-95 transition-all duration-700"
    >
-    <!-- Logo Container with Depth Effect -->
+
     <div class="relative mb-10">
-     <!-- Shadow Effect -->
      <div
-      class="absolute inset-0 bg-gradient-to-br from-zinc-400/20 to-zinc-600/10 rounded-[2.5rem] blur-xl -rotate-3 scale-105"
+      class="absolute -inset-4 bg-gradient-to-tr from-zinc-700/20 via-transparent to-zinc-600/10 rounded-[2.5rem] blur-xl opacity-50 animate-glow"
      >
      </div>
-
-     <!-- Glow Effect -->
      <div
-      class="absolute -inset-2 bg-gradient-to-tr from-zinc-400/30 via-transparent to-zinc-500/20 rounded-[2.5rem] blur-md opacity-60 animate-glow"
+      class="absolute inset-0 bg-gradient-to-br from-zinc-800/40 to-zinc-900/30 rounded-[2.5rem] blur-lg -rotate-3 scale-105"
      >
      </div>
-
-     <!-- Main Logo -->
      <div
-      class="relative w-28 h-28 bg-gradient-to-br from-zinc-100 to-zinc-50 rounded-[2.5rem] shadow-2xl shadow-zinc-300/50 flex items-center justify-center transform -rotate-3 border border-zinc-200/80 backdrop-blur-sm"
+      class="relative w-28 h-28 bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 rounded-[2.5rem] shadow-2xl shadow-black/40 flex items-center justify-center transform -rotate-3 border border-zinc-700/50 backdrop-blur-sm"
      >
-      <!-- Inner Shadow -->
-      <div class="absolute inset-4 rounded-2xl shadow-inner shadow-zinc-300/30">
+      <div class="absolute inset-4 rounded-2xl shadow-inner shadow-black/30">
       </div>
 
-      <!-- Accent Glow -->
       <div
-       class="absolute -inset-1 bg-gradient-to-tr from-zinc-300/20 to-zinc-400/10 rounded-[2.5rem] blur-sm"
+       class="absolute inset-0 rounded-[2.5rem] border border-t-zinc-600/30 border-r-zinc-500/20 border-b-zinc-400/10 border-l-zinc-500/20"
       >
       </div>
 
-      <!-- Icon Container -->
       <div
-       class="relative w-20 h-20 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center shadow-lg shadow-zinc-900/30"
+       class="relative w-20 h-20 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-2xl flex items-center justify-center shadow-lg shadow-black/40 border border-zinc-600/30"
       >
        <i
         id="splash-icon"
-        class="fas fa-cube text-zinc-100 text-3xl transform rotate-6 transition-transform duration-1000"
+        class="fas fa-cube text-zinc-200 text-3xl transform rotate-6 transition-transform duration-1000"
        ></i>
-
-       <!-- Icon Reflection -->
        <div
-        class="absolute top-1 left-1 right-1 h-4 bg-gradient-to-b from-white/20 to-transparent rounded-t-2xl opacity-40"
+        class="absolute top-2 left-2 right-2 h-3 bg-gradient-to-b from-white/10 to-transparent rounded-t-2xl"
        >
        </div>
       </div>
-
-      <!-- Corner Accents -->
       <div
-       class="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-zinc-500 to-zinc-600 rounded-full border-2 border-zinc-100"
+       class="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-zinc-600 to-zinc-700 rounded-full border-2 border-zinc-800/80"
       >
       </div>
       <div
-       class="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-br from-zinc-500 to-zinc-600 rounded-full border-2 border-zinc-100"
+       class="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-br from-zinc-600 to-zinc-700 rounded-full border-2 border-zinc-800/80"
       >
       </div>
      </div>
     </div>
 
-    <!-- Text Content -->
     <div class="text-center space-y-4 mb-12">
      <h1
       id="splash-name"
-      class="text-4xl font-black bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-800 bg-clip-text text-transparent tracking-tight"
+      class="text-4xl font-black bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200 bg-clip-text text-transparent tracking-tight"
      >
       Loading System
      </h1>
 
      <div class="space-y-2">
-      <p class="text-xs font-semibold text-zinc-500 uppercase tracking-[0.3em]">
+      <p class="text-xs font-semibold text-zinc-400 uppercase tracking-[0.3em]">
        Initializing Components
       </p>
-      <p class="text-sm text-zinc-400 font-medium">
+      <p class="text-sm text-zinc-500 font-medium">
        Preparing your experience
       </p>
      </div>
     </div>
 
-    <!-- Progress Container -->
     <div class="w-80 space-y-4">
-     <!-- Progress Bar -->
      <div class="relative">
-      <!-- Progress Track -->
       <div
-       class="w-full h-2.5 bg-gradient-to-r from-zinc-200/80 to-zinc-300/60 rounded-full overflow-hidden backdrop-blur-sm border border-zinc-300/50 shadow-inner shadow-zinc-300/30"
+       class="w-full h-2.5 bg-gradient-to-r from-zinc-800/60 to-zinc-700/40 rounded-full overflow-hidden backdrop-blur-sm border border-zinc-700/30 shadow-inner shadow-black/20"
       >
-       <!-- Progress Fill -->
        <div
         id="splash-progress"
-        class="h-full bg-gradient-to-r from-zinc-600 via-zinc-500 to-zinc-400 w-0 rounded-full relative overflow-hidden transition-all duration-300"
+        class="h-full bg-gradient-to-r from-zinc-500 via-zinc-400 to-zinc-300 w-0 rounded-full relative overflow-hidden transition-all duration-300"
        >
-        <!-- Shimmer Effect -->
         <div
-         class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shimmer"
+         class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer"
         >
         </div>
-
-        <!-- Glow Effect -->
-        <div class="absolute inset-0 bg-gradient-to-r from-zinc-400/20 to-zinc-300/10 blur-sm">
+        <div class="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5 blur-sm">
         </div>
        </div>
       </div>
 
-      <!-- Progress Dots -->
       <div class="flex justify-between w-full mt-2 px-1">
-       <div class="w-1.5 h-1.5 rounded-full bg-zinc-400/40">
+       <div class="w-1.5 h-1.5 rounded-full bg-zinc-600/30">
        </div>
-       <div class="w-1.5 h-1.5 rounded-full bg-zinc-400/40">
+       <div class="w-1.5 h-1.5 rounded-full bg-zinc-600/30">
        </div>
-       <div class="w-1.5 h-1.5 rounded-full bg-zinc-400/40">
+       <div class="w-1.5 h-1.5 rounded-full bg-zinc-600/30">
        </div>
-       <div class="w-1.5 h-1.5 rounded-full bg-zinc-400/40">
+       <div class="w-1.5 h-1.5 rounded-full bg-zinc-600/30">
        </div>
-       <div class="w-1.5 h-1.5 rounded-full bg-zinc-400/40">
+       <div class="w-1.5 h-1.5 rounded-full bg-zinc-600/30">
        </div>
       </div>
      </div>
 
-     <!-- Progress Percentage -->
      <div class="text-center">
-      <div id="progress-percentage" class="text-sm font-bold text-zinc-700">
+      <div id="progress-percentage" class="text-sm font-bold text-zinc-300">
        0%
       </div>
-      <div class="text-xs text-zinc-400 font-medium mt-1">
+      <div class="text-xs text-zinc-500 font-medium mt-1">
        Please wait...
       </div>
      </div>
     </div>
 
-    <!-- Loading Dots -->
     <div class="flex space-x-2 mt-8">
-     <div class="w-2 h-2 rounded-full bg-zinc-400 animate-bounce" style="animation-delay: 0s">
+     <div class="w-2 h-2 rounded-full bg-zinc-600 animate-bounce" style="animation-delay: 0s">
      </div>
-     <div class="w-2 h-2 rounded-full bg-zinc-400 animate-bounce" style="animation-delay: 0.2s">
+     <div class="w-2 h-2 rounded-full bg-zinc-600 animate-bounce" style="animation-delay: 0.2s">
      </div>
-     <div class="w-2 h-2 rounded-full bg-zinc-400 animate-bounce" style="animation-delay: 0.4s">
+     <div class="w-2 h-2 rounded-full bg-zinc-600 animate-bounce" style="animation-delay: 0.4s">
      </div>
     </div>
    </div>
 
-   <!-- Footer Note -->
    <div class="absolute bottom-8 text-center">
-    <p class="text-xs text-zinc-400/60 font-medium">
-     © 2024 System
+    <p class="text-xs text-zinc-600 font-medium">
+     © 2024 System Loader
     </p>
    </div>
   </div>
@@ -203,55 +178,213 @@
 
    <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-gray-300 transition-transform duration-300 ease-in-out flex flex-col -translate-x-full lg:translate-x-0 lg:static"
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 text-zinc-300 transition-all duration-300 ease-in-out flex flex-col -translate-x-full lg:translate-x-0 lg:static border-r border-zinc-800/50 shadow-2xl shadow-black/20"
    >
-    <div class="p-5 border-b border-gray-800 flex items-center justify-between">
+
+    <div
+     class="p-5 border-b border-zinc-800/60 flex items-center justify-between bg-gradient-to-r from-zinc-900/90 via-zinc-900/80 to-zinc-900/90 backdrop-blur-sm"
+    >
      <div class="flex items-center gap-3">
-      <div
-       id="app-short-name"
-       class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white text-sm"
-      >
+      <div class="relative">
+
+       <div
+        class="absolute -inset-2 bg-gradient-to-tr from-zinc-600/20 to-zinc-500/10 rounded-lg blur-md opacity-50"
+       >
+       </div>
+
+       <div
+        id="app-short-name"
+        class="relative w-10 h-10 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg flex items-center justify-center font-bold text-zinc-100 text-sm border border-zinc-700/50 shadow-lg shadow-black/30"
+       >
+        <div class="absolute inset-0 rounded-lg bg-gradient-to-t from-zinc-700/20 to-transparent">
+        </div>
+        <span class="relative z-10">A</span>
+
+        <div
+         class="absolute top-1 left-1 w-1.5 h-1.5 bg-gradient-to-br from-zinc-600 to-zinc-500 rounded-full"
+        >
+        </div>
+        <div
+         class="absolute top-1 right-1 w-1.5 h-1.5 bg-gradient-to-br from-zinc-600 to-zinc-500 rounded-full"
+        >
+        </div>
+       </div>
       </div>
-      <span id="app-name" class="text-xl font-bold text-white tracking-tighter uppercase"></span>
+
+      <div class="flex flex-col">
+       <span id="app-name" class="text-lg font-bold text-zinc-100 tracking-tight">Application</span>
+       <span class="text-xs text-zinc-500 font-medium">Dashboard</span>
+      </div>
      </div>
-     <button onclick="toggleSidebar()" class="lg:hidden text-gray-400">
-      <i class="fas fa-times"></i>
+
+     <button
+      onclick="toggleSidebar()"
+      class="lg:hidden text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95"
+     >
+      <i class="fas fa-times text-sm"></i>
      </button>
     </div>
 
     <nav id="menu-container" class="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
+
+     <div class="space-y-2">
+
+      <div class="px-3 pt-4 pb-2">
+       <span class="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Main Menu</span>
+      </div>
+
+      <a
+       href="#"
+       class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 bg-zinc-800/50 hover:bg-zinc-800/80 border border-zinc-700/30 hover:border-zinc-600/50"
+      >
+       <div class="relative">
+        <div
+         class="w-8 h-8 bg-gradient-to-br from-zinc-700 to-zinc-800 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+        >
+         <i class="fas fa-home text-sm text-zinc-300"></i>
+        </div>
+        <div
+         class="absolute -inset-1 bg-gradient-to-r from-zinc-600/10 to-transparent rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+        </div>
+       </div>
+       <span class="font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors">Dashboard</span>
+       <div class="ml-auto w-2 h-2 bg-gradient-to-r from-zinc-500 to-zinc-400 rounded-full">
+       </div>
+      </a>
+
+      <a
+       href="#"
+       class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 hover:bg-zinc-800/40 border border-transparent hover:border-zinc-700/30"
+      >
+       <div class="relative">
+        <div
+         class="w-8 h-8 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+        >
+         <i class="fas fa-chart-bar text-sm text-zinc-400"></i>
+        </div>
+       </div>
+       <span class="font-medium text-zinc-300 group-hover:text-zinc-200 transition-colors">Analytics</span>
+      </a>
+
+      <a
+       href="#"
+       class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 hover:bg-zinc-800/40 border border-transparent hover:border-zinc-700/30"
+      >
+       <div class="relative">
+        <div
+         class="w-8 h-8 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+        >
+         <i class="fas fa-users text-sm text-zinc-400"></i>
+        </div>
+       </div>
+       <span class="font-medium text-zinc-300 group-hover:text-zinc-200 transition-colors">Users</span>
+       <span
+        class="ml-auto px-2 py-0.5 bg-gradient-to-r from-zinc-700 to-zinc-800 rounded text-xs font-medium text-zinc-300 border border-zinc-600/30"
+       >12</span>
+      </a>
+     </div>
+
+     <div class="space-y-2 mt-6">
+      <div class="px-3 pt-4 pb-2">
+       <span class="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Settings</span>
+      </div>
+
+      <a
+       href="#"
+       class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 hover:bg-zinc-800/40 border border-transparent hover:border-zinc-700/30"
+      >
+       <div class="relative">
+        <div
+         class="w-8 h-8 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+        >
+         <i class="fas fa-cog text-sm text-zinc-400"></i>
+        </div>
+       </div>
+       <span class="font-medium text-zinc-300 group-hover:text-zinc-200 transition-colors">Settings</span>
+      </a>
+     </div>
     </nav>
-    <div class="flex flex-col gap-3 px-6 py-5">
+
+    <div
+     class="flex flex-col gap-4 px-4 py-5 border-t border-zinc-800/50 bg-gradient-to-t from-zinc-900/90 to-transparent"
+    >
+
+     <div class="flex items-center justify-between px-2">
+      <div class="flex items-center gap-2">
+       <div class="w-2 h-2 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full animate-pulse">
+       </div>
+       <span class="text-xs font-medium text-zinc-400">System Online</span>
+      </div>
+      <div class="text-xs font-medium text-zinc-500">
+       v1.0.0
+      </div>
+     </div>
+
      <div class="flex items-center justify-between">
-      <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">System</span>
+      <span class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Controls</span>
       <div class="flex gap-2">
+
        <button
         onclick="window.toggleTheme()"
         id="btn-theme-toggle"
-        class="w-8 h-8 rounded-full border border-slate-200 bg-white text-slate-500 hover:border-indigo-300 hover:text-indigo-600 transition-all flex items-center justify-center shadow-sm"
+        class="relative w-8 h-8 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 text-zinc-400 hover:text-zinc-300 hover:border-zinc-600/70 transition-all duration-200 flex items-center justify-center shadow-lg shadow-black/20 active:scale-95 group"
        >
-        <i class="fa-solid fa-moon text-xs"></i>
+        <div
+         class="absolute inset-0 bg-gradient-to-br from-zinc-700/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        >
+        </div>
+        <i class="fa-solid fa-moon text-xs relative z-10"></i>
        </button>
+
        <button
         id="btn-refresh-menu"
         onclick="window.refreshSidebarMenu()"
-        class="w-8 h-8 rounded-full border border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:text-blue-600 transition-all flex items-center justify-center shadow-sm group"
+        class="relative w-8 h-8 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 text-zinc-400 hover:text-zinc-300 hover:border-zinc-600/70 transition-all duration-200 flex items-center justify-center shadow-lg shadow-black/20 active:scale-95 group"
        >
-        <i class="fas fa-sync-alt text-xs group-active:rotate-180 transition-transform duration-500"></i>
+        <div
+         class="absolute inset-0 bg-gradient-to-br from-zinc-700/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        >
+        </div>
+        <i
+         class="fas fa-sync-alt text-xs relative z-10 group-active:rotate-180 transition-transform duration-500"
+        ></i>
        </button>
       </div>
      </div>
 
      <button
       onclick="window.logout()"
-      class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:border-rose-200 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-xl shadow-sm hover:shadow transition-all group active:scale-[0.98]"
+      class="relative w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-zinc-800/80 to-zinc-900/80 border border-zinc-700/50 hover:border-rose-900/50 hover:bg-gradient-to-r hover:from-rose-900/20 hover:to-rose-800/20 text-zinc-300 hover:text-rose-300 rounded-xl shadow-lg shadow-black/20 hover:shadow-rose-900/10 transition-all duration-300 group active:scale-[0.98] overflow-hidden"
      >
-      <i class="fa-solid fa-power-off text-xs opacity-50 group-hover:opacity-100"></i>
-      <span class="text-sm font-semibold">Log Out Session</span>
+
+      <div
+       class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
+      >
+      </div>
+
+      <div
+       class="absolute inset-0 rounded-xl bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      >
+      </div>
+
+      <i
+       class="fa-solid fa-power-off text-xs opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200 relative z-10"
+      ></i>
+      <span class="text-sm font-semibold relative z-10">Log Out Session</span>
      </button>
     </div>
-    <div class="p-4 border-t border-gray-800 text-[10px] text-center text-gray-500 uppercase">
-     Versions v1.0
+
+    <div
+     class="p-4 border-t border-zinc-800/50 text-xs text-center text-zinc-600 uppercase tracking-wider bg-gradient-to-t from-zinc-950 to-transparent"
+    >
+     <div class="flex items-center justify-center gap-2">
+      <div class="w-1 h-1 bg-gradient-to-r from-zinc-600 to-zinc-500 rounded-full">
+      </div>
+      <span>Version 1.0.0</span>
+      <div class="w-1 h-1 bg-gradient-to-r from-zinc-600 to-zinc-500 rounded-full">
+      </div>
+     </div>
     </div>
    </aside>
 
@@ -300,7 +433,7 @@
        <div class="w-2 h-6 bg-blue-600 rounded-full">
        </div>
        <h3 id="modal-title" class="font-black text-gray-800 text-xs uppercase tracking-widest">
-        Konfigurasi Data
+        Data Configuration
        </h3>
       </div>
       <button
@@ -323,14 +456,14 @@
        onclick="closeModal()"
        class="flex-1 py-3 text-[10px] font-black border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50 transition-all uppercase tracking-widest"
       >
-       Batalkan
+       Cancel
       </button>
       <button
        type="submit"
        form="dynamic-form"
        class="flex-[2] py-3 text-[10px] font-black bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all uppercase tracking-widest shadow-lg shadow-blue-200 active:scale-95"
       >
-       Simpan Perubahan
+       Save
       </button>
      </div>
     </div>

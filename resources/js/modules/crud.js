@@ -519,7 +519,7 @@ export async function openCrudModal(existingData = null) {
   form.dataset.editingId = existingData._id
   titleEl.innerText = `EDIT DATA`
  } else {
-  titleEl.innerText = `TAMBAH DATA`
+  titleEl.innerText = `ADD DATA`
  }
 
  modal.classList.remove('hidden')
@@ -619,7 +619,7 @@ export async function openCrudModal(existingData = null) {
     window.formDynamicState[field.name] = initialData
     setTimeout(() => window.renderRepeater(field.name), 0)
 
-    return `<div class="col-span-full space-y-2 mt-2">${labelHtml}<div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-3 md:p-4"><div class="overflow-x-auto custom-scrollbar rounded-lg border border-gray-200 bg-white"><table class="w-full text-left border-collapse min-w-[600px]"><thead class="bg-gray-100 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200"><tr><th class="w-10 text-center bg-gray-50 p-2">#</th>${subFields.map((sf) => `<th class="p-3 whitespace-nowrap min-w-[150px]">${sf.label}</th>`).join('')}<th class="w-10 text-center bg-gray-50"></th></tr></thead><tbody id="repeater_${field.name}_body"></tbody></table></div><button type="button" onclick="window.addRepeaterItem('${field.name}')" class="mt-3 w-full py-2 bg-white border border-dashed border-gray-300 text-gray-500 hover:text-zinc-600 rounded-lg text-xs font-bold flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Tambah Baris</button></div><input type="hidden" name="${field.name}"></div>`
+    return `<div class="col-span-full space-y-2 mt-2">${labelHtml}<div class="bg-gray-50 border border-gray-200 rounded-xl overflow-hidden p-3 md:p-4"><div class="overflow-x-auto custom-scrollbar rounded-lg border border-gray-200 bg-white"><table class="w-full text-left border-collapse min-w-[600px]"><thead class="bg-gray-100 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200"><tr><th class="w-10 text-center bg-gray-50 p-2">#</th>${subFields.map((sf) => `<th class="p-3 whitespace-nowrap min-w-[150px]">${sf.label}</th>`).join('')}<th class="w-10 text-center bg-gray-50"></th></tr></thead><tbody id="repeater_${field.name}_body"></tbody></table></div><button type="button" onclick="window.addRepeaterItem('${field.name}')" class="mt-3 w-full py-2 bg-white border border-dashed border-gray-300 text-gray-500 hover:text-zinc-600 rounded-lg text-xs font-bold flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Add Row</button></div><input type="hidden" name="${field.name}"></div>`
    }
 
    if (field.type === 'select') {
