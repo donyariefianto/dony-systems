@@ -1012,13 +1012,11 @@ window.switchDashboard = (id) => {
 }
 window.openWidgetFullscreen = function (widgetId) {
  const modal = document.getElementById('widget-fullscreen-modal')
-
  const titleEl = document.getElementById('fs-title')
  const descEl = document.getElementById('fs-desc')
  const iconBox = document.getElementById('fs-icon-box')
  const body = document.getElementById('fs-content-body')
  const actionsContainer = document.getElementById('fs-actions')
-
  const widget = dashboardState.configs[widgetId]
  const data = dashboardState.data[widgetId]
 
@@ -1033,6 +1031,7 @@ window.openWidgetFullscreen = function (widgetId) {
 
  if (actionsContainer) {
   const allowVariant = widget.allow_variant || false
+  const allowRefresh = widget.data_config.source
 
   const filterBtnHTML = allowVariant
    ? `
@@ -1069,7 +1068,7 @@ window.openWidgetFullscreen = function (widgetId) {
 
   const refreshBtnHTML = `
     <button onclick="refreshFullscreenWidget('${widget.id}')" 
-        class="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all active:scale-95 shadow-sm" 
+        class="${allowRefresh==='static'?'hidden':''} h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all active:scale-95 shadow-sm" 
         title="Refresh Data">
         <i class="fas fa-sync-alt"></i>
     </button>
