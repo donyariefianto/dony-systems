@@ -296,7 +296,7 @@ export default class BackendsController {
  async getCollectionDataDetail({ params, response }: HttpContext) {
   const colName = params.col
   const id = params.id
-  if (!id || id === 'undefined') {
+  if (!id || id === 'undefined'|| id === 'default') {
    return response.status(400).send({ message: 'ID parameter is required' })
   }
   const collections = database.data?.collection(colName)

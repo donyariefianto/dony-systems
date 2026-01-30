@@ -75,8 +75,8 @@ export function renderGeneralTab(settings) {
                         <i class="fas fa-sliders-h"></i>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-slate-800 tracking-tight">Preferensi Umum</h2>
-                        <p class="text-xs text-slate-500 font-medium">Atur identitas aplikasi dan preferensi lokal</p>
+                        <h2 class="text-base font-bold text-slate-800 tracking-tight">General Preferences</h2>
+                        <p class="text-xs text-slate-500 font-medium">Set application identity and local preferences</p>
                     </div>
                 </div>
                 
@@ -163,8 +163,8 @@ export function renderGeneralTab(settings) {
                         <i class="fas fa-microchip"></i>
                     </div>
                     <div>
-                        <h2 class="text-base font-bold text-slate-800 tracking-tight">Konfigurasi Sistem</h2>
-                        <p class="text-xs text-slate-500 font-medium">Pengaturan teknis dan batasan sistem</p>
+                        <h2 class="text-base font-bold text-slate-800 tracking-tight">System Configuration</h2>
+                        <p class="text-xs text-slate-500 font-medium">Technical settings and system limitations</p>
                     </div>
                 </div>
 
@@ -189,6 +189,14 @@ export function renderGeneralTab(settings) {
                          desc: 'Enable system maintenance mode',
                          name: 'maintenance_mode',
                          checked: settings.maintenance_mode,
+                        })}
+                        ${renderInputGroup({
+                         label: 'Default Dashboard',
+                         name: 'id_dashboard',
+                         type: 'text',
+                         value: settings.id_dashboard || '',
+                         icon: 'fa-clipboard',
+                         placeholder: '-',
                         })}
                     </div>
 

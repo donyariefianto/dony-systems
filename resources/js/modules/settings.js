@@ -5,6 +5,7 @@ import { renderGeneralTab } from './settings_general.js'
 import { renderSideMenuTab } from './settings_menu.js'
 import { getSPEView, initSPEController } from './settings_SPE.js'
 import { settingsData } from './settings_general.js'
+import { AppState } from '../core/state.js'
 
 let currentActiveTab = 'general'
 let isSPEInitialized = false
@@ -36,6 +37,7 @@ export async function renderSettingsView(config, container) {
 
   const settings = await settingsData()
   if (statusText) statusText.innerText = 'Setting up the interface...'
+  AppState.dashboard.activeId = settings.id_dashboard || ''
   const contentHTML = `
       <div id="settings-main-wrapper" class="opacity-0 translate-y-4 transition-all duration-700 ease-[cubic-bezier(0.2,1,0.4,1)] h-full w-full flex flex-col bg-gray-50/50">
         

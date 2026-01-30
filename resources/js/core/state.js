@@ -18,7 +18,7 @@ export const AppState = {
  isSubmitHandlerAttached: false,
 
  dashboard: {
-  activeId: '695f7561f3e95366efe10afa',
+  activeId: '',
   intervals: [],
   charts: {},
  },

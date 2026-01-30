@@ -38,6 +38,7 @@ export async function initApp() {
    localStorage.setItem('app_short_name', settings_data.app_short_name)
    localStorage.setItem('app_icon', settings_data.app_icon || 'fa-cube')
    await window.updateProgress(100)
+   AppState.dashboard.activeId = settings_data.id_dashboard || ''
    renderSidebar(AppState.menuData)
    handleInitialRouting()
    hideSplashScreen()

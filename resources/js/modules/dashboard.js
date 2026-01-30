@@ -940,7 +940,7 @@ window.refreshSingleWidget = async function (widgetId) {
    result = JSON.parse(result)
    const newData = result.data[0] || []
    dashboardState.data[widgetId] = newData
-   widgetConfig.updated_at = result.data.updated_at || '-'
+   widgetConfig.updated_at = result.data[0].updated_at || '-'
    const container = document.getElementById(`widget-content-${widgetId}`)
    if (container && widgetConfig) {
     renderWidgetContent(container, widgetConfig, newData)
@@ -1166,7 +1166,7 @@ window.refreshFullscreenWidget = async function (widgetId) {
    result = JSON.parse(result)
   }
   const newData = result.data[0] || []
-  widgetConfig.updated_at = result.data.updated_at || '-'
+  widgetConfig.updated_at = result.data[0].updated_at || '-'
   dashboardState.data[widgetId] = newData
 
   const fsContainer = document.getElementById('fs-content-body')
