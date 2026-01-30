@@ -905,7 +905,7 @@ function renderSkeletonPage() {
   .join('')
 }
 function renderEmptyState() {
- return `<div class="col-span-full flex flex-col items-center justify-center py-20 text-center opacity-60"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fas fa-layer-group text-4xl text-gray-300"></i></div><h3 class="text-lg font-black text-gray-700 uppercase tracking-widest">Dashboard Kosong</h3><p class="text-xs text-gray-400 mt-2 max-w-sm">Belum ada widget yang ditambahkan.</p></div>`
+ return `<div class="col-span-full flex flex-col items-center justify-center py-20 text-center opacity-60"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fas fa-layer-group text-4xl text-gray-300"></i></div><h3 class="text-lg font-black text-gray-700 uppercase tracking-widest">Dashboard Kosong</h3><p class="text-xs text-gray-400 mt-2 max-w-sm">No widgets added yet.</p></div>`
 }
 function startClock() {
  const updateTime = () => {
@@ -1023,7 +1023,7 @@ window.openWidgetFullscreen = function (widgetId) {
  const data = dashboardState.data[widgetId]
 
  if (!widget || !data) {
-  if (typeof showToast === 'function') showToast('Data widget belum siap', 'error')
+  if (typeof showToast === 'function') showToast('Widget data is not ready', 'error')
   return
  }
 

@@ -604,7 +604,7 @@ function renderFieldCard(field, idx) {
                 </div>
                 <div class="p-3 bg-gray-50/50 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
                     ${(field.sub_fields || []).map((sf, sIdx) => renderSubFieldItem(sf, idx, sIdx)).join('')}
-                    ${!field.sub_fields || field.sub_fields.length === 0 ? '<p class="text-center text-gray-400 text-[10px] italic py-4">Belum ada kolom. Klik "Add Col".</p>' : ''}
+                    ${!field.sub_fields || field.sub_fields.length === 0 ? '<p class="text-center text-gray-400 text-[10px] italic py-4">There are no columns yet. Click "Add Column".</p>' : ''}
                 </div>
             </div>`
               : ''
@@ -722,7 +722,7 @@ function renderRepeaterConfig(field, idx) {
               ? `
                 <div class="py-8 flex flex-col items-center justify-center text-gray-400 text-center">
                     <i class="fas fa-columns text-2xl mb-2 opacity-30"></i>
-                    <p class="text-xs">Belum ada kolom.<br>Klik tombol tambah diatas.</p>
+                    <p class="text-xs">There are no columns yet.<br>Klik tombol tambah diatas.</p>
                 </div>`
               : ''
             }

@@ -1179,8 +1179,8 @@ export function initSPEController() {
             <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                 <i class="fas fa-box-open text-slate-300 text-2xl"></i>
             </div>
-            <h3 class="text-sm font-bold text-slate-700">Belum ada projection</h3>
-            <p class="text-xs text-slate-400 mt-1 mb-4">Mulai buat engine pertamamu untuk memproses data.</p>
+            <h3 class="text-sm font-bold text-slate-700">There is no projection yet</h3>
+            <p class="text-xs text-slate-400 mt-1 mb-4">Start building your first engine to process data.</p>
             <button id="spe-btn-empty-create" class="px-4 py-2 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-lg hover:bg-indigo-100 transition-colors">
                 + New Projection
             </button>

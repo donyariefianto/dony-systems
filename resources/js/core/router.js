@@ -31,7 +31,7 @@ export function navigate(path) {
  } else if (config.type === 'settings') {
   renderSettingsView(config, main)
  } else {
-  main.innerHTML = `<div class="p-20 text-center text-gray-400">Modul ${config.name} belum tersedia.</div>`
+  main.innerHTML = `<div class="p-20 text-center text-gray-400">Modul ${config.name} not yet available.</div>`
  }
 
  if (window.innerWidth < 1024) toggleSidebar()

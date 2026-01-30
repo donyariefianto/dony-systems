@@ -538,8 +538,52 @@ export async function openCrudModal(existingData = null) {
   const renderedFields = fields.map((field) => {
    let val = existingData ? existingData[field.name] : field.defaultValue || ''
    const isReadOnly = field.ui?.readonly ? 'readonly' : ''
-   const baseClass = `w-full px-4 py-3 bg-white border border-gray-200 focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 rounded-xl text-sm font-medium outline-none ${isReadOnly ? 'bg-gray-100 cursor-not-allowed' : ''}`
+   const baseClass = `w-full px-4 py-3 bg-white border border-gray-200 focus:border-zinc-500 focus:ring-4 focus:ring-zinc-500/10 rounded-xl text-sm font-medium outline-none transition-all ${isReadOnly ? 'bg-gray-100 cursor-not-allowed text-gray-500' : ''}`
    const labelHtml = `<label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1.5">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</label>`
+
+   if (field.type === 'boolean') {
+    const isChecked = val === true || val === 'true' || val === 1 ? 'checked' : ''
+    return `
+        <div class="w-full ${field.width === '100' ? 'col-span-full' : ''}">
+             ${labelHtml}
+             <label class="relative inline-flex items-center cursor-pointer mt-1">
+                <input type="checkbox" name="${field.name}" class="sr-only peer" ${isChecked} ${isReadOnly ? 'disabled' : ''}>
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                <span class="ml-3 text-xs font-medium text-gray-500">${field.placeholder || 'Enable'}</span>
+            </label>
+        </div>`
+   }
+
+   if (field.type === 'file' || field.type === 'image') {
+    const hasValue = val && val.length > 0
+    return `
+        <div class="w-full ${field.width === '100' ? 'col-span-full' : ''}">
+            ${labelHtml}
+            <div class="relative w-full">
+                <div class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors relative overflow-hidden group">
+                    
+                    <div id="preview-container-${field.name}" class="absolute inset-0 flex items-center justify-center bg-white z-10 ${hasValue ? '' : 'hidden'}">
+                        <img id="preview-img-${field.name}" src="${hasValue ? val : ''}" class="h-full w-full object-contain p-2" alt="Preview">
+                         <button type="button" onclick="document.getElementById('input-file-${field.name}').click()" class="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center font-bold text-xs uppercase tracking-widest">
+                            <i class="fas fa-camera text-2xl mb-2"></i> Ganti File
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6 ${hasValue ? 'hidden' : ''}" id="placeholder-${field.name}">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                        <p class="text-xs text-gray-500 font-bold">Klik untuk upload</p>
+                        <p class="text-[10px] text-gray-400">SVG, PNG, JPG or GIF</p>
+                    </div>
+
+                    <input id="input-file-${field.name}" type="file" name="${field.name}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" 
+                        ${isReadOnly ? 'disabled' : ''}
+                        onchange="window.handleFilePreview(this, '${field.name}')" 
+                        accept="image/*">
+                </div>
+                <input type="hidden" name="existing_${field.name}" value="${val}">
+            </div>
+        </div>`
+   }
 
    if (field.type === 'icon') {
     const value = val || ''
@@ -1072,7 +1116,7 @@ window.renderRepeater = function (fieldName) {
 
  if (!tbody) return
  if (data.length === 0) {
-  tbody.innerHTML = `<tr><td colspan="${schema.length + 2}" class="p-6 text-center text-gray-400 italic text-xs">Belum ada data.</td></tr>`
+  tbody.innerHTML = `<tr><td colspan="${schema.length + 2}" class="p-6 text-center text-gray-400 italic text-xs">No data yet.</td></tr>`
   return
  }
 
@@ -1156,11 +1200,8 @@ window.recalculateRow = function (rowItem, schema) {
  schema.forEach((col) => {
   if (col.calculation?.is_enabled && col.calculation.operation && col.calculation.fields) {
    const sourceFieldNames = col.calculation.fields
-
    const values = sourceFieldNames.map((fieldName) => rowItem[fieldName])
-
    const result = calculateMath(col.calculation.operation, values)
-
    rowItem[col.name] = result
   }
  })
@@ -1168,22 +1209,16 @@ window.recalculateRow = function (rowItem, schema) {
 
 window.recalculateMainFields = function () {
  const fields = AppState.currentModule.config.fields || []
-
  fields.forEach((field) => {
   if (!field.calculation?.is_enabled || !field.calculation.operation) return
-
   const op = field.calculation.operation
   const sourceConfigs = field.calculation.fields || []
   let collectedValues = []
-
   if (['sum', 'avg', 'count', 'min', 'max'].includes(op)) {
    const targetConfig = sourceConfigs[0] || ''
-
    if (targetConfig.includes('.')) {
     const [repeaterName, subFieldName] = targetConfig.split('.')
-
     const rows = window.formDynamicState[repeaterName] || []
-
     collectedValues = rows.map((r) => r[subFieldName])
    }
   } else {
@@ -1192,9 +1227,7 @@ window.recalculateMainFields = function () {
     return el ? el.value : 0
    })
   }
-
   const finalResult = calculateMath(op, collectedValues)
-
   const targetInput = document.querySelector(`input[name="${field.name}"]`)
   if (targetInput) {
    targetInput.value = finalResult
@@ -1239,12 +1272,9 @@ window.closeModal = function () {
  const modal = document.getElementById('crud-modal')
  const backdrop = document.getElementById('modal-backdrop')
  const panel = document.getElementById('modal-panel')
-
  if (!modal) return
-
  if (backdrop) backdrop.classList.add('opacity-0')
  if (panel) panel.classList.add('translate-y-full', 'md:translate-x-full')
-
  setTimeout(() => {
   modal.classList.add('hidden')
 
@@ -1255,11 +1285,8 @@ window.closeModal = function () {
 
 window.refreshTable = async function () {
  const icon = document.getElementById('refresh-icon')
-
  if (icon) icon.classList.add('fa-spin')
-
  await fetchTableData()
-
  setTimeout(() => {
   if (icon) icon.classList.remove('fa-spin')
   showToast('Data updated successfully', 'success')
@@ -1294,7 +1321,6 @@ window.triggerIconPicker = async (fieldName) => {
  await iconPicker.open((selectedIcon) => {
   const inputEl = document.getElementById(`input-${fieldName}`)
   if (inputEl) inputEl.value = selectedIcon
-
   const previewEl = document.getElementById(`preview-${fieldName}`)
   if (previewEl) {
    previewEl.innerHTML = `<i class="${selectedIcon}"></i>`
