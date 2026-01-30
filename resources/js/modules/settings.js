@@ -5,6 +5,7 @@ import { renderGeneralTab } from './settings_general.js'
 import { renderSideMenuTab } from './settings_menu.js'
 import { getSPEView, initSPEController } from './settings_SPE.js'
 import { settingsData } from './settings_general.js'
+
 let currentActiveTab = 'general'
 let isSPEInitialized = false
 
@@ -30,6 +31,7 @@ export async function renderSettingsView(config, container) {
   const statusText = document.getElementById('loader-status')
   setTimeout(() => {
    if (statusText) statusText.innerText = 'Retrieves user preferences...'
+   window.initMenuBuilder()
   }, 500)
 
   const settings = await settingsData()
@@ -138,17 +140,17 @@ export async function renderSettingsView(config, container) {
   console.error(err)
 
   container.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full text-center p-6 animate-in fade-in zoom-in">
-            <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-3">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h3 class="text-sm font-bold text-gray-800">Failed load module</h3>
-            <p class="text-xs text-gray-500 mt-1 max-w-[200px]">${err.message || 'A network error occurred'}</p>
-            <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-black transition-colors">
-                Coba Lagi
-            </button>
+    <div class="flex flex-col items-center justify-center h-full text-center p-6 animate-in fade-in zoom-in">
+        <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-3">
+            <i class="fas fa-exclamation-triangle"></i>
         </div>
-    `
+        <h3 class="text-sm font-bold text-gray-800">Failed load module</h3>
+        <p class="text-xs text-gray-500 mt-1 max-w-[200px]">${err.message || 'A network error occurred'}</p>
+        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-black transition-colors">
+            Try Again
+        </button>
+    </div>
+  `
  }
 }
 
@@ -231,8 +233,6 @@ export function switchSettingsTab(tab, initialLoad = false) {
  if (tab === 'smart_projection_engine' && !isSPEInitialized) {
   setTimeout(() => {
    try {
-    console.log('Initializing SPE Controller...')
-
     initSPEController({ apiUrl: 'api/spe' })
     isSPEInitialized = true
    } catch (error) {
