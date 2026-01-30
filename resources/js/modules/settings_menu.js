@@ -188,18 +188,7 @@ window.getAllCollections = function () {
  return collections
 }
 
-export function renderSideMenuTab(settings) {
- if (window.menuBuilderState.data.length === 0 && settings.menu_items) {
-  window.menuBuilderState.data = settings.menu_items.filter(
-   (item) => item.id !== 'fixed_dashboard' && item.id !== 'fixed_settings'
-  )
- }
-
- setTimeout(() => {
-  if (window.menuBuilderState.data.length === 0) {
-   window.initMenuBuilder()
-  }
- }, 100)
+export function renderSideMenuTab() {
  return `
         <div class="w-full h-[calc(100vh-100px)] flex flex-col gap-2 relative overflow-hidden">
             

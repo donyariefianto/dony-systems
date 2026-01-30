@@ -277,7 +277,7 @@ export async function saveSettings(e) {
 
   if (!response.ok) throw new Error('Failed save')
 
-  showToast('Konfigurasi berhasil diperbarui', 'success')
+  showToast('Configuration updated successfully', 'success')
 
   btn.innerHTML = originalContent
   btn.disabled = false

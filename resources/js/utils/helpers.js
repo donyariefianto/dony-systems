@@ -156,11 +156,11 @@ export async function refreshSidebarMenu() {
   data = JSON.parse(data)
   renderSidebar(data.sidemenu)
   AppState.menuData = data.sidemenu
-  showToast('Menu sidebar diperbarui', 'success')
+  showToast('Updated sidebar menu', 'success')
  } catch (error) {
   console.log(error)
 
-  showToast('Gagal memperbarui menu', 'error')
+  showToast('Failed to update menu', 'error')
  } finally {
   setTimeout(() => {
    icon.classList.remove('fa-spin', 'text-blue-600')
@@ -170,9 +170,6 @@ export async function refreshSidebarMenu() {
  }
 }
 
-/**
- * Fungsi Helper untuk sinkronisasi tampilan tombol theme
- */
 const updateThemeUI = (isDark) => {
  const btn = document.getElementById('btn-theme-toggle')
  if (!btn) return
@@ -197,11 +194,8 @@ export const toggleTheme = function () {
  const html = document.documentElement
  const isDark = html.classList.toggle('dark')
  console.log('Mode Gelap Aktif:', isDark)
-
  localStorage.setItem('theme', isDark ? 'dark' : 'light')
-
  updateThemeUI(isDark)
-
  window.dispatchEvent(new Event('themeChanged'))
 }
 
@@ -209,13 +203,11 @@ export function initTheme() {
  const savedTheme = localStorage.getItem('theme')
  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
  const isDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark)
-
  if (isDark) {
   document.documentElement.classList.add('dark')
  } else {
   document.documentElement.classList.remove('dark')
  }
-
  setTimeout(() => updateThemeUI(isDark), 100)
 }
 

@@ -35,9 +35,7 @@ export async function renderSettingsView(config, container) {
   }, 500)
 
   const settings = await settingsData()
-
   if (statusText) statusText.innerText = 'Setting up the interface...'
-
   const contentHTML = `
       <div id="settings-main-wrapper" class="opacity-0 translate-y-4 transition-all duration-700 ease-[cubic-bezier(0.2,1,0.4,1)] h-full w-full flex flex-col bg-gray-50/50">
         
@@ -71,7 +69,7 @@ export async function renderSettingsView(config, container) {
 
         <div class="flex-1 min-h-0 relative w-full overflow-hidden">
             <div id="tab-content-sidemenu" class="hidden h-full w-full overflow-hidden">
-                ${renderSideMenuTab(settings)}
+                ${renderSideMenuTab()}
             </div>
             <div id="tab-content-smart_projection_engine" class="hidden h-full w-full overflow-hidden">
                 ${getSPEView()}

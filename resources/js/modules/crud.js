@@ -1262,7 +1262,7 @@ window.refreshTable = async function () {
 
  setTimeout(() => {
   if (icon) icon.classList.remove('fa-spin')
-  showToast('Data berhasil diperbarui', 'success')
+  showToast('Data updated successfully', 'success')
  }, 500)
 }
 
