@@ -3,6 +3,9 @@ import adonisjs from '@adonisjs/vite/client'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
+ server: {
+  allowedHosts: true,
+ },
  plugins: [
   tailwindcss(),
   adonisjs({

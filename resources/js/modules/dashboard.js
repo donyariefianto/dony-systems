@@ -1068,7 +1068,7 @@ window.openWidgetFullscreen = function (widgetId) {
 
   const refreshBtnHTML = `
     <button onclick="refreshFullscreenWidget('${widget.id}')" 
-        class="${allowRefresh==='static'?'hidden':''} h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all active:scale-95 shadow-sm" 
+        class="${allowRefresh === 'static' ? 'hidden' : ''} h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all active:scale-95 shadow-sm" 
         title="Refresh Data">
         <i class="fas fa-sync-alt"></i>
     </button>
