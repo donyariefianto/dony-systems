@@ -35,13 +35,13 @@ router
   router.get('collections/:col/:id', '#controllers/backends_controller.getCollectionDataDetail')
   router
    .post('collections/:col/', '#controllers/backends_controller.createCollectionData')
-   .use(middleware.smartProjectionEngine())
+   .use(middleware.speDispatcher())
   router
    .put('collections/:col/:id', '#controllers/backends_controller.updateCollectionData')
-   .use(middleware.smartProjectionEngine())
+   .use(middleware.speDispatcher())
   router
    .delete('collections/:col/:id', '#controllers/backends_controller.deleteCollectionData')
-   .use(middleware.smartProjectionEngine())
+   .use(middleware.speDispatcher())
   router.delete('collections/:col', '#controllers/backends_controller.deleteCollection')
 
   //   API Handling System
@@ -50,5 +50,6 @@ router
   router.get('/settings', '#controllers/backends_controller.settingsGeneral')
   router.patch('/settings', '#controllers/backends_controller.patchGeneralSettings')
   router.post('/test-formula', '#controllers/backends_controller.runTestFormulaSPE')
+  router.post('/test-formula-v2', '#controllers/backends_controller.runTestFormulaSPEV2')
  })
  .prefix('/api')

@@ -43,6 +43,7 @@ router.use([
  * the routes or the routes group.
  */
 export const middleware = router.named({
+ speDispatcher: () => import('#middleware/spe_dispatcher_middleware'),
  authentication: () => import('#middleware/authentication_middleware'),
  smartProjectionEngine: () => import('#middleware/smart_projection_engine_middleware'),
 })

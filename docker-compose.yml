@@ -1,0 +1,27 @@
+services:
+ # Service untuk Redis (Antrean BullMQ)
+ redis:
+  image: redis:7-alpine
+  container_name: spe_redis
+  ports:
+   - '6379:6379'
+  command: redis-server --requirepass password_rahasia_kamu
+  volumes:
+   - redis_data:/data
+  restart: always
+
+ # Service untuk MongoDB (Database Utama & Timeline)
+ mongodb:
+  image: mongo:latest
+  container_name: spe_mongodb
+  ports:
+   - '27017:27017'
+  environment:
+   MONGO_INITDB_DATABASE: spe_db
+  volumes:
+   - mongo_data:/data/db
+  restart: always
+
+volumes:
+ redis_data:
+ mongo_data:

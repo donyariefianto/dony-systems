@@ -1,9 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { database } from '#services/mongodb_service'
 import { ObjectId } from 'mongodb'
-import fs from 'fs'
 import { EncryptionService } from '#services/encryption_service'
 import { SmartProjectionEngineService } from '#services/smart_projection_engine_service'
+import { testFormula } from '#services/spe_worker_service'
 import env from '#start/env'
 import jwt from 'jsonwebtoken'
 
@@ -227,6 +227,31 @@ export default class BackendsController {
    return response.badRequest({
     success: false,
     error: error.message,
+   })
+  }
+ }
+ async runTestFormulaSPEV2({ request, response }: HttpContext) {
+  // Ambil data dari body request
+  const { formula, configId, sourceId } = request.only(['formula', 'configId', 'sourceId'])
+
+  try {
+   // Validasi input minimal
+   if (!formula) throw new Error('Formula tidak boleh kosong')
+   if (!sourceId) throw new Error('Source ID wajib diisi untuk mengambil konteks data')
+
+   // Panggil service simulator
+   const result = await testFormula({
+    formula,
+    configId,
+    sourceId,
+   })
+
+   return response.ok(result)
+  } catch (error) {
+   // Kirim pesan error agar muncul di Toast UI
+   return response.badRequest({
+    success: false,
+    message: error.message,
    })
   }
  }

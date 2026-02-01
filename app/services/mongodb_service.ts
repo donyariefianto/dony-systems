@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion, Collection, Db } from 'mongodb'
-import { MongoDBConfig } from 'Config/mongodb'
+import { MongoDBConfig } from '#config/mongodb'
 
 export const collections: { data?: Collection } = {}
 export const database: { data?: Db } = {}
@@ -14,8 +14,8 @@ export class MongoDB {
   const url = `mongodb+srv://${config['host']}`
   const client = new MongoClient(url)
   await client.connect()
-  const db = await client.db('dony')
-  collections.data = await db.collection('user')
+  const db = client.db('dony')
+  collections.data = db.collection('user')
  }
 
  public async connectMongoDB() {
@@ -24,8 +24,8 @@ export class MongoDB {
   const db_name = `${config['db']}`
   const client = new MongoClient(url)
   await client.connect()
-  database.data = await client.db(db_name)
-  console.log('Successfully connected to MongoDb')
+  database.data = client.db(db_name)
+  console.log('✅ Successfully connected to MongoDb')
  }
 }
 
@@ -34,7 +34,7 @@ class ConnectionDB {
  protected db: string
 
  constructor(config: typeof MongoDBConfig) {
-  this.host = config.host
-  this.db = config.db
+  this.host = config.host || ''
+  this.db = config.db || ''
  }
 }
