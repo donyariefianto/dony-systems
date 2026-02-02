@@ -185,6 +185,12 @@ export function getSPEView() {
                         <select id="prop-val-direct" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-indigo-500"></select>
                     </div>
                     <div id="prop-input-formula" class="prop-input-area hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">JavaScript Logic</label>
+                            <button type="button" onclick="openTestModal()" class="text-[10px] bg-amber-500 text-white px-2 py-1 rounded-md hover:bg-amber-600 transition-all flex items-center gap-1 shadow-sm">
+                                <i class="fas fa-flask text-[9px]"></i> Test Formula
+                            </button>
+                        </div>
                         <textarea id="prop-val-formula" rows="5" class="w-full p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg outline-none" placeholder="return source.val * 2;"></textarea>
                     </div>
                     <div id="prop-input-static" class="prop-input-area hidden">
@@ -202,6 +208,32 @@ export function getSPEView() {
                 <button id="spe-drawer-close-btn" class="px-4 py-2 text-slate-500 text-xs font-bold">Cancel</button>
                 <button id="spe-drawer-save" class="px-6 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md">Apply</button>
             </footer>
+        </div>
+        <div id="spe-test-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 transition-transform duration-300">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-vial text-amber-500"></i>
+                        <h3 class="text-xs font-bold uppercase text-slate-700">Formula Simulator</h3>
+                    </div>
+                    <button onclick="closeTestModal()" class="text-slate-400 hover:text-rose-500"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Source ID (Contoh Data Real)</label>
+                        <input type="text" id="test-source-id" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Tempel ID data dari database...">
+                        <p class="text-[9px] text-slate-400 mt-1 italic">*Sistem akan mengambil data source & old secara otomatis berdasarkan ID ini.</p>
+                    </div>
+                    <div id="test-result-container" class="hidden space-y-2 animate-in fade-in slide-in-from-bottom-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase block">Execution Output</label>
+                        <pre id="test-output" class="text-[10px] bg-zinc-900 text-emerald-400 p-4 rounded-xl max-h-60 overflow-auto font-mono custom-scrollbar border border-zinc-800"></pre>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                    <button onclick="closeTestModal()" class="px-4 py-2 text-slate-500 text-xs font-bold">Close</button>
+                    <button id="btn-execute-test" onclick="executeFormulaTest()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-md hover:bg-indigo-700 transition-all">Run Simulation</button>
+                </div>
+            </div>
         </div>
     </div>`
 }
@@ -953,6 +985,62 @@ export function initSPEController() {
     actions.fetchList()
    }, 500)
   )
+  window.openTestModal = function () {
+   const modal = document.getElementById('spe-test-modal')
+   modal.classList.remove('hidden')
+   modal.classList.add('flex')
+   setTimeout(() => {
+    modal.classList.remove('opacity-0')
+    modal.querySelector('div').classList.remove('scale-95')
+   }, 10)
+  }
+
+  window.closeTestModal = function () {
+   const modal = document.getElementById('spe-test-modal')
+   modal.classList.add('opacity-0')
+   modal.querySelector('div').classList.add('scale-95')
+   setTimeout(() => {
+    modal.classList.add('hidden')
+    modal.classList.remove('flex')
+    // Reset view
+    document.getElementById('test-result-container').classList.add('hidden')
+    document.getElementById('test-output').innerText = ''
+   }, 300)
+  }
+
+  window.executeFormulaTest = async function () {
+   const btn = document.getElementById('btn-execute-test')
+   const sourceId = document.getElementById('test-source-id').value
+   const expression = document.getElementById('prop-val-formula').value
+
+   if (!sourceId) return showToast('Masukkan Source ID terlebih dahulu', 'error')
+
+   btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...'
+   btn.disabled = true
+
+   try {
+    const res = await apiFetch('api/test-formula-v2', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+      formula: expression,
+      configId: state.configId,
+      sourceId: sourceId,
+     }),
+    })
+
+    if (res) {
+     const result = await res.json()
+     document.getElementById('test-result-container').classList.remove('hidden')
+     document.getElementById('test-output').innerText = JSON.stringify(result.output, null, 2)
+    }
+   } catch (err) {
+    showToast('Simulasi gagal: ' + err.message, 'error')
+   } finally {
+    btn.innerHTML = 'Run Simulation'
+    btn.disabled = false
+   }
+  }
  }
  init()
 }

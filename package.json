@@ -67,6 +67,7 @@
   "bullmq": "^5.67.2",
   "edge.js": "^6.2.1",
   "jsonwebtoken": "^9.0.3",
+  "moment-timezone": "^0.6.0",
   "mongodb": "^7.0.0",
   "reflect-metadata": "^0.2.2",
   "sweetalert2": "^11.26.17",

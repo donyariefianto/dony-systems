@@ -31,6 +31,10 @@ router
    'collections-aggregation/:col',
    '#controllers/backends_controller.aggreateCollectionData'
   )
+  router.post(
+   'collections-aggregation/:col',
+   '#controllers/backends_controller.aggregateCollectionData'
+  )
   router.get('collections/:col', '#controllers/backends_controller.getCollectionData')
   router.get('collections/:col/:id', '#controllers/backends_controller.getCollectionDataDetail')
   router

@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb'
 import { EncryptionService } from '#services/encryption_service'
 import { SmartProjectionEngineService } from '#services/smart_projection_engine_service'
 import { testFormula } from '#services/spe_worker_service'
+import { DateService } from '#services/date_service'
 import env from '#start/env'
 import jwt from 'jsonwebtoken'
 
@@ -18,12 +19,12 @@ export default class BackendsController {
   let data
   if (existingDoc) {
    body.created_at = existingDoc.created_at
-   body.updated_at = new Date()
+   body.updated_at = DateService.now()
 
    data = await collections?.replaceOne({ id: 'fixed_menu' }, body, { upsert: false })
   } else {
-   body.created_at = new Date()
-   body.updated_at = new Date()
+   body.created_at = DateService.now()
+   body.updated_at = DateService.now()
    data = await collections?.replaceOne({ id: 'fixed_menu' }, body, { upsert: true })
   }
   return response.send(data)
@@ -205,11 +206,11 @@ export default class BackendsController {
   body.id = 'general_settings'
   if (existingDoc) {
    body.created_at = existingDoc.created_at
-   body.updated_at = new Date()
+   body.updated_at = DateService.now()
    data = await collections?.replaceOne({ id: 'general_settings' }, body, { upsert: false })
   } else {
-   body.created_at = new Date()
-   body.updated_at = new Date()
+   body.created_at = DateService.now()
+   body.updated_at = DateService.now()
    data = await collections?.replaceOne({ id: 'general_settings' }, body, { upsert: true })
   }
   return response.send(data)
@@ -231,30 +232,57 @@ export default class BackendsController {
   }
  }
  async runTestFormulaSPEV2({ request, response }: HttpContext) {
-  // Ambil data dari body request
   const { formula, configId, sourceId } = request.only(['formula', 'configId', 'sourceId'])
-
   try {
-   // Validasi input minimal
    if (!formula) throw new Error('Formula tidak boleh kosong')
    if (!sourceId) throw new Error('Source ID wajib diisi untuk mengambil konteks data')
-
-   // Panggil service simulator
    const result = await testFormula({
     formula,
     configId,
     sourceId,
    })
-
    return response.ok(result)
   } catch (error) {
-   // Kirim pesan error agar muncul di Toast UI
    return response.badRequest({
     success: false,
     message: error.message,
    })
   }
  }
+ async aggregateCollectionData({ params, request, response }: HttpContext) {
+  const collectionName = params.col
+  const { pipeline, options } = request.only(['pipeline', 'options'])
+  if (!pipeline) {
+    return response.status(400).send({ message: 'Pipeline is required' })
+  }
+  const defaultOptions: any = {
+    allowDiskUse: true,
+    maxTimeMS: 60000,
+    ...options,
+  }
+  try {
+    const collections = database.data?.collection(collectionName)
+    const parsedPipeline = typeof pipeline === 'string' ? JSON.parse(pipeline) : pipeline
+    const startTime = Date.now()
+    const result = await collections?.aggregate(parsedPipeline, defaultOptions).toArray()
+    const duration = Date.now() - startTime   
+    
+    const rawResponse = {
+      success: true,
+      data: result || [],
+      executionTime: `${duration}ms`,
+      messages: `[Aggregation Success] ${collectionName} | Count: ${result?.length || 0}`,
+    }
+    const encryptedResponse = EncryptionService.encrypt(JSON.stringify(rawResponse))
+    return response.send(encryptedResponse)
+  } catch (error) {
+    console.error('[Aggregation Error]:', error)
+    return response.status(500).send({ 
+      success: false,
+      message: 'Internal Server Error during aggregation' 
+    })
+  }
+}
  async aggreateCollectionData({ params, request, response }: HttpContext) {
   const collectionName = params.col
   const { pipeline, options } = request.only(['pipeline', 'options'])
@@ -333,7 +361,7 @@ export default class BackendsController {
   const colName = params.col
   let body = request.all()
   try {
-   const payload = { ...body, created_at: new Date(), updated_at: new Date() }
+   const payload = { ...body, created_at: DateService.now(), updated_at: DateService.now() }
    const collections = database.data?.collection(colName)
    const result = await collections?.insertOne(payload)
    return response.status(201).send(result)
@@ -347,10 +375,15 @@ export default class BackendsController {
    const id = params.id
    let body = request.all()
    const collections = database.data?.collection(colName)
-   const updateData: any = { ...body, updated_at: new Date() }
+   const updateData: any = { ...body, updated_at: DateService.now() }
    delete updateData._id
-   const result = await collections?.updateOne({ _id: new ObjectId(id) }, { $set: updateData })
-   return response.status(200).send({ message: 'Data updated successfully', result })
+   const result = await collections?.findOneAndUpdate(
+    { _id: new ObjectId(id) },
+    { $set: updateData },
+    { returnDocument: 'before' }
+   )
+   let data_encrypt = EncryptionService.encrypt(JSON.stringify(result))
+   return response.send(data_encrypt)
   } catch (error) {
    return response.status(500).send({ message: 'Error updating data', error })
   }
@@ -360,8 +393,9 @@ export default class BackendsController {
    const colName = params.col
    const id = params.id
    const collections = database.data?.collection(colName)
-   const result = await collections?.deleteOne({ _id: new ObjectId(id) })
-   return response.status(200).send({ message: 'Data deleted successfully', result })
+   const result = await collections?.findOneAndDelete({ _id: new ObjectId(id) })
+   let data_encrypt = EncryptionService.encrypt(JSON.stringify(result))
+   return response.send(data_encrypt)
   } catch (error) {
    return response.status(500).send({ message: 'Error deleting data', error })
   }
@@ -409,7 +443,7 @@ export default class BackendsController {
    userId: _id,
    accessToken: accessToken,
    refreshToken: refreshToken,
-   expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+   expires_at: DateService.add(3, 'day'),
   })
   response.cookie('refreshToken', refreshToken, {
    httpOnly: true,
