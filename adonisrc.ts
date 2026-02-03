@@ -49,9 +49,8 @@ export default defineConfig({
   () => import('@adonisjs/vite/vite_provider'),
   () => import('@adonisjs/shield/shield_provider'),
   () => import('@adonisjs/static/static_provider'),
-  () => import('#providers/app_provider'),
   () => import('@adonisjs/redis/redis_provider'),
-  () => import('#providers/spe_queue_provider'),
+  () => import('#providers/app_provider'),
  ],
 
  /*

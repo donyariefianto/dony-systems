@@ -20,6 +20,11 @@ export default class AppProvider {
  async boot() {
   const mongodb = await this.app.container.make('connection_mongodb')
   await mongodb.connectMongoDB()
+  if (this.app.getEnvironment() === 'web') {
+   const { startSPEWorker } = await import('#services/spe_worker_service')
+   startSPEWorker()
+   console.log('✅ SPE Worker is now active and listening to Redis')
+  }
  }
 
  /**
@@ -35,5 +40,11 @@ export default class AppProvider {
  /**
   * Preparing to shutdown the app
   */
- async shutdown() {}
+ async shutdown() {
+  const { speWorker } = await import('#services/spe_worker_service')
+  if (speWorker) {
+   await speWorker.close()
+   console.log('🛑 SPE Worker has been shut down gracefully')
+  }
+ }
 }
