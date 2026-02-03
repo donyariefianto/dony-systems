@@ -44,7 +44,6 @@ const getDeepValue = (obj: any, path: string) => {
  const cleanPath = path.replace(/^(id_data\.|source\.|item\.|old_source\.|old\.)/, '')
  return cleanPath.split('.').reduce((acc, part) => acc && acc[part], obj)
 }
-
 const executeFormula = async (code: string, context: any) => {
  if (!code) return null
  const db = database.data
