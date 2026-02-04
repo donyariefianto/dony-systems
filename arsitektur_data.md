@@ -1,102 +1,80 @@
-Dokumentasi ini dirancang sebagai panduan teknis (Blue Print) untuk mengubah sistem Anda dari sekadar aplikasi pencatatan menjadi **Enterprise Resource Planning (ERP) Engine** yang skalabel.
+# 🌌 AION: Autonomous Intelligence & Optimization Network
+
+> **Level:** Intelligent Autonomous (12 Pillars Architecture)
+
+**AION** adalah evolusi tertinggi dari sistem manajemen data pabrik. Bukan sekadar mesin proyeksi, AION adalah jaringan cerdas yang mampu mengindra (*sensing*), memprediksi (*predicting*), dan mengambil tindakan (*acting*) secara otonom untuk mencapai efisiensi operasional maksimal.
 
 ---
 
-# 🏗️ Smart Projection Engine (SPE) - Enterprise Data Architecture
+## 🏗️ Arsitektur 12 Pilar (The Master Blueprint)
 
-Dokumentasi ini menjelaskan 8 pilar data yang memisahkan tanggung jawab antara operasional, analisis, dan kontrol sistem.
+### 1. Core Operasional (The Engine)
 
----
+* **Pilar 1: Master State** – Sumber kebenaran saldo stok *real-time* dengan update atomik.
+* **Pilar 2: Event Ledger** – Catatan mutasi "Delta" yang bersifat *immutable* untuk audit trail.
+* **Pilar 3: Materialized Projections** – Data siap saji untuk dashboard (PWA & ECharts) tanpa kalkulasi berat.
+* **Pilar 4: Predictive Insights** – Hasil ramalan stok habis dan tren penggunaan di masa depan.
 
-## 🟢 Kelompok 1: Core Engine (Operasional)
+### 2. Framework Fleksibilitas (The Brain)
 
-### Pilar 1: Master Data (The Truth)
+* **Pilar 5: Dynamic Rule Engine** – Tempat kamu mendesain flow proses secara bebas tanpa ganti kode.
+* **Pilar 6: Metadata Registry** – Kamus standar satuan, kategori, dan standarisasi data sistem.
+* **Pilar 7: Cold Archiving** – Manajemen data lama agar database utama tetap kencang.
+* **Pilar 8: Security Audit** – Pelacakan akses dan perubahan konfigurasi sistem secara ketat.
 
-**Tujuan:** Menyediakan status aset saat ini secara instan.
+### 3. Intelligence Autonomous (The Autonomy)
 
-* **Proses:** Setiap perubahan stok harus di-update secara *Atomic* (menggunakan `$inc` di MongoDB) untuk menghindari *race condition*.
-* **Data Key:** `current_balance`, `safety_stock`, `unit_conversion`.
-
-### Pilar 2: Event Logs (The History)
-
-**Tujuan:** Catatan mutasi "Delta" yang tidak boleh diubah (*Immutable*).
-
-* **Proses:** Setiap kali barang bergerak, buat satu entry log. Log ini adalah sumber data asli jika dashboard perlu dihitung ulang (*Re-projection*).
-* **Data Key:** `delta_qty`, `balance_after`, `transaction_type`.
-
----
-
-## 🔵 Kelompok 2: Intelligence & Analytics (The Smart Part)
-
-### Pilar 3: Materialized Projections (The Dashboard)
-
-**Tujuan:** Data siap saji untuk **Apache ECharts**.
-
-* **Proses:** SPE membaca Pilar 2 secara asinkron (via BullMQ) dan merangkumnya ke dalam pilar ini. Dashboard tidak boleh melakukan `SUM()` pada jutaan baris, ia hanya membaca dokumen di sini.
-* **Format:** Optimized for Time-series (Harian, Mingguan, Bulanan).
-
-### Pilar 4: Predictive Insights (The Forecasting)
-
-**Tujuan:** Menjawab pertanyaan "Kapan stok saya habis?".
-
-* **Proses:** Algoritma SPE menghitung *Burn Rate* (kecepatan konsumsi) dan memproyeksikan tanggal kritis.
-* **Data Key:** `estimated_out_of_stock_date`, `confidence_score`.
+* **Pilar 9: Prescriptive Logic** – Memberikan rekomendasi solusi, bukan hanya memaparkan masalah.
+* **Pilar 10: Agentic Orchestration** – AI Agents yang bisa mengeksekusi tugas (seperti memesan barang) sendiri.
+* **Pilar 11: Semantic Knowledge Graph** – Menghubungkan data pabrik dengan konteks luar (harga pasar, cuaca, dll).
+* **Pilar 12: Adaptive Feedback Loop** – Sistem yang belajar dari kesalahan prediksi dan memperbaiki dirinya sendiri.
 
 ---
 
-## 🟡 Kelompok 3: Framework & Orchestration (The Brain)
+## 🛠️ Fitur Utama (Advanced Features)
 
-### Pilar 5: Rule Engine / Flow Config (The Flexibility)
+### 🤖 Smart Decision Support
 
-**Tujuan:** Desain flow proses yang fleksibel tanpa ganti kode.
+AION tidak hanya menampilkan grafik merah saat stok menipis. Ia akan berkata: *"Stok kritis. Saya menyarankan pemesanan 500 unit dari Supplier B karena estimasi tiba lebih cepat 2 hari dibanding Supplier A."*
 
-* **Proses:** Anda mendefinisikan *Mapping* data di sini. Misalnya: "Jika koleksi Supply berubah, update Pie Chart A". SPE akan membaca config ini secara dinamis.
-* **Struktur:** JSON-based Workflow Definition.
+### 🧩 Flexible Flow Designer
 
-### Pilar 6: Metadata Management (The Glossary)
+Antarmuka visual untuk memetakan data. Kamu bisa mengubah alur dari koleksi `supply` ke dashboard `Pie Chart` hanya dengan *drag-and-drop* konfigurasi, membebaskanmu dari batasan struktur data yang kaku.
 
-**Tujuan:** Menjaga konsistensi standar (Satuan, Kategori, Gudang).
+### 📈 Contextual Analytics
 
-* **Proses:** Semua dropdown di UI harus menarik data dari sini agar tidak ada input "Pcs", "PCS", atau "buah" yang berbeda-beda.
-
----
-
-## 🔴 Kelompok 4: Governance & Security (The Control)
-
-### Pilar 7: Archiving Policy (The Vault)
-
-**Tujuan:** Menjaga database tetap ringan.
-
-* **Proses:** Data log (Pilar 2) yang sudah lebih dari 2 tahun dipindah ke *Cold Storage*. Hanya ringkasan (Snapshot) yang ditinggalkan di database utama.
-
-### Pilar 8: Security & Identity Audit (The Guard)
-
-**Tujuan:** Kepatuhan keamanan (*Compliance*).
-
-* **Proses:** Mencatat setiap akses data sensitif (seperti harga beli) dan log perubahan konfigurasi sistem.
+Mengintegrasikan sinyal eksternal. Jika ada tren kenaikan harga bahan baku secara global, AION akan otomatis menyarankan penambahan *Safety Stock* sebelum harga melambung tinggi.
 
 ---
 
-## 🔄 Alur Proses Terintegrasi (The Life of a Transaction)
+## 🔄 Alur Kerja Sistem (The Intelligent Flow)
 
-Untuk mencapai level Enterprise, alur datanya harus mengikuti urutan ini:
-
-1. **Trigger:** User melakukan transaksi di PWA (Input Barang Masuk).
-2. **Pilar 2 (Write):** Sistem menulis Log Mutasi (Delta: +10).
-3. **Pilar 1 (Update):** Secara atomik, saldo di Master Product ditambah 10.
-4. **SPE Worker (BullMQ):** Mendeteksi log baru, membaca **Pilar 5 (Rule)** untuk tahu cara memprosesnya.
-5. **Pilar 3 (Project):** SPE memperbarui nilai di dokumen Dashboard (Pie/Line Chart).
-6. **Pilar 4 (Analyze):** SPE menghitung ulang sisa hari stok berdasarkan mutasi terbaru.
-7. **PWA (Refresh):** Dashboard menampilkan data dari Pilar 3 secara instan tanpa *loading* berat.
+1. **Sensing:** Data masuk melalui Dockerized FastAPI ke Pilar 2 (Ledger).
+2. **Processing:** BullMQ memicu worker untuk menjalankan logika dari Pilar 5 (Rule Engine).
+3. **Synthesizing:** SPE menghitung proyeksi (Pilar 3) dan AI Agent mencari konteks di Pilar 11 (Knowledge Graph).
+4. **Acting:** Pilar 9 menghasilkan rekomendasi tindakan dan AI Agent (Pilar 10) mengirim draf keputusan ke PWA.
+5. **Learning:** Pilar 12 mencatat hasil keputusan dan melakukan optimasi parameter secara otomatis.
 
 ---
 
-## 🚀 Strategi Efisiensi Masa Depan
+## 💻 Tech Stack Level Enterprise+
 
-* **Zero-Calculation Frontend:** PWA hanya bertugas menampilkan data (`Read-only`). Semua logika matematika berat ada di SPE.
-* **Bucket Pattern:** Simpan data harian dalam satu array per bulan untuk mengurangi *overhead* pembacaan database.
-* **Lazy Projection:** Hanya jalankan SPE untuk produk-produk yang benar-benar mengalami mutasi dalam satu jam terakhir.
+* **Infrastructure:** Docker & Docker Compose (Containerized Microservices).
+* **Persistence:** MongoDB (Distributed Document Store).
+* **Queue & Background Jobs:** Redis & BullMQ (Event Driven).
+* **Intelligence:** Python-based AI Agents (LangChain/CrewAI).
+* **Frontend:** PWA with Apache ECharts (Zero-Calculation UI).
 
 ---
 
-> **Tips Naik Level:** Jangan pernah biarkan query dashboard kamu melakukan filter pada data mentah. Jika kamu melakukannya, sistemmu akan melambat seiring bertambahnya data. Selalu gunakan **Pilar 3 (Projections)** sebagai sumber data Dashboard.
+## 🚀 Roadmap Pengembangan
+
+* [ ] **Phase 1:** Implementasi Pilar 1-4 (Core Foundation).
+* [ ] **Phase 2:** Pembangunan Pilar 5 (Rule Engine) untuk fleksibilitas desain data.
+* [ ] **Phase 3:** Integrasi Pilar 9-12 (Autonomous Logic & AI Agents).
+
+---
+
+> **AION** - *Moving from observation to execution.*
+
+---
