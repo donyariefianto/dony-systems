@@ -8,7 +8,7 @@ services:
   command: redis-server --requirepass password_rahasia_kamu
   volumes:
    - redis_data:/data
-  restart: always
+  restart: "no"
 
  # Service untuk MongoDB (Database Utama & Timeline)
  mongodb:
@@ -20,7 +20,7 @@ services:
    MONGO_INITDB_DATABASE: spe_db
   volumes:
    - mongo_data:/data/db
-  restart: always
+  restart: "no"
 
 volumes:
  redis_data:
