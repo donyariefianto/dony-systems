@@ -247,7 +247,6 @@ export const testFormula = async (payload: {
   output: output,
  }
 }
-
 export const startSPEWorker = () => {
  speWorker = new Worker<SPEPayload>(
   SPE_QUEUE_NAME,
@@ -334,8 +333,8 @@ export const startSPEWorker = () => {
  speWorker.on('failed', (job, err) => {
   console.error(`[SPE Worker] ❌ Job ${job?.id} failed permanently: ${err.message}`)
  })
- speWorker.on('completed', (job) => {
-  console.info(`[SPE Worker] ✅ Job ${job.id} completed`)
+ speWorker.on('completed', ({ id, data }) => {
+  console.info(`[SPE Worker] ✅ Job ${id} completed`)
  })
  return speWorker
 }
