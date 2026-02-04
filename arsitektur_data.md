@@ -2,7 +2,7 @@
 
 > **Level:** Intelligent Autonomous (12 Pillars Architecture)
 
-**AION** adalah evolusi tertinggi dari sistem manajemen data pabrik. Bukan sekadar mesin proyeksi, AION adalah jaringan cerdas yang mampu mengindra (*sensing*), memprediksi (*predicting*), dan mengambil tindakan (*acting*) secara otonom untuk mencapai efisiensi operasional maksimal.
+**AION** adalah ekosistem cerdas yang dirancang untuk mengelola aliran data pabrik secara mandiri. Bukan sekadar alat pencatat, AION berfungsi sebagai "rekan kerja digital" yang mampu mengindra perubahan, memprediksi risiko, dan mengeksekusi solusi secara otomatis melalui arsitektur 12 Pilar yang tangguh.
 
 ---
 
@@ -10,68 +10,71 @@
 
 ### 1. Core Operasional (The Engine)
 
-* **Pilar 1: Master State** – Sumber kebenaran saldo stok *real-time* dengan update atomik.
-* **Pilar 2: Event Ledger** – Catatan mutasi "Delta" yang bersifat *immutable* untuk audit trail.
-* **Pilar 3: Materialized Projections** – Data siap saji untuk dashboard (PWA & ECharts) tanpa kalkulasi berat.
-* **Pilar 4: Predictive Insights** – Hasil ramalan stok habis dan tren penggunaan di masa depan.
+* **Pilar 1: Master State** – Sumber kebenaran saldo stok *real-time* dengan pembaruan atomik.
+* **Pilar 2: Event Ledger** – Catatan mutasi "Delta" yang bersifat *immutable* untuk jejak audit yang tak terbantahkan.
+* **Pilar 3: Materialized Projections** – Data "siap saji" untuk dashboard PWA & ECharts tanpa kalkulasi berat di sisi klien.
+* **Pilar 4: Predictive Insights** – Hasil ramalan stok habis dan pola konsumsi di masa depan.
 
 ### 2. Framework Fleksibilitas (The Brain)
 
-* **Pilar 5: Dynamic Rule Engine** – Tempat kamu mendesain flow proses secara bebas tanpa ganti kode.
-* **Pilar 6: Metadata Registry** – Kamus standar satuan, kategori, dan standarisasi data sistem.
-* **Pilar 7: Cold Archiving** – Manajemen data lama agar database utama tetap kencang.
-* **Pilar 8: Security Audit** – Pelacakan akses dan perubahan konfigurasi sistem secara ketat.
+* **Pilar 5: Dynamic Rule Engine** – Fitur desain flow proses yang fleksibel. Ubah alur data tanpa menyentuh kode program.
+* **Pilar 6: Metadata Registry** – Kamus standar satuan, kategori, dan standarisasi data di seluruh sistem.
+* **Pilar 7: Cold Archiving** – Manajemen data historis agar database utama tetap ramping dan kencang.
+* **Pilar 8: Security Audit** – Pelacakan akses dan perubahan konfigurasi sistem untuk keamanan tingkat tinggi.
 
-### 3. Intelligence Autonomous (The Autonomy)
+### 3. Intelligent Autonomous (The Autonomy)
 
-* **Pilar 9: Prescriptive Logic** – Memberikan rekomendasi solusi, bukan hanya memaparkan masalah.
-* **Pilar 10: Agentic Orchestration** – AI Agents yang bisa mengeksekusi tugas (seperti memesan barang) sendiri.
-* **Pilar 11: Semantic Knowledge Graph** – Menghubungkan data pabrik dengan konteks luar (harga pasar, cuaca, dll).
-* **Pilar 12: Adaptive Feedback Loop** – Sistem yang belajar dari kesalahan prediksi dan memperbaiki dirinya sendiri.
+* **Pilar 9: Prescriptive Logic** – Memberikan rekomendasi tindakan konkret (bukan sekadar data) untuk masalah yang muncul.
+* **Pilar 10: Agentic Orchestration** – AI Agents (TypeScript-based) yang bisa mengeksekusi tugas secara mandiri.
+* **Pilar 11: Semantic Knowledge Graph** – Menghubungkan data internal dengan konteks dunia nyata (tren pasar, cuaca, kebijakan).
+* **Pilar 12: Adaptive Feedback Loop** – Sistem yang belajar dari kesalahan prediksi dan mengoptimalkan parameternya sendiri.
 
 ---
 
-## 🛠️ Fitur Utama (Advanced Features)
+## 💻 Tech Stack (Full TypeScript Power)
 
-### 🤖 Smart Decision Support
-
-AION tidak hanya menampilkan grafik merah saat stok menipis. Ia akan berkata: *"Stok kritis. Saya menyarankan pemesanan 500 unit dari Supplier B karena estimasi tiba lebih cepat 2 hari dibanding Supplier A."*
-
-### 🧩 Flexible Flow Designer
-
-Antarmuka visual untuk memetakan data. Kamu bisa mengubah alur dari koleksi `supply` ke dashboard `Pie Chart` hanya dengan *drag-and-drop* konfigurasi, membebaskanmu dari batasan struktur data yang kaku.
-
-### 📈 Contextual Analytics
-
-Mengintegrasikan sinyal eksternal. Jika ada tren kenaikan harga bahan baku secara global, AION akan otomatis menyarankan penambahan *Safety Stock* sebelum harga melambung tinggi.
+| Komponen | Teknologi |
+| --- | --- |
+| **Framework** | **AdonisJS 6 (TypeScript)** |
+| **Infrastructure** | Docker & Docker Compose |
+| **Database** | MongoDB (Primary & Timeline Storage) |
+| **Queue/Worker** | Redis & BullMQ (Native Node.js Implementation) |
+| **Intelligence** | **LangChain.js** & **Vercel AI SDK** |
+| **Frontend** | PWA dengan **Apache ECharts** (Zero-Calculation UI) |
 
 ---
 
 ## 🔄 Alur Kerja Sistem (The Intelligent Flow)
 
-1. **Sensing:** Data masuk melalui Dockerized FastAPI ke Pilar 2 (Ledger).
-2. **Processing:** BullMQ memicu worker untuk menjalankan logika dari Pilar 5 (Rule Engine).
-3. **Synthesizing:** SPE menghitung proyeksi (Pilar 3) dan AI Agent mencari konteks di Pilar 11 (Knowledge Graph).
-4. **Acting:** Pilar 9 menghasilkan rekomendasi tindakan dan AI Agent (Pilar 10) mengirim draf keputusan ke PWA.
-5. **Learning:** Pilar 12 mencatat hasil keputusan dan melakukan optimasi parameter secara otomatis.
+1. **Sensing:** Transaksi masuk melalui **AdonisJS API**, data ditulis ke **Pilar 2 (Ledger)**.
+2. **Triggering:** **BullMQ** mendeteksi *event* baru dan memicu *worker* yang membaca **Pilar 5 (Rule Engine)**.
+3. **Synthesizing:** Sistem memperbarui **Pilar 3 (Projections)** dan AI Agent mencari konteks di **Pilar 11 (Knowledge Graph)**.
+4. **Acting:** **Pilar 9** menghasilkan rekomendasi, lalu **Pilar 10 (Agent)** menyiapkan draf keputusan atau eksekusi otomatis.
+5. **Learning:** **Pilar 12** memantau hasil keputusan untuk penyempurnaan algoritma di masa mendatang.
 
 ---
 
-## 💻 Tech Stack Level Enterprise+
+## 🛠️ Fitur Utama Level Intelligent
 
-* **Infrastructure:** Docker & Docker Compose (Containerized Microservices).
-* **Persistence:** MongoDB (Distributed Document Store).
-* **Queue & Background Jobs:** Redis & BullMQ (Event Driven).
-* **Intelligence:** Python-based AI Agents (LangChain/CrewAI).
-* **Frontend:** PWA with Apache ECharts (Zero-Calculation UI).
+### 🤖 Smart Prescriptive Assistant
+
+AION tidak hanya menunjukkan grafik stok yang turun, tapi memberikan solusi: *"Stok diprediksi habis dalam 3 hari. Saya telah menyiapkan draf pesanan ke Supplier B (ETA 2 hari). Klik 'Setujui' untuk kirim."*
+
+### 🧩 Dynamic View Builder
+
+Gunakan antarmuka fleksibel untuk mendesain data dashboard. Ubah tampilan dari *Pie Chart* ke *Timeline* hanya dengan mengatur pemetaan (*mapping*) di **Pilar 5**, membebaskanmu dari struktur database yang kaku.
+
+### 📈 Global Context Connector
+
+Integrasi sinyal luar. Jika harga bahan baku global naik, AION akan menyarankan penyesuaian harga jual atau penambahan stok sebelum harga lokal ikut naik.
 
 ---
 
 ## 🚀 Roadmap Pengembangan
 
-* [ ] **Phase 1:** Implementasi Pilar 1-4 (Core Foundation).
-* [ ] **Phase 2:** Pembangunan Pilar 5 (Rule Engine) untuk fleksibilitas desain data.
-* [ ] **Phase 3:** Integrasi Pilar 9-12 (Autonomous Logic & AI Agents).
+* [ ] **Phase 1:** Implementasi **Pilar 1-4** (Fondasi operasional & dashboard dasar).
+* [ ] **Phase 2:** Pembangunan **Pilar 5** (Flow Designer) untuk kebebasan desain data.
+* [ ] **Phase 3:** Integrasi **Pilar 9-12** (Logic Preskriptif & AI Agent via LangChain.js).
 
 ---
 
