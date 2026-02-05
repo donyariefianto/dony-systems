@@ -12,6 +12,7 @@ import { middleware } from '#start/kernel'
 
 router.on('/').render('pages/home')
 router.on('/tes').render('pages/tes')
+router.on('/aion').render('pages/aion')
 router.on('/login').render('pages/login')
 router
  .group(() => {
