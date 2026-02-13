@@ -303,8 +303,8 @@ export const startSPEWorker = () => {
      id_data: param_request.id,
      source_collection: param_request.col,
      event_type: eventType,
-     triggered_at:timestamp_request,
-     updated_at: DateService.now() ,
+     triggered_at: timestamp_request,
+     updated_at: DateService.now(),
      job_id: job.id,
      meta_data: {
       new_source: data_request || null,

@@ -253,36 +253,36 @@ export default class BackendsController {
   const collectionName = params.col
   const { pipeline, options } = request.only(['pipeline', 'options'])
   if (!pipeline) {
-    return response.status(400).send({ message: 'Pipeline is required' })
+   return response.status(400).send({ message: 'Pipeline is required' })
   }
   const defaultOptions: any = {
-    allowDiskUse: true,
-    maxTimeMS: 60000,
-    ...options,
+   allowDiskUse: true,
+   maxTimeMS: 60000,
+   ...options,
   }
   try {
-    const collections = database.data?.collection(collectionName)
-    const parsedPipeline = typeof pipeline === 'string' ? JSON.parse(pipeline) : pipeline
-    const startTime = Date.now()
-    const result = await collections?.aggregate(parsedPipeline, defaultOptions).toArray()
-    const duration = Date.now() - startTime   
-    
-    const rawResponse = {
-      success: true,
-      data: result || [],
-      executionTime: `${duration}ms`,
-      messages: `[Aggregation Success] ${collectionName} | Count: ${result?.length || 0}`,
-    }
-    const encryptedResponse = EncryptionService.encrypt(JSON.stringify(rawResponse))
-    return response.send(encryptedResponse)
+   const collections = database.data?.collection(collectionName)
+   const parsedPipeline = typeof pipeline === 'string' ? JSON.parse(pipeline) : pipeline
+   const startTime = Date.now()
+   const result = await collections?.aggregate(parsedPipeline, defaultOptions).toArray()
+   const duration = Date.now() - startTime
+
+   const rawResponse = {
+    success: true,
+    data: result || [],
+    executionTime: `${duration}ms`,
+    messages: `[Aggregation Success] ${collectionName} | Count: ${result?.length || 0}`,
+   }
+   const encryptedResponse = EncryptionService.encrypt(JSON.stringify(rawResponse))
+   return response.send(encryptedResponse)
   } catch (error) {
-    console.error('[Aggregation Error]:', error)
-    return response.status(500).send({ 
-      success: false,
-      message: 'Internal Server Error during aggregation' 
-    })
+   console.error('[Aggregation Error]:', error)
+   return response.status(500).send({
+    success: false,
+    message: 'Internal Server Error during aggregation',
+   })
   }
-}
+ }
  async aggreateCollectionData({ params, request, response }: HttpContext) {
   const collectionName = params.col
   const { pipeline, options } = request.only(['pipeline', 'options'])

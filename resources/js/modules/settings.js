@@ -6,9 +6,11 @@ import { renderSideMenuTab } from './settings_menu.js'
 import { getSPEView, initSPEController } from './settings_SPE.js'
 import { settingsData } from './settings_general.js'
 import { AppState } from '../core/state.js'
+import { renderDRETab, initDREController } from './settings_dre.js'
 
 let currentActiveTab = 'general'
 let isSPEInitialized = false
+let isDREInitialized = false
 
 export async function renderSettingsView(config, container) {
  container.className =
@@ -63,6 +65,9 @@ export async function renderSettingsView(config, container) {
                 <button onclick="window.switchSettingsTab('sidemenu')" id="tab-btn-sidemenu" class="desktop-tab-btn relative z-10 flex-1 h-full text-[10px] font-bold uppercase tracking-wide text-gray-500 transition-colors duration-200 flex items-center justify-center gap-1.5 outline-none hover:text-gray-800">
                     <i class="fas fa-bars text-[9px]"></i> <span>Menu</span>
                 </button>
+                <button onclick="window.switchSettingsTab('dynamic_rule_engine')" id="tab-btn-dynamic_rule_engine" class="desktop-tab-btn relative z-10 flex-1 h-full text-[10px] font-bold uppercase tracking-wide text-gray-500 transition-colors duration-200 flex items-center justify-center gap-1.5 outline-none hover:text-gray-800">
+                    <i class="fas fa-layer-group text-[9px]"></i> <span>DRE</span>
+                </button>
                 <button onclick="window.switchSettingsTab('smart_projection_engine')" id="tab-btn-smart_projection_engine" class="desktop-tab-btn relative z-10 flex-1 h-full text-[10px] font-bold uppercase tracking-wide text-gray-500 transition-colors duration-200 flex items-center justify-center gap-1.5 outline-none hover:text-gray-800">
                     <i class="fas fa-layer-group text-[9px]"></i> <span>SPE</span>
                 </button>
@@ -75,6 +80,9 @@ export async function renderSettingsView(config, container) {
             </div>
             <div id="tab-content-smart_projection_engine" class="hidden h-full w-full overflow-hidden">
                 ${getSPEView()}
+            </div>
+            <div id="tab-content-dynamic_rule_engine" class="hidden h-full w-full overflow-hidden">
+                ${renderDRETab()}
             </div>
             <div id="tab-content-general" class="hidden h-full w-full overflow-y-auto custom-scrollbar p-4 md:p-6 pb-20">
                 ${renderGeneralTab(settings)}
@@ -98,6 +106,10 @@ export async function renderSettingsView(config, container) {
                 <button onclick="window.switchSettingsTab('sidemenu')" id="mobile-btn-sidemenu" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
                     <i class="fas fa-bars text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
                     <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">Menu</span>
+                </button>
+                <button onclick="window.switchSettingsTab('dynamic_rule_engine')" id="mobile-btn-dre" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
+                    <i class="fas fa-layer-group text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
+                    <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">SPE</span>
                 </button>
                 <button onclick="window.switchSettingsTab('smart_projection_engine')" id="mobile-btn-options" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 h-full active:bg-gray-50 transition-colors group">
                     <i class="fas fa-layer-group text-sm text-gray-400 transition-all duration-300 group-active:scale-90"></i>
@@ -199,6 +211,7 @@ export function switchSettingsTab(tab, initialLoad = false) {
   'tab-content-generator',
   'tab-content-sidemenu',
   'tab-content-smart_projection_engine',
+  'tab-content-dynamic_rule_engine',
  ]
 
  tabContents.forEach((id) => {
@@ -240,6 +253,16 @@ export function switchSettingsTab(tab, initialLoad = false) {
    }
   }, 100)
  }
+ if (tab === 'dynamic_rule_engine' && !isDREInitialized) {
+  setTimeout(() => {
+   try {
+    initDREController()
+    isDREInitialized = true
+   } catch (error) {
+    console.error('DRE Init Error:', error)
+   }
+  }, 100)
+ }
 }
 
 export function getCurrentActiveTab() {
@@ -247,7 +270,11 @@ export function getCurrentActiveTab() {
 }
 
 export function setActiveTab(tab) {
- if (['general', 'generator', 'sidemenu', 'smart_projection_engine'].includes(tab)) {
+ if (
+  ['general', 'generator', 'sidemenu', 'smart_projection_engine', 'dynamic_rule_engine'].includes(
+   tab
+  )
+ ) {
   switchSettingsTab(tab)
  }
 }
