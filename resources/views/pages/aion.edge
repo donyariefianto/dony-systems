@@ -1,390 +1,685 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>AION | Apex Flow Orchestrator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-canvas: #080a0f; --bg-panel: #11141d; --border: #2d333b;
-            --text-main: #adbac7; --text-bright: #cdd9e5; --text-dim: #768390;
-            --accent-blue: #539bf5; --accent-purple: #986ee2;
-            --accent-green: #57ab5a; --accent-orange: #c69026; --accent-red: #e5534b;
-        }
+ <head>
+  <meta charset="UTF-8" />
+  <title>
+   AION | Apex Flow Orchestrator
+  </title>
+  <link
+   rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <style>
+   :root {
+    --bg-canvas: #080a0f;
+    --bg-panel: #11141d;
+    --border: #2d333b;
+    --text-main: #adbac7;
+    --text-bright: #cdd9e5;
+    --text-dim: #768390;
+    --accent-blue: #539bf5;
+    --accent-purple: #986ee2;
+    --accent-green: #57ab5a;
+    --accent-orange: #c69026;
+    --accent-red: #e5534b;
+   }
+   
+   body,
+   html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-canvas);
+    color: var(--text-main);
+    overflow: hidden;
+   }
+   
+   .app-shell {
+    display: grid;
+    grid-template-columns: 260px 1fr 320px;
+    grid-template-rows: 60px 1fr;
+    height: 100vh;
+   }
+   
+   /* --- HEADER --- */
+   
+   header {
+    grid-column: 1 / -1;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+   }
+   
+   .edit-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: 0.3s;
+   }
+   
+   .mode-locked {
+    background: transparent;
+    color: var(--text-dim);
+   }
+   
+   .mode-editing {
+    background: #539bf522;
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 10px #539bf544;
+   }
+   
+   /* --- SIDEBAR TOOLBOX --- */
+   
+   .sidebar-left {
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+    transition: opacity 0.3s;
+   }
+   
+   .sidebar-left.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(1);
+   }
+   
+   .category-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+   }
+   
+   .node-tool {
+    background: #1c2128;
+    border: 1px solid var(--border);
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: grab;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+   }
+   
+   /* --- CANVAS --- */
+   
+   .canvas-area {
+    position: relative;
+    overflow: hidden;
+    background-image: radial-gradient(#2d333b 1px, transparent 1px);
+    background-size: 30px 30px;
+    cursor: default;
+   }
+   
+   .canvas-area.editing {
+    cursor: crosshair;
+   }
+   
+   #canvas-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+   }
+   
+   /* --- NODES --- */
+   
+   .node {
+    position: absolute;
+    width: 220px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 10;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+   }
+   
+   .editing .node {
+    cursor: move;
+   }
+   
+   .node.selected {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px var(--accent-blue);
+   }
+   
+   .node-header {
+    padding: 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    border-radius: 8px 8px 0 0;
+   }
+   
+   .node-body {
+    padding: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+   }
+   
+   .pilar-2 .node-header {
+    background: #539bf511;
+    color: var(--accent-blue);
+    border-top: 3px solid var(--accent-blue);
+   }
+   
+   .pilar-5 .node-header {
+    background: #986ee211;
+    color: var(--accent-purple);
+    border-top: 3px solid var(--accent-purple);
+   }
+   
+   .pilar-3 .node-header {
+    background: #57ab5a11;
+    color: var(--accent-green);
+    border-top: 3px solid var(--accent-green);
+   }
+   
+   .port {
+    width: 10px;
+    height: 10px;
+    background: var(--border);
+    border-radius: 50%;
+    position: absolute;
+    transition: 0.2s;
+   }
+   
+   .editing .port {
+    cursor: crosshair;
+    background: var(--accent-blue);
+   }
+   
+   .port-in {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+   }
+   
+   .port-out {
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+   }
+   
+   .close-btn {
+    color: var(--accent-red);
+    cursor: pointer;
+    display: none;
+   }
+   
+   .editing .close-btn {
+    display: inline;
+   }
+   
+   /* --- PROPERTIES PANEL --- */
+   
+   .sidebar-right {
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    padding: 20px;
+    z-index: 50;
+   }
+   
+   .prop-group {
+    margin-bottom: 20px;
+   }
+   
+   .prop-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+   }
+   
+   .prop-group input,
+   .prop-group select,
+   .prop-group textarea {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 13px;
+   }
+   
+   /* --- CONSOLE (REVISED) --- */
+   
+   .console-trigger {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--accent-green);
+    cursor: pointer;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+   }
+   
+   .console-panel {
+    position: absolute;
+    bottom: 65px;
+    left: 20px;
+    width: 400px;
+    height: 250px;
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: none;
+    flex-direction: column;
+    z-index: 199;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+   }
+   
+   .console-panel.active {
+    display: flex;
+   }
+   
+   .console-header {
+    padding: 10px;
+    background: #161b22;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+   }
+   
+   .console-body {
+    padding: 10px;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--accent-green);
+    overflow-y: auto;
+    flex: 1;
+   }
+   
+   .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    color: white;
+    background: transparent;
+   }
+   
+   .btn-primary {
+    background: var(--accent-blue);
+    color: #0d1117;
+    border: none;
+   }
+  </style>
+ </head>
+ <body>
 
-        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Inter', sans-serif; background: var(--bg-canvas); color: var(--text-main); overflow: hidden; }
+  <div class="app-shell">
+   <header>
+    <div style="display: flex; align-items: center; gap: 20px;">
+     <i class="fas fa-brain" style="color: var(--accent-blue); font-size: 24px;"></i>
+     <h1 style="margin: 0; font-size: 16px;">
+      AION <span style="font-weight: 300; opacity: 0.5;">ENGINE</span>
+     </h1>
 
-        .app-shell { display: grid; grid-template-columns: 260px 1fr 320px; grid-template-rows: 60px 1fr; height: 100vh; }
+     <div id="mode-toggle" class="edit-toggle mode-locked" onclick="toggleEditMode()">
+      <i class="fas fa-lock" id="mode-icon"></i>
+      <span id="mode-text">READ-ONLY</span>
+     </div>
+    </div>
+    <div style="display: flex; gap: 12px;">
+     <button class="btn">      <i class="fas fa-play"></i>Simulate</button>
+     <button class="btn btn-primary">      <i class="fas fa-cloud-upload-alt"></i>Deploy</button>
+    </div>
+   </header>
 
-        /* --- HEADER --- */
-        header { 
-            grid-column: 1 / -1; background: var(--bg-panel); border-bottom: 1px solid var(--border); 
-            display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; 
-        }
+   <aside class="sidebar-left disabled" id="toolbox">
+    <div class="category-title">
+     Sensing (Pilar 2)
+    </div>
+    <div class="node-tool" draggable="true" data-type="pilar-2" data-name="Event Ledger">
+     <i class="fas fa-list-ul"></i>Event Ledger
+    </div>
 
-        .edit-toggle {
-            display: flex; align-items: center; gap: 10px; padding: 8px 15px; border-radius: 6px;
-            cursor: pointer; border: 1px solid var(--border); transition: 0.3s;
-        }
-        .mode-locked { background: transparent; color: var(--text-dim); }
-        .mode-editing { background: #539bf522; color: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 10px #539bf544; }
+    <div class="category-title">
+     Processing (Pilar 5)
+    </div>
+    <div class="node-tool" draggable="true" data-type="pilar-5" data-name="Rule Mapper">
+     <i class="fas fa-random"></i>Rule Mapper
+    </div>
+    <div class="node-tool" draggable="true" data-type="pilar-5" data-name="Condition">
+     <i class="fas fa-code-branch"></i>Gate
+    </div>
 
-        /* --- SIDEBAR TOOLBOX --- */
-        .sidebar-left { background: var(--bg-panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; transition: opacity 0.3s; }
-        .sidebar-left.disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-        .category-title { font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
-        .node-tool { 
-            background: #1c2128; border: 1px solid var(--border); padding: 12px; margin-bottom: 8px; border-radius: 8px; 
-            cursor: grab; font-size: 13px; display: flex; align-items: center; gap: 12px;
-        }
+    <div class="category-title">
+     Projection (Pilar 3)
+    </div>
+    <div class="node-tool" draggable="true" data-type="pilar-3" data-name="Chart Sink">
+     <i class="fas fa-chart-line"></i>ECharts Sink
+    </div>
+   </aside>
 
-        /* --- CANVAS --- */
-        .canvas-area { position: relative; overflow: hidden; background-image: radial-gradient(#2d333b 1px, transparent 1px); background-size: 30px 30px; cursor: default; }
-        .canvas-area.editing { cursor: crosshair; }
-        #canvas-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+   <main class="canvas-area" id="canvas">
+    <svg id="canvas-svg">
+    </svg>
 
-        /* --- NODES --- */
-        .node { 
-            position: absolute; width: 220px; background: var(--bg-panel); border: 1px solid var(--border); 
-            border-radius: 8px; z-index: 10; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: transform 0.1s;
-        }
-        .editing .node { cursor: move; }
-        .node.selected { border-color: var(--accent-blue); box-shadow: 0 0 0 2px var(--accent-blue); }
-        .node-header { padding: 10px; font-size: 11px; font-weight: bold; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; border-radius: 8px 8px 0 0; }
-        .node-body { padding: 12px; font-size: 12px; color: var(--text-dim); }
-        .pilar-2 .node-header { background: #539bf511; color: var(--accent-blue); border-top: 3px solid var(--accent-blue); }
-        .pilar-5 .node-header { background: #986ee211; color: var(--accent-purple); border-top: 3px solid var(--accent-purple); }
-        .pilar-3 .node-header { background: #57ab5a11; color: var(--accent-green); border-top: 3px solid var(--accent-green); }
+    <div class="console-trigger" onclick="toggleConsole()">
+     <i class="fas fa-terminal"></i>CONSOLE <span
+      id="log-count"
+      style="background: #238636; color: white; padding: 1px 5px; border-radius: 10px; font-size: 9px;"
+     >2</span>
+    </div>
 
-        .port { width: 10px; height: 10px; background: var(--border); border-radius: 50%; position: absolute; transition: 0.2s; }
-        .editing .port { cursor: crosshair; background: var(--accent-blue); }
-        .port-in { left: -6px; top: 50%; transform: translateY(-50%); }
-        .port-out { right: -6px; top: 50%; transform: translateY(-50%); }
-        .close-btn { color: var(--accent-red); cursor: pointer; display: none; }
-        .editing .close-btn { display: inline; }
+    <div class="console-panel" id="console-panel">
+     <div class="console-header">
+      SYSTEM TERMINAL <i class="fas fa-times" onclick="toggleConsole()" style="cursor:pointer"></i>
+     </div>
+     <div class="console-body" id="log-output">
+      [SYS] AION Kernel v2.1.0 Initialized...<br />
+      [SYS] System status: READ-ONLY.
+     </div>
+    </div>
+   </main>
 
-        /* --- PROPERTIES PANEL --- */
-        .sidebar-right { background: var(--bg-panel); border-left: 1px solid var(--border); padding: 20px; z-index: 50; }
-        .prop-group { margin-bottom: 20px; }
-        .prop-group label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
-        .prop-group input, .prop-group select, .prop-group textarea { 
-            width: 100%; background: #0d1117; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; box-sizing: border-box; font-size: 13px;
-        }
+   <aside class="sidebar-right">
+    <div id="prop-placeholder" style="text-align:center; padding-top:100px; color:var(--text-dim)">
+     <i class="fas fa-sliders-h" style="font-size:40px; margin-bottom:20px; opacity:0.2"></i>
+     <p>
+      Pilih node untuk konfigurasi
+     </p>
+    </div>
+    <div id="prop-editor" style="display:none">
+     <h3 id="target-node-name" style="margin-top:0; color:var(--accent-blue)">
+      Config
+     </h3>
+     <hr style="border:0; border-top:1px solid var(--border); margin:20px 0" />
 
-        /* --- CONSOLE (REVISED) --- */
-        .console-trigger {
-            position: absolute; bottom: 20px; left: 20px; background: var(--bg-panel); border: 1px solid var(--border);
-            padding: 8px 15px; border-radius: 6px; font-size: 12px; color: var(--accent-green); cursor: pointer; z-index: 200; display: flex; align-items: center; gap: 8px;
-        }
-        .console-panel {
-            position: absolute; bottom: 65px; left: 20px; width: 400px; height: 250px; background: #0d1117; 
-            border: 1px solid var(--border); border-radius: 8px; display: none; flex-direction: column; z-index: 199; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .console-panel.active { display: flex; }
-        .console-header { padding: 10px; background: #161b22; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: bold; display: flex; justify-content: space-between; }
-        .console-body { padding: 10px; font-family: 'Fira Code', monospace; font-size: 12px; color: var(--accent-green); overflow-y: auto; flex: 1; }
+     <div class="prop-group">
+      <label>Node Label</label>
+      <input type="text" id="node-label-input" oninput="updateNodeFromProp()" />
+     </div>
+     <div class="prop-group">
+      <label>Logic / Script (Pilar 5)</label>
+      <textarea id="node-logic-input" rows="6" oninput="updateNodeFromProp()" style="font-family:monospace"></textarea>
+     </div>
+     <div class="prop-group">
+      <label>Collection Target</label>
+      <select id="node-target-input" onchange="updateNodeFromProp()">
+       <option value="sales">
+        sales_logs
+       </option>
+       <option value="inventory">
+        inventory_states
+       </option>
+       <option value="users">
+        user_activities
+       </option>
+      </select>
+     </div>
+    </div>
+   </aside>
+  </div>
 
-        .btn { padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; font-size: 13px; color: white; background: transparent; }
-        .btn-primary { background: var(--accent-blue); color: #0d1117; border: none; }
-    </style>
-</head>
-<body>
+  <script>
+   let isEditing = false;
 
-<div class="app-shell">
-    <header>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <i class="fas fa-brain" style="color: var(--accent-blue); font-size: 24px;"></i>
-            <h1 style="margin: 0; font-size: 16px;">AION <span style="font-weight: 300; opacity: 0.5;">ENGINE</span></h1>
-            
-            <div id="mode-toggle" class="edit-toggle mode-locked" onclick="toggleEditMode()">
-                <i class="fas fa-lock" id="mode-icon"></i>
-                <span id="mode-text">READ-ONLY</span>
-            </div>
-        </div>
-        <div style="display: flex; gap: 12px;">
-            <button class="btn"><i class="fas fa-play"></i> Simulate</button>
-            <button class="btn btn-primary"><i class="fas fa-cloud-upload-alt"></i> Deploy</button>
-        </div>
-    </header>
+   let nodes = [];
 
-    <aside class="sidebar-left disabled" id="toolbox">
-        <div class="category-title">Sensing (Pilar 2)</div>
-        <div class="node-tool" draggable="true" data-type="pilar-2" data-name="Event Ledger"><i class="fas fa-list-ul"></i> Event Ledger</div>
-        
-        <div class="category-title">Processing (Pilar 5)</div>
-        <div class="node-tool" draggable="true" data-type="pilar-5" data-name="Rule Mapper"><i class="fas fa-random"></i> Rule Mapper</div>
-        <div class="node-tool" draggable="true" data-type="pilar-5" data-name="Condition"><i class="fas fa-code-branch"></i> Gate</div>
-        
-        <div class="category-title">Projection (Pilar 3)</div>
-        <div class="node-tool" draggable="true" data-type="pilar-3" data-name="Chart Sink"><i class="fas fa-chart-line"></i> ECharts Sink</div>
-    </aside>
+   let connections = [];
 
-    <main class="canvas-area" id="canvas">
-        <svg id="canvas-svg"></svg>
-        
-        <div class="console-trigger" onclick="toggleConsole()">
-            <i class="fas fa-terminal"></i> CONSOLE <span id="log-count" style="background: #238636; color: white; padding: 1px 5px; border-radius: 10px; font-size: 9px;">2</span>
-        </div>
-        
-        <div class="console-panel" id="console-panel">
-            <div class="console-header">SYSTEM TERMINAL <i class="fas fa-times" onclick="toggleConsole()" style="cursor:pointer"></i></div>
-            <div class="console-body" id="log-output">
-                [SYS] AION Kernel v2.1.0 Initialized...<br>
-                [SYS] System status: READ-ONLY.
-            </div>
-        </div>
-    </main>
+   let selectedNode = null;
 
-    <aside class="sidebar-right">
-        <div id="prop-placeholder" style="text-align:center; padding-top:100px; color:var(--text-dim)">
-            <i class="fas fa-sliders-h" style="font-size:40px; margin-bottom:20px; opacity:0.2"></i>
-            <p>Pilih node untuk konfigurasi</p>
-        </div>
-        <div id="prop-editor" style="display:none">
-            <h3 id="target-node-name" style="margin-top:0; color:var(--accent-blue)">Config</h3>
-            <hr style="border:0; border-top:1px solid var(--border); margin:20px 0">
-            
-            <div class="prop-group">
-                <label>Node Label</label>
-                <input type="text" id="node-label-input" oninput="updateNodeFromProp()">
-            </div>
-            <div class="prop-group">
-                <label>Logic / Script (Pilar 5)</label>
-                <textarea id="node-logic-input" rows="6" oninput="updateNodeFromProp()" style="font-family:monospace"></textarea>
-            </div>
-            <div class="prop-group">
-                <label>Collection Target</label>
-                <select id="node-target-input" onchange="updateNodeFromProp()">
-                    <option value="sales">sales_logs</option>
-                    <option value="inventory">inventory_states</option>
-                    <option value="users">user_activities</option>
-                </select>
-            </div>
-        </div>
-    </aside>
-</div>
+   let activeConn = null;
 
-<script>
-    let isEditing = false;
-    let nodes = [];
-    let connections = [];
-    let selectedNode = null;
-    let activeConn = null;
+   const canvas = document.getElementById("canvas");
 
-    const canvas = document.getElementById('canvas');
-    const svg = document.getElementById('canvas-svg');
-    const logOutput = document.getElementById('log-output');
+   const svg = document.getElementById("canvas-svg");
 
-    // --- STATE MANAGEMENT (PRO) ---
-    function toggleEditMode() {
-        isEditing = !isEditing;
-        const btn = document.getElementById('mode-toggle');
-        const icon = document.getElementById('mode-icon');
-        const text = document.getElementById('mode-text');
-        const toolbox = document.getElementById('toolbox');
+   const logOutput = document.getElementById("log-output");
+   // --- STATE MANAGEMENT (PRO) ---
 
-        if(isEditing) {
-            btn.className = 'edit-toggle mode-editing';
-            icon.className = 'fas fa-pencil-alt';
-            text.innerText = 'EDITING MODE';
-            canvas.classList.add('editing');
-            toolbox.classList.remove('disabled');
-            log('Mode changed to EDITING. Nodes are now draggable.');
-        } else {
-            btn.className = 'edit-toggle mode-locked';
-            icon.className = 'fas fa-lock';
-            text.innerText = 'READ-ONLY';
-            canvas.classList.remove('editing');
-            toolbox.classList.add('disabled');
-            deselectNode();
-            log('Mode changed to READ-ONLY. Layout locked.');
-        }
+   function toggleEditMode() {
+    isEditing = !isEditing;
+    const btn = document.getElementById("mode-toggle");
+    const icon = document.getElementById("mode-icon");
+    const text = document.getElementById("mode-text");
+    const toolbox = document.getElementById("toolbox");
+    if (isEditing) {
+     btn.className = "edit-toggle mode-editing";
+     icon.className = "fas fa-pencil-alt";
+     text.innerText = "EDITING MODE";
+     canvas.classList.add("editing");
+     toolbox.classList.remove("disabled");
+     log("Mode changed to EDITING. Nodes are now draggable.");
+    } else {
+     btn.className = "edit-toggle mode-locked";
+     icon.className = "fas fa-lock";
+     text.innerText = "READ-ONLY";
+     canvas.classList.remove("editing");
+     toolbox.classList.add("disabled");
+     deselectNode();
+     log("Mode changed to READ-ONLY. Layout locked.");
     }
+   }
+   // --- CONSOLE HANDLER ---
 
-    // --- CONSOLE HANDLER ---
-    function toggleConsole() {
-        document.getElementById('console-panel').classList.toggle('active');
-    }
+   function toggleConsole() {
+    document.getElementById("console-panel").classList.toggle("active");
+   }
 
-    function log(msg) {
-        const time = new Date().toLocaleTimeString();
-        logOutput.innerHTML += `<div><span style="color:#768390">[${time}]</span> ${msg}</div>`;
-        logOutput.scrollTop = logOutput.scrollHeight;
-    }
+   function log(msg) {
+    const time = new Date().toLocaleTimeString();
+    logOutput.innerHTML += `<div><span style="color:#768390">[${time}]</span> ${msg}</div>`;
+    logOutput.scrollTop = logOutput.scrollHeight;
+   }
+   // --- NODE CORE ---
 
-    // --- NODE CORE ---
-    function createNode(type, name, x, y) {
-        if (!isEditing) return; // Guard: No creation in Read-Only
-
-        const id = 'node_' + Date.now();
-        const nodeEl = document.createElement('div');
-        nodeEl.className = `node ${type}`;
-        nodeEl.id = id;
-        nodeEl.style.left = x + 'px';
-        nodeEl.style.top = y + 'px';
-
-        nodeEl.innerHTML = `
-            <div class="node-header">
-                <span>${name}</span>
-                <i class="fas fa-times close-btn" onclick="deleteNode('${id}')"></i>
-            </div>
-            <div class="node-body">${id.substring(0,10)}...</div>
-            <div class="port port-in"></div>
-            <div class="port port-out" data-node="${id}"></div>
-        `;
-
-        canvas.appendChild(nodeEl);
-        const nodeObj = { id, type, name, x, y, el: nodeEl, logic: '', target: 'sales' };
-        nodes.push(nodeObj);
-        setupNodeEvents(nodeEl, nodeObj);
-        log(`Node ${name} created.`);
-    }
-
-    function setupNodeEvents(el, obj) {
-        el.onmousedown = (e) => {
-            if (!isEditing) {
-                log('Warning: Cannot move nodes in Read-Only mode.');
-                return;
-            }
-            if (e.target.classList.contains('port')) return;
-            
-            selectNode(obj);
-            let ox = e.clientX - el.offsetLeft;
-            let oy = e.clientY - el.offsetTop;
-
-            document.onmousemove = (me) => {
-                obj.x = me.clientX - ox;
-                obj.y = me.clientY - oy;
-                el.style.left = obj.x + 'px';
-                el.style.top = obj.y + 'px';
-                updateWires();
-            };
-
-            document.onmouseup = () => {
-                document.onmousemove = null;
-                document.onmouseup = null;
-            };
-        };
-
-        const outPort = el.querySelector('.port-out');
-        outPort.onmousedown = (e) => {
-            if (!isEditing) return;
-            e.stopPropagation();
-            activeConn = { 
-                from: obj.id, 
-                startX: obj.x + 220, 
-                startY: obj.y + 40,
-                line: document.createElementNS("http://www.w3.org/2000/svg", "path")
-            };
-            activeConn.line.setAttribute('stroke', 'var(--accent-blue)');
-            activeConn.line.setAttribute('stroke-width', '2');
-            activeConn.line.setAttribute('fill', 'none');
-            activeConn.line.setAttribute('stroke-dasharray', '5,5');
-            svg.appendChild(activeConn.line);
-        };
-    }
-
-    // --- PROPERTY SYNC ---
-    function selectNode(node) {
-        if(selectedNode) selectedNode.el.classList.remove('selected');
-        selectedNode = node;
-        node.el.classList.add('selected');
-
-        document.getElementById('prop-placeholder').style.display = 'none';
-        document.getElementById('prop-editor').style.display = 'block';
-        
-        document.getElementById('target-node-name').innerText = node.name;
-        document.getElementById('node-label-input').value = node.name;
-        document.getElementById('node-logic-input').value = node.logic;
-        document.getElementById('node-target-input').value = node.target;
-    }
-
-    function deselectNode() {
-        if(selectedNode) selectedNode.el.classList.remove('selected');
-        selectedNode = null;
-        document.getElementById('prop-placeholder').style.display = 'block';
-        document.getElementById('prop-editor').style.display = 'none';
-    }
-
-    function updateNodeFromProp() {
-        if(!selectedNode || !isEditing) return;
-        
-        selectedNode.name = document.getElementById('node-label-input').value;
-        selectedNode.logic = document.getElementById('node-logic-input').value;
-        selectedNode.target = document.getElementById('node-target-input').value;
-        
-        selectedNode.el.querySelector('.node-header span').innerText = selectedNode.name;
-    }
-
-    function deleteNode(id) {
-        if(!isEditing) return;
-        nodes = nodes.filter(n => n.id !== id);
-        connections = connections.filter(c => c.from !== id && c.to !== id);
-        document.getElementById(id).remove();
-        updateWires();
-        deselectNode();
-        log(`Node deleted.`);
-    }
-
-    // --- WIRE LOGIC ---
-    document.onmousemove = (e) => {
-        if (!activeConn) return;
-        const rect = canvas.getBoundingClientRect();
-        drawCurve(activeConn.line, activeConn.startX, activeConn.startY, e.clientX - rect.left, e.clientY - rect.top);
+   function createNode(type, name, x, y) {
+    if (!isEditing) return; // Guard: No creation in Read-Only
+    const id = "node_" + Date.now();
+    const nodeEl = document.createElement("div");
+    nodeEl.className = `node ${type}`;
+    nodeEl.id = id;
+    nodeEl.style.left = x + "px";
+    nodeEl.style.top = y + "px";
+    nodeEl.innerHTML = `
+                  <div class="node-header">
+                      <span>${name}</span>
+                      <i class="fas fa-times close-btn" onclick="deleteNode('${id}')"></i>
+                  </div>
+                  <div class="node-body">${id.substring(0, 10)}...</div>
+                  <div class="port port-in"></div>
+                  <div class="port port-out" data-node="${id}"></div>
+              `;
+    canvas.appendChild(nodeEl);
+    const nodeObj = {
+     id: id,
+     type: type,
+     name: name,
+     x: x,
+     y: y,
+     el: nodeEl,
+     logic: "",
+     target: "sales"
     };
+    nodes.push(nodeObj);
+    setupNodeEvents(nodeEl, nodeObj);
+    log(`Node ${name} created.`);
+   }
 
-    document.onmouseup = (e) => {
-        if (!activeConn) return;
-        if (e.target.classList.contains('port-in')) {
-            const toId = e.target.parentElement.id;
-            if (toId !== activeConn.from) {
-                activeConn.line.removeAttribute('stroke-dasharray');
-                connections.push({ from: activeConn.from, to: toId, el: activeConn.line });
-                activeConn = null;
-                updateWires();
-                return;
-            }
-        }
-        svg.removeChild(activeConn.line);
-        activeConn = null;
+   function setupNodeEvents(el, obj) {
+    el.onmousedown = e => {
+     if (!isEditing) {
+      log("Warning: Cannot move nodes in Read-Only mode.");
+      return;
+     }
+     if (e.target.classList.contains("port")) return;
+     selectNode(obj);
+     let ox = e.clientX - el.offsetLeft;
+     let oy = e.clientY - el.offsetTop;
+     document.onmousemove = me => {
+      obj.x = me.clientX - ox;
+      obj.y = me.clientY - oy;
+      el.style.left = obj.x + "px";
+      el.style.top = obj.y + "px";
+      updateWires();
+     };
+     document.onmouseup = () => {
+      document.onmousemove = null;
+      document.onmouseup = null;
+     };
     };
+    const outPort = el.querySelector(".port-out");
+    outPort.onmousedown = e => {
+     if (!isEditing) return;
+     e.stopPropagation();
+     activeConn = {
+      from: obj.id,
+      startX: obj.x + 220,
+      startY: obj.y + 40,
+      line: document.createElementNS("http://www.w3.org/2000/svg", "path")
+     };
+     activeConn.line.setAttribute("stroke", "var(--accent-blue)");
+     activeConn.line.setAttribute("stroke-width", "2");
+     activeConn.line.setAttribute("fill", "none");
+     activeConn.line.setAttribute("stroke-dasharray", "5,5");
+     svg.appendChild(activeConn.line);
+    };
+   }
+   // --- PROPERTY SYNC ---
 
-    function drawCurve(path, x1, y1, x2, y2) {
-        const dx = Math.abs(x1 - x2) * 0.5;
-        path.setAttribute("d", `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+   function selectNode(node) {
+    if (selectedNode) selectedNode.el.classList.remove("selected");
+    selectedNode = node;
+    node.el.classList.add("selected");
+    document.getElementById("prop-placeholder").style.display = "none";
+    document.getElementById("prop-editor").style.display = "block";
+    document.getElementById("target-node-name").innerText = node.name;
+    document.getElementById("node-label-input").value = node.name;
+    document.getElementById("node-logic-input").value = node.logic;
+    document.getElementById("node-target-input").value = node.target;
+   }
+
+   function deselectNode() {
+    if (selectedNode) selectedNode.el.classList.remove("selected");
+    selectedNode = null;
+    document.getElementById("prop-placeholder").style.display = "block";
+    document.getElementById("prop-editor").style.display = "none";
+   }
+
+   function updateNodeFromProp() {
+    if (!selectedNode || !isEditing) return;
+    selectedNode.name = document.getElementById("node-label-input").value;
+    selectedNode.logic = document.getElementById("node-logic-input").value;
+    selectedNode.target = document.getElementById("node-target-input").value;
+    selectedNode.el.querySelector(".node-header span").innerText = selectedNode.name;
+   }
+
+   function deleteNode(id) {
+    if (!isEditing) return;
+    nodes = nodes.filter(n => n.id !== id);
+    connections = connections.filter(c => c.from !== id && c.to !== id);
+    document.getElementById(id).remove();
+    updateWires();
+    deselectNode();
+    log(`Node deleted.`);
+   }
+   // --- WIRE LOGIC ---
+
+   document.onmousemove = e => {
+    if (!activeConn) return;
+    const rect = canvas.getBoundingClientRect();
+    drawCurve(activeConn.line, activeConn.startX, activeConn.startY, e.clientX - rect.left, e.clientY - rect.top);
+   };
+
+   document.onmouseup = e => {
+    if (!activeConn) return;
+    if (e.target.classList.contains("port-in")) {
+     const toId = e.target.parentElement.id;
+     if (toId !== activeConn.from) {
+      activeConn.line.removeAttribute("stroke-dasharray");
+      connections.push({
+       from: activeConn.from,
+       to: toId,
+       el: activeConn.line
+      });
+      activeConn = null;
+      updateWires();
+      return;
+     }
     }
+    svg.removeChild(activeConn.line);
+    activeConn = null;
+   };
 
-    function updateWires() {
-        connections.forEach(c => {
-            const f = nodes.find(n => n.id === c.from);
-            const t = nodes.find(n => n.id === c.to);
-            if(f && t) drawCurve(c.el, f.x + 220, f.y + 40, t.x, t.y + 40);
-        });
-    }
+   function drawCurve(path, x1, y1, x2, y2) {
+    const dx = Math.abs(x1 - x2) * .5;
+    path.setAttribute("d", `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+   }
 
-    // --- DRAG DROP FROM TOOLBOX ---
-    const toolbox = document.getElementById('toolbox');
-    let dragType = null;
-    let dragName = null;
+   function updateWires() {
+    connections.forEach(c => {
+     const f = nodes.find(n => n.id === c.from);
+     const t = nodes.find(n => n.id === c.to);
+     if (f && t) drawCurve(c.el, f.x + 220, f.y + 40, t.x, t.y + 40);
+    });
+   }
+   // --- DRAG DROP FROM TOOLBOX ---
 
-    toolbox.ondragstart = (e) => {
-        dragType = e.target.dataset.type;
-        dragName = e.target.dataset.name;
-    };
+   const toolbox = document.getElementById("toolbox");
 
-    canvas.ondragover = (e) => e.preventDefault();
-    canvas.ondrop = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        createNode(dragType, dragName, e.clientX - rect.left - 100, e.clientY - rect.top - 20);
-    };
+   let dragType = null;
 
-    // Initial Node
-    window.onload = () => {
-        isEditing = true; // Temporary allow
-        createNode('pilar-2', 'Event Ledger', 100, 150);
-        isEditing = false;
-        log('AION Framework Loaded. Security Lock active.');
-    };
-</script>
-</body>
+   let dragName = null;
+
+   toolbox.ondragstart = e => {
+    dragType = e.target.dataset.type;
+    dragName = e.target.dataset.name;
+   };
+
+   canvas.ondragover = e => e.preventDefault();
+
+   canvas.ondrop = e => {
+    const rect = canvas.getBoundingClientRect();
+    createNode(dragType, dragName, e.clientX - rect.left - 100, e.clientY - rect.top - 20);
+   };
+   // Initial Node
+
+   window.onload = () => {
+    isEditing = true; // Temporary allow
+    createNode("pilar-2", "Event Ledger", 100, 150);
+    isEditing = false;
+    log("AION Framework Loaded. Security Lock active.");
+   };
+  </script>
+ </body>
 </html>
