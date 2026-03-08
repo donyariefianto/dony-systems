@@ -702,34 +702,6 @@ function renderCalculationConfig(field, idx) {
     </div>`
 }
 
-function renderRepeaterConfig(field, idx) {
- return `
-    <div class="bg-white border-2 border-dashed border-purple-200 rounded-xl overflow-hidden">
-        <div class="flex justify-between items-center p-3 bg-purple-50 border-b border-purple-100">
-            <div class="flex items-center gap-2 text-purple-700">
-                <i class="fas fa-table"></i>
-                <span class="text-xs font-bold uppercase">Kolom Tabel (Sub-fields)</span>
-            </div>
-            <button onclick="window.addSubField(${idx})" class="text-xs bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg shadow-sm font-bold transition-all active:scale-95 flex items-center gap-1">
-                <i class="fas fa-plus"></i> <span class="hidden sm:inline">Tambah Kolom</span>
-            </button>
-        </div>
-        
-        <div class="p-3 bg-gray-50/50 space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
-            ${(field.sub_fields || []).map((subField, sIdx) => renderSubFieldItem(subField, idx, sIdx)).join('')}
-            ${
-             !field.sub_fields || field.sub_fields.length === 0
-              ? `
-                <div class="py-8 flex flex-col items-center justify-center text-gray-400 text-center">
-                    <i class="fas fa-columns text-2xl mb-2 opacity-30"></i>
-                    <p class="text-xs">There are no columns yet.<br>Klik tombol tambah diatas.</p>
-                </div>`
-              : ''
-            }
-        </div>
-    </div>`
-}
-
 function renderSubFieldItem(sf, fIdx, sIdx) {
  const item = window.findItemById(window.menuBuilderState.data, window.menuBuilderState.selectedId)
  const totalSubs = item?.config?.fields?.[fIdx]?.sub_fields?.length || 0
@@ -741,10 +713,10 @@ function renderSubFieldItem(sf, fIdx, sIdx) {
   extraConfig = renderSubCalculationConfig(sf, fIdx, sIdx)
  } else if (sf.type === 'select') {
   extraConfig = `
-        <div class="mt-2 pt-2 border-t border-dashed border-gray-200">
-            <label class="text-[9px] font-bold text-gray-400 uppercase">Options (Separate with comma)</label>
-            <input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 focus:border-zinc-500 outline-none" placeholder="Contoh: Pcs, Box, Kg">
-        </div>`
+    <div class="mt-2 pt-2 border-t border-dashed border-gray-200">
+        <label class="text-[9px] font-bold text-gray-400 uppercase">Options (Separate with comma)</label>
+        <input value="${(sf.options || []).join(',')}" onchange="window.updateSubFieldOptions(${fIdx}, ${sIdx}, this.value)" class="w-full text-[10px] border border-gray-300 rounded px-2 py-1.5 focus:border-zinc-500 outline-none" placeholder="Contoh: Pcs, Box, Kg">
+    </div>`
  }
 
  return `
